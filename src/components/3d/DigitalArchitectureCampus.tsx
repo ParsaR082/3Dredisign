@@ -371,101 +371,101 @@ function NexusGateway({
           </mesh>
         )}
 
-        {/* ── 3. RICH INTERACTIVE DREI <Html transform> FRONT FACE ── */}
-        <Html
-          transform
-          position={[0, CARD_HEIGHT / 2, 0.04]}
-          center
-          distanceFactor={6.8}
-          style={{
-            width: '1160px',
-            height: '620px',
-            pointerEvents: heroT < 0.75 ? 'auto' : 'none',
-            userSelect: 'none',
-            opacity: Math.max(0, 1 - (heroT > 0.55 ? (heroT - 0.55) * 3.5 : 0)),
-            transition: 'opacity 0.15s ease-out',
-          }}
-        >
-          <div className="w-full h-full rounded-3xl bg-[#050C0A]/95 border-2 border-emerald-500/50 shadow-2xl flex flex-col justify-between p-7 text-right select-none font-sans overflow-hidden backdrop-blur-md">
-            {/* Top Team Photo Area with Framed Team Image */}
-            <div className="relative w-full h-[180px] rounded-2xl overflow-hidden border border-emerald-500/30 shadow-inner bg-black/50">
-              <img
-                src="/images/team-hero-framed.webp"
-                alt="تیم متخصصان اروم سیما"
-                className="w-full h-full object-cover object-center"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#050C0A] via-transparent to-black/30" />
-              <div className="absolute bottom-2.5 right-4 flex items-center gap-2 text-[11px] font-mono text-emerald-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="font-bold tracking-wider">تیم ارشد مهندسی و بازاریابی دیجیتال اروم‌سیما</span>
-              </div>
-            </div>
-
-            {/* Middle Content: Headlines, Description & Service Pills */}
-            <div className="space-y-3.5 my-auto">
-              <div className="space-y-1">
-                <h1 className="text-3xl font-black text-white tracking-tight">
-                  اروم سیما؛{' '}
-                  <span className="text-emerald-400">آژانس دیجیتال مارکتینگ در ارومیه</span>
-                </h1>
-                <p className="text-xs text-gray-300 leading-relaxed max-w-3xl">
-                  تیمی از متخصصان طراحی سایت، سئو و تولید محتوا در ارومیه؛ از ایده تا اجرا، با خلاقیت و شناخت عمیق بازار کنار شما هستیم تا برندتان دیده شود.
-                </p>
+        {/* ── 3. RICH INTERACTIVE DREI <Html> FRONT FACE (Crisp in front of canvas) ── */}
+        {heroT < 0.75 && (
+          <Html
+            position={[0, CARD_HEIGHT / 2, 0.12]}
+            center
+            distanceFactor={10.8}
+            style={{
+              width: '1080px',
+              pointerEvents: heroT < 0.08 ? 'auto' : 'none',
+              userSelect: 'none',
+              opacity: Math.max(0, 1 - heroT * 3.5),
+              transition: 'opacity 0.15s ease-out',
+            }}
+          >
+            <div className="w-full rounded-3xl bg-[#050C0A]/92 border border-emerald-500/40 shadow-2xl flex flex-col justify-between p-7 text-right select-none font-sans overflow-hidden backdrop-blur-md">
+              {/* Top Team Photo Area with Framed Team Image */}
+              <div className="relative w-full h-[175px] rounded-2xl overflow-hidden border border-emerald-500/30 shadow-inner bg-black/60 mb-3.5">
+                <img
+                  src="/images/team-hero-framed.webp"
+                  alt="تیم متخصصان اروم سیما"
+                  className="w-full h-full object-cover object-center"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050C0A] via-transparent to-black/30" />
+                <div className="absolute bottom-2.5 right-4 flex items-center gap-2 text-[11px] font-mono text-emerald-300">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-bold tracking-wider">تیم ارشد مهندسی و بازاریابی دیجیتال اروم‌سیما</span>
+                </div>
               </div>
 
-              {/* Service Capabilities Pills */}
-              <div className="flex flex-wrap items-center gap-2">
-                {[
-                  'طراحی سایت مدرن',
-                  'سئو حرفه‌ای و تکنیکال',
-                  'تبلیغات دیجیتال و گوگل',
-                  'تولید محتوا و ویدیو مارکتینگ',
-                ].map((item, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-950/60 border border-emerald-500/30 text-emerald-300"
+              {/* Middle Content: Headlines, Description & Service Pills */}
+              <div className="space-y-3 mb-3.5">
+                <div className="space-y-1">
+                  <h1 className="text-3xl font-black text-white tracking-tight">
+                    اروم سیما؛{' '}
+                    <span className="text-emerald-400">آژانس دیجیتال مارکتینگ در ارومیه</span>
+                  </h1>
+                  <p className="text-xs text-gray-300 leading-relaxed max-w-3xl">
+                    تیمی از متخصصان طراحی سایت، سئو و تولید محتوا در ارومیه؛ از ایده تا اجرا، با خلاقیت و شناخت عمیق بازار کنار شما هستیم تا برندتان دیده شود.
+                  </p>
+                </div>
+
+                {/* Service Capabilities Pills */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {[
+                    'طراحی سایت مدرن',
+                    'سئو حرفه‌ای و تکنیکال',
+                    'تبلیغات دیجیتال و گوگل',
+                    'تولید محتوا و ویدیو مارکتینگ',
+                  ].map((item, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-950/60 border border-emerald-500/30 text-emerald-300"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+
+                {/* CTA Action Buttons */}
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={onExploreServices}
+                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-700/40 flex items-center gap-2 transition-transform hover:scale-105 cursor-pointer"
                   >
-                    {item}
-                  </span>
-                ))}
+                    <span>مشاهده خدمات استراتژیک</span>
+                    <span>←</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onExploreProjects}
+                    className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-200 border border-white/10 font-bold text-xs flex items-center gap-2 transition-transform hover:scale-105 cursor-pointer"
+                  >
+                    <span>بررسی پروژه‌های شاخص</span>
+                    <span>↗</span>
+                  </button>
+                </div>
               </div>
 
-              {/* CTA Action Buttons */}
-              <div className="flex items-center gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={onExploreServices}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-700/40 flex items-center gap-2 transition-transform hover:scale-105 cursor-pointer"
-                >
-                  <span>مشاهده خدمات استراتژیک</span>
-                  <span>←</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={onExploreProjects}
-                  className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-200 border border-white/10 font-bold text-xs flex items-center gap-2 transition-transform hover:scale-105 cursor-pointer"
-                >
-                  <span>بررسی پروژه‌های شاخص</span>
-                  <span>↗</span>
-                </button>
+              {/* Bottom Ticker Badges */}
+              <div className="pt-2.5 border-t border-emerald-500/20 flex items-center justify-between text-[10px] text-gray-400">
+                <div className="flex items-center gap-6">
+                  <span>✓ پشتیبانی ۲۴/۷</span>
+                  <span>✓ تحویل به‌موقع پروژه‌ها</span>
+                  <span>✓ ضمانت کیفیت</span>
+                  <span>✓ مشاوره رایگان</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-emerald-400 font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  <span>URUMSIMA CAMPUS NEXUS</span>
+                </div>
               </div>
             </div>
-
-            {/* Bottom Ticker Badges */}
-            <div className="pt-2 border-t border-emerald-500/20 flex items-center justify-between text-[10px] text-gray-400">
-              <div className="flex items-center gap-6">
-                <span>✓ پشتیبانی ۲۴/۷</span>
-                <span>✓ تحویل به‌موقع پروژه‌ها</span>
-                <span>✓ ضمانت کیفیت</span>
-                <span>✓ مشاوره رایگان</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-emerald-400 font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                <span>URUMSIMA CAMPUS NEXUS</span>
-              </div>
-            </div>
-          </div>
-        </Html>
+          </Html>
+        )}
       </group>
 
       {/* ── 4. TOUCHDOWN IMPACT FLASH & EXPANDING RUNWAY SHOCKWAVE ── */}
@@ -570,13 +570,15 @@ function NexusGateway({
             <meshStandardMaterial color="#1E293B" roughness={0.2} metalness={0.95} />
           </mesh>
 
-          {/* Holographic 3D Brand Label beneath Landmark */}
-          <Html position={[0, -2.45, 0]} center distanceFactor={12}>
-            <div className="px-3.5 py-1 rounded-full glass-panel-dock border border-brand-500/30 text-[10px] font-bold text-brand-300 whitespace-nowrap shadow-xl pointer-events-none select-none backdrop-blur-md flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>اروم سیما • آژانس دیجیتال مارکتینگ</span>
-            </div>
-          </Html>
+          {/* Holographic 3D Brand Label beneath Landmark - only visible after hero card has fallen */}
+          {heroT > 0.85 && (
+            <Html position={[0, -2.45, 0]} center distanceFactor={12}>
+              <div className="px-3.5 py-1 rounded-full glass-panel-dock border border-brand-500/30 text-[10px] font-bold text-brand-300 whitespace-nowrap shadow-xl pointer-events-none select-none backdrop-blur-md flex items-center gap-1.5 animate-fadeIn">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span>اروم سیما • آژانس دیجیتال مارکتینگ</span>
+              </div>
+            </Html>
+          )}
 
           {/* Central Internal Point Light for Aura Glow */}
           <pointLight color="#10B981" intensity={3.0} distance={8} />
@@ -597,6 +599,7 @@ interface ServicePavilionProps {
   iconSymbol: string;
   motifType: 'web' | 'instagram' | 'video' | 'branding' | 'billboard';
   isHoveredByParent?: boolean;
+  scrollProgress?: number;
   onSelect?: (slug: string) => void;
   onHover?: (slug: string | null) => void;
 }
@@ -721,6 +724,7 @@ function ServicePavilion({
   iconSymbol,
   motifType,
   isHoveredByParent,
+  scrollProgress = 0,
   onSelect,
   onHover,
 }: ServicePavilionProps) {
@@ -780,29 +784,33 @@ function ServicePavilion({
         />
       </Float>
 
-      {/* Interactive 3D Label Badge */}
-      <Html position={[0, 3.2, 0]} center distanceFactor={15}>
-        <div
-          className={
-            'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 pointer-events-none whitespace-nowrap shadow-2xl border ' +
-            (isHighlighted
-              ? 'bg-brand-600 text-white scale-110 border-brand-400 shadow-brand-500/30'
-              : 'bg-dark-base/85 text-gray-300 border-white/10')
-          }
-        >
-          <span className="ml-1.5">{iconSymbol}</span>
-          <span>{title}</span>
-        </div>
-      </Html>
+      {/* Interactive 3D Label Badge - only visible once camera navigates into Sector 1 (hidden behind upright hero card) */}
+      {scrollProgress >= 0.16 && (
+        <Html position={[0, 3.2, 0]} center distanceFactor={15}>
+          <div
+            className={
+              'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 pointer-events-none whitespace-nowrap shadow-2xl border animate-fadeIn ' +
+              (isHighlighted
+                ? 'bg-brand-600 text-white scale-110 border-brand-400 shadow-brand-500/30'
+                : 'bg-dark-base/85 text-gray-300 border-white/10')
+            }
+          >
+            <span className="ml-1.5">{iconSymbol}</span>
+            <span>{title}</span>
+          </div>
+        </Html>
+      )}
     </group>
   );
 }
 
 function ServicesConcourse({
+  scrollProgress = 0,
   hoveredServiceSlug,
   onSelectService,
   onHoverService,
 }: {
+  scrollProgress?: number;
   hoveredServiceSlug?: string | null;
   onSelectService?: (slug: string) => void;
   onHoverService?: (slug: string | null) => void;
@@ -866,6 +874,7 @@ function ServicesConcourse({
         <ServicePavilion
           key={s.id}
           {...s}
+          scrollProgress={scrollProgress}
           isHoveredByParent={hoveredServiceSlug === s.slug}
           onSelect={onSelectService}
           onHover={onHoverService}
@@ -884,6 +893,7 @@ interface ExhibitionPlinthProps {
   position: [number, number, number];
   rotationY?: number;
   isHoveredByParent?: boolean;
+  scrollProgress?: number;
   onSelect?: (slug: string) => void;
   onHover?: (slug: string | null) => void;
 }
@@ -896,6 +906,7 @@ function ExhibitionPlinth({
   position,
   rotationY = 0,
   isHoveredByParent,
+  scrollProgress = 0,
   onSelect,
   onHover,
 }: ExhibitionPlinthProps) {
@@ -966,26 +977,30 @@ function ExhibitionPlinth({
           />
         </mesh>
 
-        {/* Holographic 3D Overlay Badge */}
-        <Html position={[0, 0, 0.2]} center distanceFactor={16}>
-          <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-52">
-            <span className="text-[10px] font-mono text-brand-300 block mb-0.5">{category}</span>
-            <div className="text-xs font-black text-white line-clamp-1">{title}</div>
-            <div className="mt-1.5 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2 py-0.5 rounded-full text-[10px] font-bold">
-              {kpi}
+        {/* Holographic 3D Overlay Badge - only visible once camera navigates into Sector 2 */}
+        {scrollProgress >= 0.38 && (
+          <Html position={[0, 0, 0.2]} center distanceFactor={16}>
+            <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-52 animate-fadeIn">
+              <span className="text-[10px] font-mono text-brand-300 block mb-0.5">{category}</span>
+              <div className="text-xs font-black text-white line-clamp-1">{title}</div>
+              <div className="mt-1.5 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                {kpi}
+              </div>
             </div>
-          </div>
-        </Html>
+          </Html>
+        )}
       </group>
     </group>
   );
 }
 
 function ExhibitionGallery({
+  scrollProgress = 0,
   hoveredProjectSlug,
   onSelectProject,
   onHoverProject,
 }: {
+  scrollProgress?: number;
   hoveredProjectSlug?: string | null;
   onSelectProject?: (slug: string) => void;
   onHoverProject?: (slug: string | null) => void;
@@ -1031,6 +1046,7 @@ function ExhibitionGallery({
         <ExhibitionPlinth
           key={p.slug}
           {...p}
+          scrollProgress={scrollProgress}
           isHoveredByParent={hoveredProjectSlug === p.slug}
           onSelect={onSelectProject}
           onHover={onHoverProject}
@@ -1149,11 +1165,13 @@ export default function DigitalArchitectureCampus({
         onExploreProjects={onExploreProjects}
       />
       <ServicesConcourse
+        scrollProgress={scrollProgress}
         hoveredServiceSlug={hoveredServiceSlug}
         onSelectService={onSelectService}
         onHoverService={onHoverService}
       />
       <ExhibitionGallery
+        scrollProgress={scrollProgress}
         hoveredProjectSlug={hoveredProjectSlug}
         onSelectProject={onSelectProject}
         onHoverProject={onHoverProject}
