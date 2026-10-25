@@ -1,0 +1,80 @@
+{
+  "settings": {
+    "title": "رهبران فنی و خالقان نوآوری در اروم‌سیما",
+    "subtitle": "تیمی متخصص از برنامه‌نویسان، طراحان ۳ بعدی، استراتژیست‌های سئو و کارگردانان هنری",
+    "vision": "تبدیل ارومیه به یکی از قطب‌های فناوری و بازاریابی دیجیتال خاورمیانه با محصولات کلاس جهانی.",
+    "mission": "توانمندسازی کسب‌وکارهای اصیل ایرانی برای رقابت مقتدرانه در سطح ملی و بین‌المللی با تلفیق هنر و مهندسی."
+  },
+  "leads": [
+    {
+      "name": "مهندس رضا کریمی",
+      "role": "مدیر ارشد فناوری و مهندسی ۳D (Tech Lead)",
+      "skills": [
+        "Three.js",
+        "WebGL",
+        "Next.js",
+        "Shaders",
+        "TypeScript"
+      ],
+      "years_experience": 11,
+      "total_projects": 120,
+      "accent_color": "#0E946E",
+      "planet_type": "crystal",
+      "tagline": "کد تمیز، سرعت بی‌نقص و گرافیک سه‌بعدی که مخاطب را مجذوب می‌کند.",
+      "poster_image": "/images/team-hero.webp",
+      "order": 1
+    },
+    {
+      "name": "مهندس پارسا اسدی",
+      "role": "معمار نرم‌افزار و سیستم‌های توزیع‌شده",
+      "skills": [
+        "Architecture",
+        "Django",
+        "PostgreSQL",
+        "DevOps",
+        "Cloud"
+      ],
+      "years_experience": 9,
+      "total_projects": 95,
+      "accent_color": "#14B8A6",
+      "planet_type": "gas_giant",
+      "tagline": "امنیت و پایداری سنگ‌بنای هر امپراتوری دیجیتال است.",
+      "poster_image": "/images/team-photo.png",
+      "order": 2
+    },
+    {
+      "name": "سارا محمدی",
+      "role": "مدیر هنری و طراح ارشد تجربه کاربری (Lead UI/UX)",
+      "skills": [
+        "UI/UX Design",
+        "Figma",
+        "Design Systems",
+        "Prototyping"
+      ],
+      "years_experience": 8,
+      "total_projects": 85,
+      "accent_color": "#F59E0B",
+      "planet_type": "ringed",
+      "tagline": "سادگی نهایت پختگی در طراحی محصول است.",
+      "poster_image": "/images/urumsima3.jpg",
+      "order": 3
+    },
+    {
+      "name": "علی رضایی",
+      "role": "کارگردان تیزرهای صنعتی و تصویربرداری هوایی",
+      "skills": [
+        "Drone Cinematography",
+        "DaVinci Resolve",
+        "Commercials",
+        "Directing"
+      ],
+      "years_experience": 10,
+      "total_projects": 110,
+      "accent_color": "#06B6D4",
+      "planet_type": "lava",
+      "tagline": "روایت داستانی با قاب‌های سینمایی که تا سال‌ها در ذهن می‌ماند.",
+      "poster_image": "/images/urumsima5.jpg",
+      "order": 4
+    }
+  ]
+}

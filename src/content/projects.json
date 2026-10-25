@@ -1,0 +1,183 @@
+[
+  {
+    "id": "proj-1",
+    "title": "پورتال سازمانی و هویت دیجیتال آراز متال",
+    "subtitle": "طراحی وب‌سایت صنعتی دو زبانه با معماری تعاملی و کاتالوگ آنلاین محصولات",
+    "slug": "araz-metal-industrial-portal",
+    "category": "طراحی سایت",
+    "category_slug": "web-design",
+    "industry": "صنایع سنگین و فولاد",
+    "technologies": [
+      "Next.js",
+      "Three.js",
+      "TypeScript",
+      "Tailwind CSS"
+    ],
+    "description": "طراحی پورتال بین‌المللی شرکت آراز متال با سرعت بارگذاری فوق‌العاده و معرفی خطوط تولید.",
+    "detailed_description": "شرکت آراز متال از بزرگترین تامین‌کنندگان مقاطع فولادی شمال‌غرب نیازمند پورتالی بود که استانداردهای بین‌المللی صادرات را منعکس کند. اروم‌سیما با طراحی سه بعدی خطوط نورد و سیستم محاسبه آنلاین وزن میلگرد، تعامل کاربران را بیش از ۳۰۰ درصد ارتقا داد.",
+    "challenge": "حجم بالای کاتالوگ محصولات و الزام به زمان لود زیر ۱.۵ ثانیه در اتصال‌های همراه.",
+    "featured": true,
+    "project_date": "۱۴۰۳/۰۸/۱۵",
+    "website_url": "https://arazmetal.example.com",
+    "thumbnail_image": "/media/portfolio/thumbnails/attorney-anything_thumb.jpg",
+    "mockups": {
+      "desktop": "/media/portfolio/mockups/desktop/detail-feel-result_desktop.jpg",
+      "mobile": "/media/portfolio/mockups/mobile/detail-feel-result_mobile.jpg"
+    },
+    "kpis": [
+      {
+        "label": "رشد ترافیک ارگانیک گوگل",
+        "value": "+۲۴۰٪",
+        "detail": "در ۶ ماه نخست پس از لانچ"
+      },
+      {
+        "label": "میانگین سرعت لود صفحه",
+        "value": "۰.۸s",
+        "detail": "امتیاز ۹۸ در Google PageSpeed"
+      },
+      {
+        "label": "نرخ تبدیل فرم استعلام",
+        "value": "۴.۲x",
+        "detail": "نسبت به وب‌سایت قبلی"
+      }
+    ],
+    "location_zone": "شهرک صنعتی فاز ۲ ارومیه",
+    "latitude": 37.589,
+    "longitude": 45.12
+  },
+  {
+    "id": "proj-2",
+    "title": "هویت بصری و کمپین دیجیتال کلینیک دکتر صادقی",
+    "subtitle": "تولید محتوای ویدیویی تخصصی، ادمینی اینستاگرام و سئو محلی کلمات کلیدی پزشکی",
+    "slug": "dr-sadeghi-medical-branding",
+    "category": "اینستاگرام و ویدیو مارکتینگ",
+    "category_slug": "instagram-content",
+    "industry": "پزشکی و سلامت",
+    "technologies": [
+      "Sony FX3",
+      "Premiere Pro",
+      "After Effects",
+      "DaVinci Resolve"
+    ],
+    "description": "تولید بیش از ۴۰ ریلز آموزشی و سناریومحور به همراه طراحی هویت بصری کامل مطب.",
+    "detailed_description": "کلینیک دکتر صادقی با هدف آگاهی‌بخشی در خصوص مراقبت‌های زیبایی اقدام به سفارش پکیج کامل محتوای ویدیویی نمود. تیم فیلمبرداری اروم‌سیما با نورپردازی سینمایی در محل کلینیک محتوایی خلق کرد که به اکسپلور اینستاگرام راه یافت.",
+    "challenge": "حفظ پرستیژ پزشکی و همزمان جذابیت برای الگوریتم‌های الگوریتم اینستاگرام.",
+    "featured": true,
+    "project_date": "۱۴۰۳/۰۶/۲۰",
+    "thumbnail_image": "/media/portfolio/thumbnails/detail-feel-result_thumb.jpg",
+    "mockups": {
+      "desktop": "/media/portfolio/mockups/desktop/east-practice-plant_desktop.jpg",
+      "mobile": "/media/portfolio/mockups/mobile/east-practice-plant_mobile.jpg"
+    },
+    "kpis": [
+      {
+        "label": "بازدید کل ریلزها",
+        "value": "+۱.۸M",
+        "detail": "در طول دوره سه ماهه کمپین"
+      },
+      {
+        "label": "جذب فالوور هدفمند محلی",
+        "value": "+۳۵K",
+        "detail": "با نرخ تعامل ۶.۸ درصد"
+      },
+      {
+        "label": "رزرو آنلاین نوبت و مشاوره",
+        "value": "+۱۸۵٪",
+        "detail": "از طریق لینک اختصاصی بیو"
+      }
+    ],
+    "location_zone": "خیابان حسنی ارومیه",
+    "latitude": 37.545,
+    "longitude": 45.068
+  },
+  {
+    "id": "proj-3",
+    "title": "اکران محیطی و ساخت تیزر هلی‌شات کارخانجات سپید کوه",
+    "subtitle": "کمپین تبلیغات محیطی در میادین کلیدی ارومیه همزمان با اکران تیزر تلویزیونی",
+    "slug": "sepid-kooh-outdoor-campaign",
+    "category": "تبلیغات محیطی و تیزر",
+    "category_slug": "billboard-advertising",
+    "industry": "صنایع غذایی و کشاورزی",
+    "technologies": [
+      "DJI Inspire 3",
+      "4K HDR",
+      "Billboard 12x4",
+      "LED Display P6"
+    ],
+    "description": "اکران بیلبورد پل قویون و میدان انقلاب همراه با تیزر صنعتی خط تولید آبمیوه ارگانیک.",
+    "detailed_description": "برند سپید کوه برای رونمایی از سری جدید محصولات صادراتی خود نیازمند کمپینی ۳۶۰ درجه بود. تیم اروم‌سیما با تصویربرداری هوایی از باغات و کارخانه، تیزری باشکوه خلق کرد و همزمان ۵ سازه بیلبوردی پرتردد را اکران نمود.",
+    "challenge": "همزمانی انتشار تیزرها، تبلیغات محیطی و هماهنگی مجوزهای ارشاد در کوتاه‌ترین زمان.",
+    "featured": true,
+    "project_date": "۱۴۰۳/۰۴/۱۰",
+    "thumbnail_image": "/media/portfolio/thumbnails/east-practice-plant_thumb.jpg",
+    "mockups": {
+      "desktop": "/media/portfolio/mockups/desktop/feel-oil-piece_desktop.jpg",
+      "mobile": "/media/portfolio/mockups/mobile/feel-oil-piece_mobile.jpg"
+    },
+    "kpis": [
+      {
+        "label": "ایمپرشن تخمینی مخاطبان شهری",
+        "value": "+۲.۵M",
+        "detail": "در طول دوره ۳۰ روزه اکران"
+      },
+      {
+        "label": "افزایش درخواست نمایندگی",
+        "value": "+۴۵٪",
+        "detail": "از استان‌های همجوار و تهران"
+      },
+      {
+        "label": "امتیاز یادآوری برند (Brand Recall)",
+        "value": "۷۸٪",
+        "detail": "بر اساس نظرسنجی میدانی"
+      }
+    ],
+    "location_zone": "پل قویون ارومیه",
+    "latitude": 37.532,
+    "longitude": 45.092
+  },
+  {
+    "id": "proj-4",
+    "title": "فروشگاه آنلاین زنجیره‌ای چرم باران",
+    "subtitle": "طراحی فروشگاه اینترنتی با معماری Jamstack، جستجوی آنی و اتصال به انبارداری سپیدار",
+    "slug": "baran-leather-ecommerce",
+    "category": "طراحی سایت",
+    "category_slug": "web-design",
+    "industry": "پوشاک و خرده‌فروشی",
+    "technologies": [
+      "Next.js",
+      "Node.js",
+      "PostgreSQL",
+      "Tailwind CSS"
+    ],
+    "description": "فروشگاه تخصصی محصولات چرمی با سیستم تطبیق سایز هوشمند و درگاه‌های بانکی مستقیم.",
+    "detailed_description": "چرم باران با ۳ شعبه فیزیکی در ارومیه قصد ورود مقتدرانه به بازار آنلاین سراسر کشور را داشت. اروم‌سیما با توسعه وب‌اپلیکیشنی مدرن و سریع، امکان خرید آنلاین را با کمترین مراحل و تجربه کاربری روان فراهم آورد.",
+    "challenge": "یکپارچه‌سازی لحظه‌ای موجودی شعب فیزیکی با فروشگاه آنلاین جهت جلوگیری از ناهماهنگی انبار.",
+    "featured": true,
+    "project_date": "۱۴۰۳/۰۲/۱۸",
+    "thumbnail_image": "/media/portfolio/thumbnails/feel-oil-piece_thumb.jpg",
+    "mockups": {
+      "desktop": "/media/portfolio/mockups/desktop/for-hope-score_desktop.jpg",
+      "mobile": "/media/portfolio/mockups/mobile/for-hope-score_mobile.jpg"
+    },
+    "kpis": [
+      {
+        "label": "تعداد سفارشات ماهانه",
+        "value": "+۲,۸۰۰",
+        "detail": "فروش مستقیم در سراسر کشور"
+      },
+      {
+        "label": "میانگین زمان ماندگاری کاربر",
+        "value": "۴:۳۵m",
+        "detail": "کاهش بانس‌ریت به ۲۶ درصد"
+      },
+      {
+        "label": "نرخ بازگشت مشتریان",
+        "value": "۳۴٪",
+        "detail": "با اجرای باشگاه مشتریان هوشمند"
+      }
+    ],
+    "location_zone": "خیابان امام ارومیه",
+    "latitude": 37.551,
+    "longitude": 45.071
+  }
+]
