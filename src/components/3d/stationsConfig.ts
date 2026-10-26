@@ -200,3 +200,72 @@ export const PORTFOLIO_TVS_CONFIG: ProjectTVConfig[] = [
   },
 ];
 
+/**
+ * ── تنظیمات ۵ ایستگاه دپارتمان اداری مراحل همکاری (Sector 3 - Collaboration Workflow) ──
+ * 
+ * چیدمان در طول مسیر Z = -94 تا Z = -122 متقارن در دو طرف چپ (X = -2.4) و راست (X = +2.4)
+ */
+export interface CollaborationStationConfig {
+  id: string;
+  stepNumber: string;
+  stepTag: string;
+  title: string;
+  subtitle: string;
+  duration: string;
+  position: [number, number, number];
+  rotationY: number;
+}
+
+export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
+  {
+    id: 'step-discovery',
+    stepNumber: '۰۱',
+    stepTag: 'مرحله اول',
+    title: 'کشف و تحلیل استراتژی',
+    subtitle: 'جلسات نیازسنجی، تحلیل رقبا و تدوین نقشه راه اختصاصی برند',
+    duration: '۲ الی ۴ روز کاری',
+    position: [-2.4, 0, -94],
+    rotationY: Math.PI / 2 + 0.1,
+  },
+  {
+    id: 'step-design',
+    stepNumber: '۰۲',
+    stepTag: 'مرحله دوم',
+    title: 'پروتوتایپ و طراحی UI/UX',
+    subtitle: 'طراحی هویت بصری، وایرفریم‌ها و پروتوتایپ تعاملی فیگما',
+    duration: '۵ الی ۸ روز کاری',
+    position: [2.4, 0, -101],
+    rotationY: -Math.PI / 2 - 0.1,
+  },
+  {
+    id: 'step-engineering',
+    stepNumber: '۰۳',
+    stepTag: 'مرحله سوم',
+    title: 'مهندسی و توسعه نرم‌افزار',
+    subtitle: 'کدنویسی مقیاس‌پذیر، معماری فرانت‌اند و بک‌اند با انیمیشن‌های سه‌بعدی روان',
+    duration: '۱۰ الی ۱۵ روز کاری',
+    position: [-2.4, 0, -108],
+    rotationY: Math.PI / 2 + 0.1,
+  },
+  {
+    id: 'step-testing',
+    stepNumber: '۰۴',
+    stepTag: 'مرحله چهارم',
+    title: 'تست، سئو و کنترل کیفیت',
+    subtitle: 'آزمون ریسپانسیو چند دیوایسی، ارزیابی امنیت، ممیزی سئو و سرعت ۱۰۰/۱۰۰',
+    duration: '۳ الی ۵ روز کاری',
+    position: [2.4, 0, -115],
+    rotationY: -Math.PI / 2 - 0.1,
+  },
+  {
+    id: 'step-launch',
+    stepNumber: '۰۵',
+    stepTag: 'مرحله پنجم',
+    title: 'لانچ رسمی و تحویل نهایی',
+    subtitle: 'استقرار روی سرور پرسرعت، آموزش پنل مدیریت و پشتیبانی دائمی ۲۴/۷',
+    duration: 'تحویل و لانچ قطعی',
+    position: [-2.4, 0, -122],
+    rotationY: Math.PI / 2 + 0.1,
+  },
+];
+

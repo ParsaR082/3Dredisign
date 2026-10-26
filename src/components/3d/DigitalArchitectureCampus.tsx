@@ -5,7 +5,13 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Float, RoundedBox, Html, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { easing } from 'maath';
-import { STATIONS_CONFIG, PORTFOLIO_TVS_CONFIG, ProjectTVConfig } from './stationsConfig';
+import {
+  STATIONS_CONFIG,
+  PORTFOLIO_TVS_CONFIG,
+  ProjectTVConfig,
+  COLLABORATION_STATIONS_CONFIG,
+  CollaborationStationConfig,
+} from './stationsConfig';
 
 // Preload user's GLB models from public/3Dmodels
 useGLTF.preload('/3Dmodels/hero3d.glb');
@@ -26,6 +32,15 @@ useGLTF.preload('/3Dmodels/TV1.glb');
 useGLTF.preload('/3Dmodels/TV2.glb');
 useGLTF.preload('/3Dmodels/TV3.glb');
 useGLTF.preload('/3Dmodels/TV4.glb');
+useGLTF.preload('/3Dmodels/desk_modern.glb');
+useGLTF.preload('/3Dmodels/office_chair.glb');
+useGLTF.preload('/3Dmodels/cup_tea.glb');
+useGLTF.preload('/3Dmodels/headphones.glb');
+useGLTF.preload('/3Dmodels/tablet.glb');
+useGLTF.preload('/3Dmodels/desk_lamp.glb');
+useGLTF.preload('/3Dmodels/pc_case.glb');
+useGLTF.preload('/3Dmodels/keyboard.glb');
+useGLTF.preload('/3Dmodels/whiteboard.glb');
 
 // Helper to clone GLTF scenes safely and configure shadows and color spaces
 function useClonedGLTF(path: string) {
@@ -75,8 +90,8 @@ const CAMERA_WAYPOINTS = [
   { pos: new THREE.Vector3(0, 3.4, -16.0), target: new THREE.Vector3(0, 1.8, -32.0) },
   // Sector 2: Masterworks Exhibition Hall (centered along runway)
   { pos: new THREE.Vector3(0, 3.6, -50.0), target: new THREE.Vector3(0, 1.8, -68.0) },
-  // Sector 3: Command Observation Deck (elevated panoramic over process & stats)
-  { pos: new THREE.Vector3(0, 8.0, -92.0), target: new THREE.Vector3(0, 2.5, -115.0) },
+  // Sector 3: Collaboration Office Concourse (corridor walk at eye level)
+  { pos: new THREE.Vector3(0, 3.4, -90.0), target: new THREE.Vector3(0, 1.8, -112.0) },
   // Sector 4: Terminal Gateway (framing contact portal and footer)
   { pos: new THREE.Vector3(0, 3.2, -135.0), target: new THREE.Vector3(0, 2.2, -165.0) },
 ];
@@ -89,8 +104,8 @@ const MOBILE_CAMERA_WAYPOINTS = [
   { pos: new THREE.Vector3(0, 3.8, -16.0), target: new THREE.Vector3(0, 1.8, -32.0) },
   // Sector 2: Masterworks Exhibition Hall (centered along runway)
   { pos: new THREE.Vector3(0, 4.0, -50.0), target: new THREE.Vector3(0, 1.8, -68.0) },
-  // Sector 3: Command Observation Deck (elevated overview)
-  { pos: new THREE.Vector3(0, 8.5, -90.0), target: new THREE.Vector3(0, 2.8, -115.0) },
+  // Sector 3: Collaboration Office Concourse (corridor walk at eye level)
+  { pos: new THREE.Vector3(0, 3.8, -90.0), target: new THREE.Vector3(0, 1.8, -112.0) },
   // Sector 4: Terminal Gateway (elevated portal)
   { pos: new THREE.Vector3(0, 3.8, -133.0), target: new THREE.Vector3(0, 2.2, -165.0) },
 ];
@@ -1116,37 +1131,275 @@ function ExhibitionGallery({
   );
 }
 
-// ── 6. ZONE 3: THE STRATEGY STEP TOWERS ──
-function StrategyObservationDeck() {
-  const steps = [
-    { height: 2.0, z: -98, x: -3.5, label: '۰۱ تحلیل' },
-    { height: 3.2, z: -104, x: -1.8, label: '۰۲ پروتوتایپ' },
-    { height: 4.4, z: -110, x: 0.0, label: '۰۳ مهندسی' },
-    { height: 5.6, z: -116, x: 1.8, label: '۰۴ سئو و تست' },
-    { height: 6.8, z: -122, x: 3.5, label: '۰۵ عرضه' },
-  ];
+// ── 6. ZONE 3: COLLABORATION WORKFLOW (OFFICE DEPARTMENT PODS) ──
+
+// Station 1: Discovery & Strategy (Meeting desk, ergonomic chair, coffee mug, paperwork, strategy pen, desk lamp)
+function DiscoveryStation() {
+  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
+  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
+  const mug = useClonedGLTF('/3Dmodels/cup_tea.glb');
+  const lamp = useClonedGLTF('/3Dmodels/desk_lamp.glb');
+  const paper = useClonedGLTF('/3Dmodels/stack of paper.glb');
+  const pen = useClonedGLTF('/3Dmodels/Pen.glb');
 
   return (
     <group>
-      {steps.map((st, idx) => (
-        <group key={idx} position={[st.x, 0, st.z]}>
-          <mesh position={[0, st.height / 2, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.9, 1.1, st.height, 8]} />
-            <meshStandardMaterial
-              color="#0B121E"
-              roughness={0.2}
-              metalness={0.9}
-            />
-          </mesh>
-          <mesh position={[0, st.height + 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.95, 8]} />
-            <meshBasicMaterial color="#0E946E" />
-          </mesh>
-          <mesh position={[0, st.height / 2, 0.92]}>
-            <planeGeometry args={[0.1, st.height * 0.9]} />
-            <meshBasicMaterial color="#10B981" />
-          </mesh>
-        </group>
+      {/* Modern Office Desk */}
+      <primitive object={desk} position={[0, 0, 0]} />
+      {/* Ergonomic Office Chair */}
+      <group position={[0, 0, 0.62]} rotation={[0, Math.PI, 0]}>
+        <primitive object={chair} position={[0, 0, 0]} />
+      </group>
+      {/* Desk Lamp */}
+      <group position={[-0.65, 0.922, -0.1]} scale={0.8}>
+        <primitive object={lamp} />
+      </group>
+      {/* Coffee/Tea Mug */}
+      <group position={[-0.32, 0.922, 0.12]} scale={0.55}>
+        <primitive object={mug} />
+      </group>
+      {/* Research Paperwork */}
+      <group position={[0.22, 0.922, 0.02]} scale={1.8}>
+        <primitive object={paper} />
+      </group>
+      {/* Strategy Pen */}
+      <group position={[0.36, 0.922, 0.12]} scale={0.035} rotation={[0, 0.4, 0]}>
+        <primitive object={pen} />
+      </group>
+    </group>
+  );
+}
+
+// Station 2: Interactive UI/UX Design Studio (Modern desk, chair, graphic tablet, headphones, phone prototype, lamp)
+function DesignStudioStation() {
+  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
+  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
+  const tablet = useClonedGLTF('/3Dmodels/tablet.glb');
+  const headphones = useClonedGLTF('/3Dmodels/headphones.glb');
+  const phone = useClonedGLTF('/3Dmodels/Phone3D.glb');
+  const lamp = useClonedGLTF('/3Dmodels/desk_lamp.glb');
+
+  return (
+    <group>
+      {/* Modern Office Desk */}
+      <primitive object={desk} position={[0, 0, 0]} />
+      {/* Ergonomic Office Chair */}
+      <group position={[0, 0, 0.62]} rotation={[0, Math.PI, 0]}>
+        <primitive object={chair} position={[0, 0, 0]} />
+      </group>
+      {/* Graphic Tablet */}
+      <group position={[0, 0.922, 0.04]} scale={0.0055}>
+        <primitive object={tablet} position={[0.2, 0.21, 5.83]} />
+      </group>
+      {/* Studio Headphones resting on desk */}
+      <group position={[-0.5, 0.922, 0.0]} scale={0.0032} rotation={[0, 0.3, 0]}>
+        <primitive object={headphones} position={[-9.7, 0, 1.5]} />
+      </group>
+      {/* Mobile Prototype */}
+      <group position={[0.42, 0.922, 0.1]} scale={0.45} rotation={[-Math.PI / 2, 0, 0.2]}>
+        <primitive object={phone} />
+      </group>
+      {/* Modern Desk Lamp */}
+      <group position={[0.65, 0.922, -0.1]} scale={0.8}>
+        <primitive object={lamp} />
+      </group>
+    </group>
+  );
+}
+
+// Station 3: Engineering & Software Development (Workstation desk, chair, mechanical keyboard, developer monitor, PC tower on floor, coffee)
+function EngineeringStation() {
+  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
+  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
+  const pcCase = useClonedGLTF('/3Dmodels/pc_case.glb');
+  const keyboard = useClonedGLTF('/3Dmodels/keyboard.glb');
+  const monitor = useClonedGLTF('/3Dmodels/TV3.glb');
+  const mug = useClonedGLTF('/3Dmodels/cup_tea.glb');
+
+  return (
+    <group>
+      {/* Modern Office Desk */}
+      <primitive object={desk} position={[0, 0, 0]} />
+      {/* Ergonomic Office Chair */}
+      <group position={[0, 0, 0.62]} rotation={[0, Math.PI, 0]}>
+        <primitive object={chair} position={[0, 0, 0]} />
+      </group>
+      {/* Tower PC Workstation on floor beside desk */}
+      <group position={[-1.18, 0, 0]} scale={0.28}>
+        <primitive object={pcCase} position={[0.0614, 1.0523, 0.0731]} />
+      </group>
+      {/* Developer Widescreen Monitor on Desk */}
+      <group position={[0, 0.922, -0.12]} scale={0.88}>
+        <primitive object={monitor} position={[0, 0.1981, 0]} />
+      </group>
+      {/* Mechanical Keyboard */}
+      <group position={[0, 0.922, 0.14]} scale={0.00045}>
+        <primitive object={keyboard} position={[-1140.5, 4.10, 1269.7]} />
+      </group>
+      {/* Developer Coffee Mug */}
+      <group position={[0.54, 0.922, 0.1]} scale={0.55}>
+        <primitive object={mug} />
+      </group>
+    </group>
+  );
+}
+
+// Station 4: QA, Testing & SEO (Whiteboard on floor, modern desk, chair, testing laptop, testing phone, QA checklist clipboard)
+function QATestingStation() {
+  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
+  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
+  const whiteboard = useClonedGLTF('/3Dmodels/whiteboard.glb');
+  const laptop = useClonedGLTF('/3Dmodels/Laptop3D.glb');
+  const phone = useClonedGLTF('/3Dmodels/Phone3D.glb');
+  const clipboard = useClonedGLTF('/3Dmodels/clipboard.glb');
+
+  return (
+    <group>
+      {/* Standing Whiteboard with SEO & QA Checklist */}
+      <group position={[0, 0, -0.85]} scale={0.019} rotation={[0, Math.PI / 2, 0]}>
+        <primitive object={whiteboard} position={[0, 0, 0]} />
+      </group>
+      {/* Modern Office Desk */}
+      <primitive object={desk} position={[0, 0, 0]} />
+      {/* Ergonomic Office Chair */}
+      <group position={[0, 0, 0.62]} rotation={[0, Math.PI, 0]}>
+        <primitive object={chair} position={[0, 0, 0]} />
+      </group>
+      {/* Multi-Device Testing Laptop */}
+      <group position={[-0.26, 0.922, 0.02]} scale={0.75} rotation={[0, 0.15, 0]}>
+        <primitive object={laptop} />
+      </group>
+      {/* Responsive Testing Phone */}
+      <group position={[0.26, 0.922, 0.08]} scale={0.42} rotation={[-Math.PI / 2, 0, -0.2]}>
+        <primitive object={phone} />
+      </group>
+      {/* QA Checklist Clipboard */}
+      <group position={[0.52, 0.922, 0.02]} scale={0.8} rotation={[0, 0, -Math.PI / 2]}>
+        <primitive object={clipboard} />
+      </group>
+    </group>
+  );
+}
+
+// Station 5: Launch & Official Handover (Executive Desk, chair, signed contract folder, executive lamp, celebration mug)
+function LaunchHandoverStation() {
+  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
+  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
+  const clipboard = useClonedGLTF('/3Dmodels/clipboard.glb');
+  const pen = useClonedGLTF('/3Dmodels/Pen.glb');
+  const lamp = useClonedGLTF('/3Dmodels/desk_lamp.glb');
+  const mug = useClonedGLTF('/3Dmodels/cup_tea.glb');
+
+  return (
+    <group>
+      {/* Modern Executive Desk */}
+      <primitive object={desk} position={[0, 0, 0]} />
+      {/* Ergonomic Office Chair */}
+      <group position={[0, 0, 0.62]} rotation={[0, Math.PI, 0]}>
+        <primitive object={chair} position={[0, 0, 0]} />
+      </group>
+      {/* Signed Contract Folder */}
+      <group position={[0, 0.922, 0.05]} scale={0.9} rotation={[0, 0, -Math.PI / 2]}>
+        <primitive object={clipboard} />
+      </group>
+      {/* Official Signature Pen */}
+      <group position={[0.16, 0.922, 0.16]} scale={0.035} rotation={[0, 0.5, 0]}>
+        <primitive object={pen} />
+      </group>
+      {/* Executive Desk Lamp */}
+      <group position={[-0.65, 0.922, -0.1]} scale={0.8}>
+        <primitive object={lamp} />
+      </group>
+      {/* Celebration Mug */}
+      <group position={[0.52, 0.922, 0.1]} scale={0.55}>
+        <primitive object={mug} />
+      </group>
+    </group>
+  );
+}
+
+function CollaborationDepartmentStation({
+  config,
+  scrollProgress = 0,
+}: {
+  config: CollaborationStationConfig;
+  scrollProgress: number;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((_, delta) => {
+    if (!groupRef.current) return;
+    const targetScale = hovered ? 1.03 : 1.0;
+    easing.damp(groupRef.current.scale, 'x', targetScale, 0.2, delta);
+    easing.damp(groupRef.current.scale, 'y', targetScale, 0.2, delta);
+    easing.damp(groupRef.current.scale, 'z', targetScale, 0.2, delta);
+  });
+
+  return (
+    <group
+      position={config.position}
+      rotation={[0, config.rotationY, 0]}
+      ref={groupRef}
+      onPointerOver={(e) => {
+        e.stopPropagation();
+        setHovered(true);
+        document.body.style.cursor = 'pointer';
+      }}
+      onPointerOut={() => {
+        setHovered(false);
+        document.body.style.cursor = 'auto';
+      }}
+    >
+      {/* Floor Glow Accent Light */}
+      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.5, 1.75, 48]} />
+        <meshBasicMaterial
+          color={hovered ? '#10B981' : '#0E946E'}
+          transparent
+          opacity={hovered ? 0.8 : 0.35}
+        />
+      </mesh>
+
+      {/* Specific Office Station Sub-Component */}
+      {config.id === 'step-discovery' && <DiscoveryStation />}
+      {config.id === 'step-design' && <DesignStudioStation />}
+      {config.id === 'step-engineering' && <EngineeringStation />}
+      {config.id === 'step-testing' && <QATestingStation />}
+      {config.id === 'step-launch' && <LaunchHandoverStation />}
+
+      {/* Holographic 3D Overlay Badge */}
+      {scrollProgress >= 0.62 && (
+        <Html position={[0, 2.7, 0]} center distanceFactor={16}>
+          <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-56 animate-fadeIn">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
+                {config.stepNumber} • {config.stepTag}
+              </span>
+            </div>
+            <div className="text-xs font-black text-white">{config.title}</div>
+            <div className="text-[10px] text-gray-300 mt-1 line-clamp-2 leading-tight">
+              {config.subtitle}
+            </div>
+            <div className="mt-2 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2 py-0.5 rounded-full text-[10px] font-bold">
+              ⏱ {config.duration}
+            </div>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+}
+
+function CollaborationOfficeConcourse({ scrollProgress = 0 }: { scrollProgress?: number }) {
+  return (
+    <group>
+      {COLLABORATION_STATIONS_CONFIG.map((st) => (
+        <CollaborationDepartmentStation
+          key={st.id}
+          config={st}
+          scrollProgress={scrollProgress}
+        />
       ))}
     </group>
   );
@@ -1238,7 +1491,7 @@ export default function DigitalArchitectureCampus({
         onSelectProject={onSelectProject}
         onHoverProject={onHoverProject}
       />
-      <StrategyObservationDeck />
+      <CollaborationOfficeConcourse scrollProgress={scrollProgress} />
       <TerminalPortal />
     </>
   );
