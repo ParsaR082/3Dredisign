@@ -803,9 +803,9 @@ function ServicePavilion({
         accent={accent}
       />
 
-      {/* Interactive 3D Label Badge - Up-Left for Left stations, Up-Right for Right stations */}
+      {/* Interactive 3D Label Badge - Left stations centered over model (X=0), Right stations to the right of model (X=+1.8) */}
       {scrollProgress >= 0.16 && (
-        <Html position={[position[0] < 0 ? -1.0 : 1.0, badgeY, 0]} center distanceFactor={15}>
+        <Html position={[position[0] < 0 ? 0 : 1.8, badgeY, 0]} center distanceFactor={15}>
           <div
             className={
               'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 pointer-events-none whitespace-nowrap shadow-2xl border animate-fadeIn ' +
@@ -1084,9 +1084,9 @@ function ProjectTVStation({
         isHighlighted={isHighlighted}
       />
 
-      {/* Holographic 3D Overlay Badge - Up-Left for Left TVs, Up-Right for Right TVs */}
+      {/* Holographic 3D Overlay Badge - Left TVs centered over model (X=0), Right TVs to the right of model (X=+1.8) */}
       {scrollProgress >= 0.38 && (
-        <Html position={[position[0] < 0 ? -1.3 : 1.3, screenSize[1] + 0.85, 0]} center distanceFactor={16}>
+        <Html position={[position[0] < 0 ? 0 : 1.8, screenSize[1] + 0.9, 0]} center distanceFactor={16}>
           <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-52 animate-fadeIn">
             <span className="text-[10px] font-mono text-brand-300 block mb-0.5">{category}</span>
             <div className="text-xs font-black text-white line-clamp-1">{title}</div>
@@ -1374,9 +1374,9 @@ function CollaborationDepartmentStation({
         {config.id === 'step-launch' && <LaunchHandoverStation />}
       </group>
 
-      {/* Holographic 3D Overlay Badge - Up-Left for Left stations, Up-Right for Right stations */}
+      {/* Holographic 3D Overlay Badge - Left stations centered over model (X=0), Right stations to the right of model (X=+2.0) */}
       {scrollProgress >= 0.62 && (
-        <Html position={[isLeft ? -1.4 : 1.4, 3.2, 0]} center distanceFactor={16}>
+        <Html position={[isLeft ? 0 : 2.0, 3.2, 0]} center distanceFactor={16}>
           <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-56 animate-fadeIn">
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
