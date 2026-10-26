@@ -5,6 +5,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Float, RoundedBox, Html, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { easing } from 'maath';
+import { STATIONS_CONFIG } from './stationsConfig';
 
 // Preload user's GLB models from public/3Dmodels
 useGLTF.preload('/3Dmodels/hero3d.glb');
@@ -555,22 +556,28 @@ interface ServicePavilionProps {
 function WebDesignStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
   const table = useClonedGLTF('/3Dmodels/Table1.glb');
   const laptop = useClonedGLTF('/3Dmodels/Laptop3D.glb');
+  const cfg = STATIONS_CONFIG.webDesign;
+
+  const tableScale = typeof cfg.table.scale === 'number' ? [cfg.table.scale, cfg.table.scale, cfg.table.scale] as [number, number, number] : cfg.table.scale;
+  const laptopScale = typeof cfg.laptop.scale === 'number' ? [cfg.laptop.scale, cfg.laptop.scale, cfg.laptop.scale] as [number, number, number] : cfg.laptop.scale;
 
   return (
     <group>
-      {/* Table 1 - Round Studio Desk */}
-      <Center bottom>
-        <primitive object={table} scale={[0.95, 0.95, 0.95]} />
-      </Center>
-      {/* 3D Laptop on Table Surface (y ~ 1.15m) facing approaching visitor */}
-      <group position={[0, 1.15, 0]} rotation={[0, Math.PI * 0.75, 0]}>
-        <Center bottom>
-          <primitive object={laptop} scale={[0.00095, 0.00095, 0.00095]} />
-        </Center>
+      {/* میز ۱ - پایه‌ها دقیقاً مماس روی سطح زمین Y = 0 */}
+      <group position={cfg.table.position} rotation={cfg.table.rotation} scale={tableScale}>
+        <primitive object={table} position={[0, 0.0631, 0]} />
       </group>
-      {/* Luminous Floor Accent Ring */}
+
+      {/* لپ‌تاپ سه‌بعدی - سطح میز */}
+      <group position={cfg.laptop.position} rotation={cfg.laptop.rotation}>
+        <group scale={laptopScale}>
+          <primitive object={laptop} position={[-1387.68, -44.30, -2142.99]} />
+        </group>
+      </group>
+
+      {/* حلقه نورانی دور پایه‌های میز */}
       <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.2, 1.35, 32]} />
+        <ringGeometry args={[1.15, 1.3, 32]} />
         <meshBasicMaterial color={isHighlighted ? '#34D399' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
       </mesh>
       <pointLight position={[0, 1.8, 0]} color="#10B981" intensity={isHighlighted ? 2.5 : 1.2} distance={6} />
@@ -582,22 +589,28 @@ function WebDesignStation({ isHighlighted, accent }: { isHighlighted: boolean; a
 function ContentProductionStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
   const table = useClonedGLTF('/3Dmodels/table2.glb');
   const phone = useClonedGLTF('/3Dmodels/Phone3D.glb');
+  const cfg = STATIONS_CONFIG.contentProduction;
+
+  const tableScale = typeof cfg.table.scale === 'number' ? [cfg.table.scale, cfg.table.scale, cfg.table.scale] as [number, number, number] : cfg.table.scale;
+  const phoneScale = typeof cfg.phone.scale === 'number' ? [cfg.phone.scale, cfg.phone.scale, cfg.phone.scale] as [number, number, number] : cfg.phone.scale;
 
   return (
     <group>
-      {/* Table 2 */}
-      <Center bottom>
-        <primitive object={table} scale={[1.15, 1.15, 1.15]} />
-      </Center>
-      {/* 3D Phone Hovering Above Table with screen clearly visible */}
-      <Float speed={2.5} rotationIntensity={0.2} floatIntensity={0.35} position={[0, 1.68, 0]}>
-        <Center>
-          <primitive object={phone} scale={[0.45, 0.45, 0.45]} rotation={[0.15, Math.PI, 0]} />
-        </Center>
+      {/* میز ۲ - پایه‌ها دقیقاً مماس روی سطح زمین Y = 0 */}
+      <group position={cfg.table.position} rotation={cfg.table.rotation} scale={tableScale}>
+        <primitive object={table} position={[0, 0.4837, 0]} />
+      </group>
+
+      {/* گوشی سه‌بعدی شناور در فضا رو به کاربر */}
+      <Float speed={2.5} rotationIntensity={0.15} floatIntensity={0.25} position={cfg.phone.position}>
+        <group rotation={cfg.phone.rotation} scale={phoneScale}>
+          <primitive object={phone} position={[0.005, -0.072, -0.009]} />
+        </group>
       </Float>
-      {/* Luminous Floor Accent Ring */}
+
+      {/* حلقه نورانی دور میز */}
       <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.05, 1.2, 32]} />
+        <ringGeometry args={[1.0, 1.15, 32]} />
         <meshBasicMaterial color={isHighlighted ? '#2DD4BF' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
       </mesh>
       <pointLight position={[0, 1.7, 0]} color="#2DD4BF" intensity={isHighlighted ? 2.5 : 1.4} distance={6} />
@@ -610,28 +623,36 @@ function VideoTeaserStation({ isHighlighted, accent }: { isHighlighted: boolean;
   const table = useClonedGLTF('/3Dmodels/table3.glb');
   const camera = useClonedGLTF('/3Dmodels/Camera3D.glb');
   const gimbal = useClonedGLTF('/3Dmodels/gimbal3D.glb');
+  const cfg = STATIONS_CONFIG.videoTeaser;
+
+  const tableScale = typeof cfg.table.scale === 'number' ? [cfg.table.scale, cfg.table.scale, cfg.table.scale] as [number, number, number] : cfg.table.scale;
+  const cameraScale = typeof cfg.camera.scale === 'number' ? [cfg.camera.scale, cfg.camera.scale, cfg.camera.scale] as [number, number, number] : cfg.camera.scale;
+  const gimbalScale = typeof cfg.gimbal.scale === 'number' ? [cfg.gimbal.scale, cfg.gimbal.scale, cfg.gimbal.scale] as [number, number, number] : cfg.gimbal.scale;
 
   return (
     <group>
-      {/* Table 3 */}
-      <Center bottom>
-        <primitive object={table} scale={[1.25, 1.25, 1.25]} />
-      </Center>
-      {/* Cinema Camera on Table */}
-      <group position={[0.22, 1.18, 0]} rotation={[0, -Math.PI * 0.25, 0]}>
-        <Center bottom>
-          <primitive object={camera} scale={[0.095, 0.095, 0.095]} />
-        </Center>
+      {/* میز ۳ - پایه‌ها دقیقاً مماس روی سطح زمین Y = 0 */}
+      <group position={cfg.table.position} rotation={cfg.table.rotation} scale={tableScale}>
+        <primitive object={table} position={[0, -0.0038, 0]} />
       </group>
-      {/* Handheld Gimbal standing on Table next to Camera */}
-      <group position={[-0.25, 1.18, 0.04]} rotation={[0, Math.PI * 0.25, 0]}>
-        <Center bottom>
-          <primitive object={gimbal} scale={[0.035, 0.035, 0.035]} />
-        </Center>
+
+      {/* دوربین سینمایی روی میز */}
+      <group position={cfg.camera.position} rotation={cfg.camera.rotation}>
+        <group scale={cameraScale}>
+          <primitive object={camera} position={[0, 0.0055, 0]} />
+        </group>
       </group>
-      {/* Luminous Floor Accent Ring */}
+
+      {/* گیمبال فیلم‌برداری روی میز */}
+      <group position={cfg.gimbal.position} rotation={cfg.gimbal.rotation}>
+        <group scale={gimbalScale}>
+          <primitive object={gimbal} position={[1.872, -0.0042, -1.175]} />
+        </group>
+      </group>
+
+      {/* حلقه نورانی دور میز */}
       <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.05, 1.2, 32]} />
+        <ringGeometry args={[1.0, 1.15, 32]} />
         <meshBasicMaterial color={isHighlighted ? '#FBBF24' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
       </mesh>
       <pointLight position={[0, 1.9, 0]} color="#FBBF24" intensity={isHighlighted ? 2.5 : 1.2} distance={6} />
@@ -645,34 +666,44 @@ function LogoDesignStation({ isHighlighted, accent }: { isHighlighted: boolean; 
   const clipboard = useClonedGLTF('/3Dmodels/clipboard.glb');
   const paper = useClonedGLTF('/3Dmodels/stack of paper.glb');
   const pen = useClonedGLTF('/3Dmodels/Pen.glb');
+  const cfg = STATIONS_CONFIG.logoDesign;
+
+  const deskScale = typeof cfg.table.scale === 'number' ? [cfg.table.scale, cfg.table.scale, cfg.table.scale] as [number, number, number] : cfg.table.scale;
+  const paperScale = typeof cfg.paperStack.scale === 'number' ? [cfg.paperStack.scale, cfg.paperStack.scale, cfg.paperStack.scale] as [number, number, number] : cfg.paperStack.scale;
+  const clipboardScale = typeof cfg.clipboard.scale === 'number' ? [cfg.clipboard.scale, cfg.clipboard.scale, cfg.clipboard.scale] as [number, number, number] : cfg.clipboard.scale;
+  const penScale = typeof cfg.pen.scale === 'number' ? [cfg.pen.scale, cfg.pen.scale, cfg.pen.scale] as [number, number, number] : cfg.pen.scale;
 
   return (
     <group>
-      {/* Table 4 - Executive Studio Desk */}
-      <Center bottom>
-        <primitive object={desk} scale={[1.22, 1.22, 1.22]} />
-      </Center>
-      {/* Drafting Stack of Paper on Left */}
-      <group position={[-0.32, 1.16, 0]} rotation={[0, 0.12, 0]}>
-        <Center bottom>
-          <primitive object={paper} scale={[2.0, 2.0, 2.0]} />
-        </Center>
+      {/* میز ۴ - پایه‌ها دقیقاً مماس روی سطح زمین Y = 0 */}
+      <group position={cfg.table.position} rotation={cfg.table.rotation} scale={deskScale}>
+        <primitive object={desk} position={[0, 0.3766, 0]} />
       </group>
-      {/* Sketching Clipboard on Right with gentle drafting incline */}
-      <group position={[0.24, 1.17, 0]} rotation={[-Math.PI / 2 + 0.22, 0, -0.15]}>
-        <Center bottom>
-          <primitive object={clipboard} scale={[1.1, 1.1, 1.1]} />
-        </Center>
+
+      {/* دسته کاغذ طراحی روی سطح میز */}
+      <group position={cfg.paperStack.position} rotation={cfg.paperStack.rotation}>
+        <group scale={paperScale}>
+          <primitive object={paper} position={[-0.003, 0.015, -0.004]} />
+        </group>
       </group>
-      {/* Design Pen / Stylus positioned creatively */}
-      <group position={[0.02, 1.185, 0.14]} rotation={[Math.PI / 2, 0, Math.PI * 0.35]}>
-        <Center>
-          <primitive object={pen} scale={[0.04, 0.04, 0.04]} />
-        </Center>
+
+      {/* تخته شاسی طراحی به حالت تخت روی میز */}
+      <group position={cfg.clipboard.position} rotation={cfg.clipboard.rotation}>
+        <group scale={clipboardScale}>
+          <primitive object={clipboard} position={[0, 0.021, 0]} />
+        </group>
       </group>
-      {/* Luminous Floor Accent Ring */}
+
+      {/* قلم استایلوس طراحی روی میز */}
+      <group position={cfg.pen.position} rotation={cfg.pen.rotation}>
+        <group scale={penScale}>
+          <primitive object={pen} position={[0, 0.184, 0.485]} />
+        </group>
+      </group>
+
+      {/* حلقه نورانی دور میز */}
       <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.25, 1.4, 32]} />
+        <ringGeometry args={[1.2, 1.35, 32]} />
         <meshBasicMaterial color={isHighlighted ? '#A78BFA' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
       </mesh>
       <pointLight position={[0, 1.9, 0]} color="#A78BFA" intensity={isHighlighted ? 2.5 : 1.2} distance={6} />
@@ -683,23 +714,25 @@ function LogoDesignStation({ isHighlighted, accent }: { isHighlighted: boolean; 
 // ── STATION 5: BILLBOARD (GROUND HIGHWAY SCREEN - NO TABLE) ──
 function BillboardStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
   const billboard = useClonedGLTF('/3Dmodels/Billboard.glb');
+  const cfg = STATIONS_CONFIG.billboard;
+
+  const billboardScale = typeof cfg.billboard.scale === 'number' ? [cfg.billboard.scale, cfg.billboard.scale, cfg.billboard.scale] as [number, number, number] : cfg.billboard.scale;
 
   return (
     <group>
-      {/* Monumental Roadside Billboard standing directly on the runway floor */}
-      <Center bottom>
-        <primitive
-          object={billboard}
-          scale={[0.0058, 0.0058, 0.0058]}
-          rotation={[0, Math.PI / 2, 0]}
-        />
-      </Center>
-      {/* Floor Accent Perimeter Light */}
+      {/* بیلبورد محیطی - پایه‌ها دقیقاً مماس روی سطح زمین Y = 0 */}
+      <group position={cfg.billboard.position}>
+        <group rotation={cfg.billboard.rotation} scale={billboardScale}>
+          <primitive object={billboard} position={[71.03, 15.00, 90.0]} />
+        </group>
+      </group>
+
+      {/* حلقه نورانی پایه بیلبورد */}
       <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[1.8, 1.98, 32]} />
         <meshBasicMaterial color={isHighlighted ? '#22D3EE' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
       </mesh>
-      {/* Spotlights Illuminating the Billboard */}
+      {/* نورافکن‌های بیلبورد */}
       <pointLight position={[0, 4.2, 1.6]} color="#22D3EE" intensity={isHighlighted ? 3.5 : 2.0} distance={9} />
       <pointLight position={[0, 1.2, 0.6]} color="#14B8A6" intensity={1.5} distance={6} />
     </group>
@@ -753,7 +786,10 @@ function ServicePavilion({
     easing.damp(meshRef.current.position, 'y', targetY, 0.2, delta);
   });
 
-  const badgeY = motifType === 'billboard' ? 4.35 : 2.9;
+  const badgeY =
+    motifType === 'billboard'
+      ? STATIONS_CONFIG.billboard.badgeY
+      : STATIONS_CONFIG.webDesign.badgeY;
 
   return (
     <group
@@ -818,7 +854,7 @@ function ServicesConcourse({
       id: 's1',
       slug: 'web-design',
       title: 'طراحی سایت و پرتال سازمانی',
-      position: [-3.8, 0, -22],
+      position: STATIONS_CONFIG.webDesign.stationPosition,
       color: '#0E946E',
       accent: '#10B981',
       iconSymbol: '🌐',
@@ -828,7 +864,7 @@ function ServicesConcourse({
       id: 's2',
       slug: 'instagram-content',
       title: 'تولید محتوا و اینستاگرام',
-      position: [0.5, 0, -26],
+      position: STATIONS_CONFIG.contentProduction.stationPosition,
       color: '#14B8A6',
       accent: '#2DD4BF',
       iconSymbol: '📱',
@@ -838,7 +874,7 @@ function ServicesConcourse({
       id: 's3',
       slug: 'video-teaser',
       title: 'تیزر صنعتی و هلی‌شات هوایی',
-      position: [-3.2, 0, -32],
+      position: STATIONS_CONFIG.videoTeaser.stationPosition,
       color: '#F59E0B',
       accent: '#FBBF24',
       iconSymbol: '🎬',
@@ -848,7 +884,7 @@ function ServicesConcourse({
       id: 's4',
       slug: 'branding-identity',
       title: 'طراحی لوگو و هویت بصری',
-      position: [0.8, 0, -37],
+      position: STATIONS_CONFIG.logoDesign.stationPosition,
       color: '#8B5CF6',
       accent: '#A78BFA',
       iconSymbol: '✨',
@@ -858,7 +894,7 @@ function ServicesConcourse({
       id: 's5',
       slug: 'billboard-advertising',
       title: 'تبلیغات محیطی و بیلبورد ارومیه',
-      position: [-2.5, 0, -42],
+      position: STATIONS_CONFIG.billboard.stationPosition,
       color: '#06B6D4',
       accent: '#22D3EE',
       iconSymbol: '🏙️',
