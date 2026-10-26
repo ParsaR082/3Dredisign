@@ -472,55 +472,20 @@ function NexusGateway({
       {/* ── 3D URUMSIMA BRAND LOGO LANDMARK ── */}
       <group ref={monolithRef} position={[0, 3.4, -4]}>
         <Float speed={2.0} rotationIntensity={0.2} floatIntensity={0.35}>
-          {/* Sleek Obsidian Chamfered Glass Plinth Backing */}
-          <RoundedBox args={[3.2, 3.8, 0.16]} radius={0.16} smoothness={4} castShadow receiveShadow>
-            <meshPhysicalMaterial
-              color="#081018"
-              roughness={0.1}
-              metalness={0.9}
-              transparent
-              opacity={0.88}
-              transmission={0.3}
-              thickness={0.5}
-            />
-          </RoundedBox>
-
-          {/* Luminous Emerald Outer Rim Conduit */}
-          <mesh position={[0, 0, 0.09]}>
-            <planeGeometry args={[3.1, 3.7]} />
-            <meshBasicMaterial color="#0E946E" wireframe transparent opacity={0.35} />
-          </mesh>
-
-          {/* ── 3D LOGO MODEL FROM public/3Dmodels/logo3d.glb ── */}
-          <group position={[0, 0, 0.12]}>
+          {/* ── 3D LOGO MODEL FROM public/3Dmodels/logo3d.glb (Floating cleanly without backing box) ── */}
+          <group position={[0, 0, 0]}>
             <Center>
               <primitive
                 object={logoScene}
                 rotation={[Math.PI / 2, 0, 0]}
-                scale={[1.1, 1.1, 1.1]}
+                scale={[1.15, 1.15, 1.15]}
               />
             </Center>
           </group>
 
-          {/* Delicate Quantum Orbit Ring around Logo */}
-          <mesh rotation={[Math.PI / 3, 0, 0]}>
-            <torusGeometry args={[2.5, 0.02, 16, 64]} />
-            <meshBasicMaterial color="#10B981" transparent opacity={0.6} />
-          </mesh>
-
-          {/* Top & Bottom Titanium Brackets */}
-          <mesh position={[0, 1.95, 0]}>
-            <boxGeometry args={[1.2, 0.14, 0.3]} />
-            <meshStandardMaterial color="#1E293B" roughness={0.2} metalness={0.95} />
-          </mesh>
-          <mesh position={[0, -1.95, 0]}>
-            <boxGeometry args={[1.2, 0.14, 0.3]} />
-            <meshStandardMaterial color="#1E293B" roughness={0.2} metalness={0.95} />
-          </mesh>
-
           {/* Holographic 3D Brand Label beneath Landmark - only visible after hero card has fallen */}
           {heroT > 0.85 && (
-            <Html position={[0, -2.45, 0]} center distanceFactor={12}>
+            <Html position={[0, -1.9, 0]} center distanceFactor={12}>
               <div className="px-3.5 py-1 rounded-full glass-panel-dock border border-brand-500/30 text-[10px] font-bold text-brand-300 whitespace-nowrap shadow-xl pointer-events-none select-none backdrop-blur-md flex items-center gap-1.5 animate-fadeIn">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 <span>اروم سیما • آژانس دیجیتال مارکتینگ</span>
@@ -528,7 +493,7 @@ function NexusGateway({
             </Html>
           )}
 
-          {/* Central Internal Point Light for Aura Glow */}
+          {/* Central Point Light for Aura Glow on Logo */}
           <pointLight color="#10B981" intensity={3.0} distance={8} />
         </Float>
       </group>
