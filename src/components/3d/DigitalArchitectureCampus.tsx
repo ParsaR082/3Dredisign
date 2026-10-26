@@ -803,9 +803,9 @@ function ServicePavilion({
         accent={accent}
       />
 
-      {/* Interactive 3D Label Badge - only visible once camera navigates into Sector 1 (hidden behind upright hero card) */}
+      {/* Interactive 3D Label Badge - Up-Left for Left stations, Up-Right for Right stations */}
       {scrollProgress >= 0.16 && (
-        <Html position={[0, badgeY, 0]} center distanceFactor={15}>
+        <Html position={[position[0] < 0 ? -1.0 : 1.0, badgeY, 0]} center distanceFactor={15}>
           <div
             className={
               'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 pointer-events-none whitespace-nowrap shadow-2xl border animate-fadeIn ' +
@@ -1084,9 +1084,9 @@ function ProjectTVStation({
         isHighlighted={isHighlighted}
       />
 
-      {/* Holographic 3D Overlay Badge - visible when in Sector 2 */}
+      {/* Holographic 3D Overlay Badge - Up-Left for Left TVs, Up-Right for Right TVs */}
       {scrollProgress >= 0.38 && (
-        <Html position={[0, screenSize[1] + 0.9, 0]} center distanceFactor={16}>
+        <Html position={[position[0] < 0 ? -1.3 : 1.3, screenSize[1] + 0.85, 0]} center distanceFactor={16}>
           <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-52 animate-fadeIn">
             <span className="text-[10px] font-mono text-brand-300 block mb-0.5">{category}</span>
             <div className="text-xs font-black text-white line-clamp-1">{title}</div>
@@ -1330,47 +1330,53 @@ function CollaborationDepartmentStation({
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
-    const targetScale = hovered ? 1.03 : 1.0;
+    const baseScale = 1.6;
+    const targetScale = hovered ? baseScale * 1.04 : baseScale;
     easing.damp(groupRef.current.scale, 'x', targetScale, 0.2, delta);
     easing.damp(groupRef.current.scale, 'y', targetScale, 0.2, delta);
     easing.damp(groupRef.current.scale, 'z', targetScale, 0.2, delta);
   });
 
+  const isLeft = config.position[0] < 0;
+
   return (
-    <group
-      position={config.position}
-      rotation={[0, config.rotationY, 0]}
-      ref={groupRef}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setHovered(true);
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={() => {
-        setHovered(false);
-        document.body.style.cursor = 'auto';
-      }}
-    >
-      {/* Floor Glow Accent Light */}
-      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.5, 1.75, 48]} />
-        <meshBasicMaterial
-          color={hovered ? '#10B981' : '#0E946E'}
-          transparent
-          opacity={hovered ? 0.8 : 0.35}
-        />
-      </mesh>
+    <group position={config.position}>
+      {/* 3D Office Workstation (scaled 1.6x and rotated towards runway) */}
+      <group
+        rotation={[0, config.rotationY, 0]}
+        scale={[1.6, 1.6, 1.6]}
+        ref={groupRef}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHovered(true);
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          setHovered(false);
+          document.body.style.cursor = 'auto';
+        }}
+      >
+        {/* Floor Glow Accent Light */}
+        <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[1.5, 1.75, 48]} />
+          <meshBasicMaterial
+            color={hovered ? '#10B981' : '#0E946E'}
+            transparent
+            opacity={hovered ? 0.8 : 0.35}
+          />
+        </mesh>
 
-      {/* Specific Office Station Sub-Component */}
-      {config.id === 'step-discovery' && <DiscoveryStation />}
-      {config.id === 'step-design' && <DesignStudioStation />}
-      {config.id === 'step-engineering' && <EngineeringStation />}
-      {config.id === 'step-testing' && <QATestingStation />}
-      {config.id === 'step-launch' && <LaunchHandoverStation />}
+        {/* Specific Office Station Sub-Component */}
+        {config.id === 'step-discovery' && <DiscoveryStation />}
+        {config.id === 'step-design' && <DesignStudioStation />}
+        {config.id === 'step-engineering' && <EngineeringStation />}
+        {config.id === 'step-testing' && <QATestingStation />}
+        {config.id === 'step-launch' && <LaunchHandoverStation />}
+      </group>
 
-      {/* Holographic 3D Overlay Badge */}
+      {/* Holographic 3D Overlay Badge - Up-Left for Left stations, Up-Right for Right stations */}
       {scrollProgress >= 0.62 && (
-        <Html position={[0, 2.7, 0]} center distanceFactor={16}>
+        <Html position={[isLeft ? -1.4 : 1.4, 3.2, 0]} center distanceFactor={16}>
           <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-56 animate-fadeIn">
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">

@@ -224,8 +224,8 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     title: 'کشف و تحلیل استراتژی',
     subtitle: 'جلسات نیازسنجی، تحلیل رقبا و تدوین نقشه راه اختصاصی برند',
     duration: '۲ الی ۴ روز کاری',
-    position: [-2.4, 0, -94],
-    rotationY: Math.PI / 2 + 0.1,
+    position: [-2.6, 0, -94],
+    rotationY: Math.PI / 5 + 0.1,
   },
   {
     id: 'step-design',
@@ -234,8 +234,8 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     title: 'پروتوتایپ و طراحی UI/UX',
     subtitle: 'طراحی هویت بصری، وایرفریم‌ها و پروتوتایپ تعاملی فیگما',
     duration: '۵ الی ۸ روز کاری',
-    position: [2.4, 0, -101],
-    rotationY: -Math.PI / 2 - 0.1,
+    position: [2.6, 0, -101],
+    rotationY: -Math.PI / 5 - 0.1,
   },
   {
     id: 'step-engineering',
@@ -244,8 +244,8 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     title: 'مهندسی و توسعه نرم‌افزار',
     subtitle: 'کدنویسی مقیاس‌پذیر، معماری فرانت‌اند و بک‌اند با انیمیشن‌های سه‌بعدی روان',
     duration: '۱۰ الی ۱۵ روز کاری',
-    position: [-2.4, 0, -108],
-    rotationY: Math.PI / 2 + 0.1,
+    position: [-2.6, 0, -108],
+    rotationY: Math.PI / 5 + 0.1,
   },
   {
     id: 'step-testing',
@@ -254,8 +254,8 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     title: 'تست، سئو و کنترل کیفیت',
     subtitle: 'آزمون ریسپانسیو چند دیوایسی، ارزیابی امنیت، ممیزی سئو و سرعت ۱۰۰/۱۰۰',
     duration: '۳ الی ۵ روز کاری',
-    position: [2.4, 0, -115],
-    rotationY: -Math.PI / 2 - 0.1,
+    position: [2.6, 0, -115],
+    rotationY: -Math.PI / 5 - 0.1,
   },
   {
     id: 'step-launch',
@@ -264,8 +264,8 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     title: 'لانچ رسمی و تحویل نهایی',
     subtitle: 'استقرار روی سرور پرسرعت، آموزش پنل مدیریت و پشتیبانی دائمی ۲۴/۷',
     duration: 'تحویل و لانچ قطعی',
-    position: [-2.4, 0, -122],
-    rotationY: Math.PI / 2 + 0.1,
+    position: [-2.6, 0, -122],
+    rotationY: Math.PI / 5 + 0.1,
   },
 ];
 
