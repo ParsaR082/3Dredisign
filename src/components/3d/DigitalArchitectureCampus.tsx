@@ -5,7 +5,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { Float, RoundedBox, Html, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { easing } from 'maath';
-import { STATIONS_CONFIG } from './stationsConfig';
+import { STATIONS_CONFIG, PORTFOLIO_TVS_CONFIG, ProjectTVConfig } from './stationsConfig';
 
 // Preload user's GLB models from public/3Dmodels
 useGLTF.preload('/3Dmodels/hero3d.glb');
@@ -22,6 +22,10 @@ useGLTF.preload('/3Dmodels/Pen.glb');
 useGLTF.preload('/3Dmodels/clipboard.glb');
 useGLTF.preload('/3Dmodels/stack of paper.glb');
 useGLTF.preload('/3Dmodels/Billboard.glb');
+useGLTF.preload('/3Dmodels/TV1.glb');
+useGLTF.preload('/3Dmodels/TV2.glb');
+useGLTF.preload('/3Dmodels/TV3.glb');
+useGLTF.preload('/3Dmodels/TV4.glb');
 
 // Helper to clone GLTF scenes safely and configure shadows and color spaces
 function useClonedGLTF(path: string) {
@@ -53,6 +57,7 @@ interface CampusProps {
   activeSector: number;   // 0 to 4
   hoveredServiceSlug?: string | null;
   hoveredProjectSlug?: string | null;
+  portfolioProjects?: ProjectTVConfig[];
   onSelectService?: (slug: string) => void;
   onSelectProject?: (slug: string) => void;
   onHoverService?: (slug: string | null) => void;
@@ -883,39 +888,139 @@ function ServicesConcourse({
   );
 }
 
-// ── 5. ZONE 2: THE MASTERWORKS EXHIBITION PLINTHS ──
-interface ExhibitionPlinthProps {
-  slug: string;
-  title: string;
-  category: string;
-  kpi: string;
-  position: [number, number, number];
-  rotationY?: number;
+// ── 5. ZONE 2: MASTERWORKS DIGITAL VIDEO WALLS & MONITORS ──
+
+function TVScreenDisplay({
+  imageUrl,
+  screenSize,
+  screenOffset,
+  screenRotation = [0, 0, 0],
+  isHighlighted,
+}: {
+  imageUrl?: string;
+  screenSize: [number, number];
+  screenOffset: [number, number, number];
+  screenRotation?: [number, number, number];
+  isHighlighted: boolean;
+}) {
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
+
+  useEffect(() => {
+    if (!imageUrl) {
+      setTexture(null);
+      return;
+    }
+    const loader = new THREE.TextureLoader();
+    let isMounted = true;
+    loader.load(
+      imageUrl,
+      (loadedTex) => {
+        if (!isMounted) return;
+        loadedTex.colorSpace = THREE.SRGBColorSpace;
+        loadedTex.minFilter = THREE.LinearFilter;
+        loadedTex.magFilter = THREE.LinearFilter;
+        loadedTex.generateMipmaps = false;
+        setTexture(loadedTex);
+      },
+      undefined,
+      (err) => {
+        console.warn('Could not load TV screen texture:', imageUrl, err);
+      }
+    );
+    return () => {
+      isMounted = false;
+    };
+  }, [imageUrl]);
+
+  return (
+    <group position={screenOffset} rotation={screenRotation}>
+      <mesh castShadow={false} receiveShadow={false}>
+        <planeGeometry args={screenSize} />
+        {texture ? (
+          <meshBasicMaterial
+            map={texture}
+            toneMapped={false}
+            color={isHighlighted ? '#FFFFFF' : '#E2E8F0'}
+          />
+        ) : (
+          <meshStandardMaterial
+            color={isHighlighted ? '#1E3A34' : '#0B1B18'}
+            emissive={isHighlighted ? '#10B981' : '#047857'}
+            emissiveIntensity={0.25}
+            roughness={0.2}
+            metalness={0.8}
+          />
+        )}
+      </mesh>
+    </group>
+  );
+}
+
+function TVModelRenderer({ model }: { model: 'TV1' | 'TV2' | 'TV3' | 'TV4' }) {
+  const tv1 = useClonedGLTF('/3Dmodels/TV1.glb');
+  const tv2 = useClonedGLTF('/3Dmodels/TV2.glb');
+  const tv3 = useClonedGLTF('/3Dmodels/TV3.glb');
+  const tv4 = useClonedGLTF('/3Dmodels/TV4.glb');
+
+  switch (model) {
+    case 'TV1':
+      return (
+        <group scale={1.35} rotation={[0, Math.PI / 2, 0]}>
+          <primitive object={tv1} position={[0.0267, 0.2065, -0.012]} />
+        </group>
+      );
+    case 'TV2':
+      return (
+        <group scale={0.0085}>
+          <primitive object={tv2} position={[0, 1.184, 0]} />
+        </group>
+      );
+    case 'TV3':
+      return (
+        <group scale={3.6}>
+          <primitive object={tv3} position={[0, 0.1981, 0]} />
+        </group>
+      );
+    case 'TV4':
+      return (
+        <group scale={8.5} rotation={[0, Math.PI, 0]}>
+          <primitive object={tv4} position={[0.1963, 0, -0.052]} />
+        </group>
+      );
+  }
+}
+
+interface ProjectTVStationProps extends ProjectTVConfig {
   isHoveredByParent?: boolean;
   scrollProgress?: number;
   onSelect?: (slug: string) => void;
   onHover?: (slug: string | null) => void;
 }
 
-function ExhibitionPlinth({
+function ProjectTVStation({
   slug,
   title,
   category,
   kpi,
+  model,
   position,
-  rotationY = 0,
+  rotationY,
+  screenImage,
+  screenSize,
+  screenOffset,
+  screenRotation,
   isHoveredByParent,
   scrollProgress = 0,
   onSelect,
   onHover,
-}: ExhibitionPlinthProps) {
+}: ProjectTVStationProps) {
   const [localHover, setLocalHover] = useState(false);
   const groupRef = useRef<THREE.Group>(null);
   const isHighlighted = !!(localHover || isHoveredByParent);
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
-    const targetScale = isHighlighted ? 1.06 : 1.0;
+    const targetScale = isHighlighted ? 1.04 : 1.0;
     easing.damp(groupRef.current.scale, 'x', targetScale, 0.2, delta);
     easing.damp(groupRef.current.scale, 'y', targetScale, 0.2, delta);
     easing.damp(groupRef.current.scale, 'z', targetScale, 0.2, delta);
@@ -942,111 +1047,67 @@ function ExhibitionPlinth({
         if (onSelect) onSelect(slug);
       }}
     >
-      {/* Heavy Architectural Podium */}
-      <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
-        <boxGeometry args={[4.2, 1.0, 2.6]} />
-        <meshStandardMaterial
-          color={isHighlighted ? '#1E293B' : '#0B121E'}
-          roughness={0.2}
-          metalness={0.85}
+      {/* Ground Cyber Light Ring under each TV display */}
+      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.6, 1.85, 48]} />
+        <meshBasicMaterial
+          color={isHighlighted ? '#10B981' : '#0E946E'}
+          transparent
+          opacity={isHighlighted ? 0.85 : 0.4}
         />
       </mesh>
 
-      {/* Emerald Perimeter Accent Light */}
-      <mesh position={[0, 1.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[4.25, 2.65]} />
-        <meshBasicMaterial color={isHighlighted ? '#10B981' : '#0E946E'} transparent opacity={0.6} />
-      </mesh>
+      {/* 3D TV Monitor Model grounded on Y = 0 */}
+      <TVModelRenderer model={model} />
 
-      {/* Tilted Floating Display Slab */}
-      <group position={[0, 2.2, 0]} rotation={[-Math.PI / 10, 0, 0]}>
-        <RoundedBox args={[3.8, 2.2, 0.15]} radius={0.08} smoothness={4} castShadow>
-          <meshStandardMaterial
-            color="#111827"
-            roughness={0.15}
-            metalness={0.9}
-          />
-        </RoundedBox>
+      {/* High-Fidelity Screen Plane with Dynamic Project Image */}
+      <TVScreenDisplay
+        imageUrl={screenImage}
+        screenSize={screenSize}
+        screenOffset={screenOffset}
+        screenRotation={screenRotation}
+        isHighlighted={isHighlighted}
+      />
 
-        {/* Inner Luminous Terminal Screen */}
-        <mesh position={[0, 0, 0.09]}>
-          <planeGeometry args={[3.6, 2.0]} />
-          <meshBasicMaterial
-            color={isHighlighted ? '#1E3A34' : '#0D2320'}
-          />
-        </mesh>
-
-        {/* Holographic 3D Overlay Badge - only visible once camera navigates into Sector 2 */}
-        {scrollProgress >= 0.38 && (
-          <Html position={[0, 0, 0.2]} center distanceFactor={16}>
-            <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-52 animate-fadeIn">
-              <span className="text-[10px] font-mono text-brand-300 block mb-0.5">{category}</span>
-              <div className="text-xs font-black text-white line-clamp-1">{title}</div>
-              <div className="mt-1.5 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2 py-0.5 rounded-full text-[10px] font-bold">
-                {kpi}
-              </div>
+      {/* Holographic 3D Overlay Badge - visible when in Sector 2 */}
+      {scrollProgress >= 0.38 && (
+        <Html position={[0, screenSize[1] + 0.9, 0]} center distanceFactor={16}>
+          <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-52 animate-fadeIn">
+            <span className="text-[10px] font-mono text-brand-300 block mb-0.5">{category}</span>
+            <div className="text-xs font-black text-white line-clamp-1">{title}</div>
+            <div className="mt-1.5 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2 py-0.5 rounded-full text-[10px] font-bold">
+              {kpi}
             </div>
-          </Html>
-        )}
-      </group>
+          </div>
+        </Html>
+      )}
     </group>
   );
 }
 
 function ExhibitionGallery({
+  projects,
   scrollProgress = 0,
   hoveredProjectSlug,
   onSelectProject,
   onHoverProject,
 }: {
+  projects?: ProjectTVConfig[];
   scrollProgress?: number;
   hoveredProjectSlug?: string | null;
   onSelectProject?: (slug: string) => void;
   onHoverProject?: (slug: string | null) => void;
 }) {
-  const projectsData = [
-    {
-      slug: 'araz-metal-industrial-portal',
-      title: 'پورتال سازمانی آراز متال',
-      category: 'طراحی سایت صنعتی',
-      kpi: '+۲۴۰٪ ترافیک ارگانیک',
-      position: [-2.0, 0, -58] as [number, number, number],
-      rotationY: Math.PI / 10,
-    },
-    {
-      slug: 'dr-sadeghi-medical-branding',
-      title: 'کمپین کلینیک دکتر صادقی',
-      category: 'اینستاگرام و ویدیو مارکتینگ',
-      kpi: '+۱.۸M بازدید ریلزها',
-      position: [3.5, 0, -64] as [number, number, number],
-      rotationY: -Math.PI / 10,
-    },
-    {
-      slug: 'sepid-kooh-outdoor-campaign',
-      title: 'کمپین محیطی سپید کوه',
-      category: 'بیلبورد و تیزر سینمایی',
-      kpi: '+۲.۵M ایمپرشن شهری',
-      position: [-2.2, 0, -72] as [number, number, number],
-      rotationY: Math.PI / 10,
-    },
-    {
-      slug: 'baran-leather-ecommerce',
-      title: 'فروشگاه آنلاین چرم باران',
-      category: 'تجارت الکترونیک Jamstack',
-      kpi: '+۲,۸۰۰ سفارش ماهانه',
-      position: [3.2, 0, -78] as [number, number, number],
-      rotationY: -Math.PI / 10,
-    },
-  ];
+  const activeProjects = projects && projects.length > 0 ? projects : PORTFOLIO_TVS_CONFIG;
 
   return (
     <group>
-      {projectsData.map((p) => (
-        <ExhibitionPlinth
-          key={p.slug}
-          {...p}
+      {activeProjects.map((tvConfig) => (
+        <ProjectTVStation
+          key={tvConfig.slug}
+          {...tvConfig}
           scrollProgress={scrollProgress}
-          isHoveredByParent={hoveredProjectSlug === p.slug}
+          isHoveredByParent={hoveredProjectSlug === tvConfig.slug}
           onSelect={onSelectProject}
           onHover={onHoverProject}
         />
@@ -1128,6 +1189,7 @@ export default function DigitalArchitectureCampus({
   scrollProgress,
   hoveredServiceSlug,
   hoveredProjectSlug,
+  portfolioProjects,
   onSelectService,
   onSelectProject,
   onHoverService,
@@ -1170,6 +1232,7 @@ export default function DigitalArchitectureCampus({
         onHoverService={onHoverService}
       />
       <ExhibitionGallery
+        projects={portfolioProjects}
         scrollProgress={scrollProgress}
         hoveredProjectSlug={hoveredProjectSlug}
         onSelectProject={onSelectProject}

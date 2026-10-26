@@ -126,3 +126,77 @@ export const STATIONS_CONFIG = {
     },
   },
 };
+
+/**
+ * ── تنظیمات ۴ مدل تلویزیون بخش نمونه‌پروژه‌ها (Sector 2 - Masterworks Exhibition) ──
+ * 
+ * - screenImage: آدرس تصویر نمایش داده شده روی صفحه تلویزیون.
+ *   در حال حاضر از فایل لوکال خوانده می‌شود اما با اتصال به دیتابیس،
+ *   دقیقاً این فیلد از ستون دیتابیس (مانند project.screen_image یا thumbnail_image) مقداردهی خواهد شد.
+ */
+export interface ProjectTVConfig {
+  slug: string;
+  title: string;
+  category: string;
+  kpi: string;
+  model: 'TV1' | 'TV2' | 'TV3' | 'TV4';
+  position: [number, number, number];
+  rotationY: number;
+  screenImage?: string;
+  screenSize: [number, number];
+  screenOffset: [number, number, number];
+  screenRotation?: [number, number, number];
+}
+
+export const PORTFOLIO_TVS_CONFIG: ProjectTVConfig[] = [
+  {
+    slug: 'araz-metal-industrial-portal',
+    title: 'پورتال سازمانی آراز متال',
+    category: 'طراحی سایت صنعتی',
+    kpi: '+۲۴۰٪ ترافیک ارگانیک',
+    model: 'TV1',
+    position: [-2.4, 0, -56],
+    rotationY: Math.PI / 8,
+    screenImage: '/media/portfolio/thumbnails/attorney-anything_thumb.jpg',
+    screenSize: [3.25, 2.02],
+    screenOffset: [0, 1.356, 0.035],
+  },
+  {
+    slug: 'dr-sadeghi-medical-branding',
+    title: 'کمپین کلینیک دکتر صادقی',
+    category: 'اینستاگرام و ویدیو مارکتینگ',
+    kpi: '+۱.۸M بازدید ریلزها',
+    model: 'TV2',
+    position: [2.4, 0, -63],
+    rotationY: -Math.PI / 8,
+    screenImage: '/media/portfolio/thumbnails/detail-feel-result_thumb.jpg',
+    screenSize: [3.10, 1.88],
+    screenOffset: [0, 1.451, 0.11],
+  },
+  {
+    slug: 'sepid-kooh-outdoor-campaign',
+    title: 'کمپین محیطی سپید کوه',
+    category: 'بیلبورد و تیزر سینمایی',
+    kpi: '+۲.۵M ایمپرشن شهری',
+    model: 'TV3',
+    position: [-2.4, 0, -70],
+    rotationY: Math.PI / 8,
+    screenImage: '/media/portfolio/thumbnails/east-practice-plant_thumb.jpg',
+    screenSize: [3.11, 1.68],
+    screenOffset: [0, 1.58, 0.081],
+  },
+  {
+    slug: 'baran-leather-ecommerce',
+    title: 'فروشگاه آنلاین چرم باران',
+    category: 'تجارت الکترونیک Jamstack',
+    kpi: '+۲,۸۰۰ سفارش ماهانه',
+    model: 'TV4',
+    position: [2.4, 0, -77],
+    rotationY: -Math.PI / 8,
+    screenImage: '/media/portfolio/thumbnails/feel-oil-piece_thumb.jpg',
+    screenSize: [3.20, 1.95],
+    screenOffset: [0, 1.456, 0.06],
+    screenRotation: [-0.14, 0, 0],
+  },
+];
+

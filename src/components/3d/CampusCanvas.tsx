@@ -3,12 +3,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import DigitalArchitectureCampus from './DigitalArchitectureCampus';
+import { ProjectTVConfig } from './stationsConfig';
 
 interface Props {
   scrollProgress: number;
   activeSector: number;
   hoveredServiceSlug?: string | null;
   hoveredProjectSlug?: string | null;
+  portfolioProjects?: ProjectTVConfig[];
   onSelectService?: (slug: string) => void;
   onSelectProject?: (slug: string) => void;
   onHoverService?: (slug: string | null) => void;

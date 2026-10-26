@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import CampusCanvas from '@/components/3d/CampusCanvas';
 import SpatialHUD from '@/components/3d/SpatialHUD';
+import { PORTFOLIO_TVS_CONFIG } from '@/components/3d/stationsConfig';
 import type { LandingData, Service, Project, SiteSettings } from '@/types/content';
 
 interface HomeViewProps {
@@ -166,6 +167,23 @@ export default function HomeView({
     router.push('/portfolio/' + slug + '/');
   };
 
+  // Dynamic mapping of backend/database projects to the 4 3D TV displays
+  const portfolioTVs = useMemo(() => {
+    if (!projects || projects.length === 0) return undefined;
+    return PORTFOLIO_TVS_CONFIG.map((tvDefault, idx) => {
+      const p = projects[idx];
+      if (!p) return tvDefault;
+      return {
+        ...tvDefault,
+        slug: p.slug || tvDefault.slug,
+        title: p.title || tvDefault.title,
+        category: p.category || tvDefault.category,
+        kpi: p.kpis?.[0]?.value || tvDefault.kpi,
+        screenImage: p.thumbnail_image || tvDefault.screenImage,
+      };
+    });
+  }, [projects]);
+
   return (
     <div className="fixed inset-0 overflow-hidden text-gray-100 select-none">
       {/* ── PERSISTENT 3D DIGITAL ARCHITECTURE BACKGROUND ── */}
@@ -174,6 +192,7 @@ export default function HomeView({
         activeSector={activeSector}
         hoveredServiceSlug={hoveredServiceSlug}
         hoveredProjectSlug={hoveredProjectSlug}
+        portfolioProjects={portfolioTVs}
         onSelectService={handleSelectServiceFrom3D}
         onSelectProject={handleSelectProjectFrom3D}
         onHoverService={setHoveredServiceSlug}
