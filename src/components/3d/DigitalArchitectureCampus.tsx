@@ -9,6 +9,43 @@ import { easing } from 'maath';
 // Preload user's GLB models from public/3Dmodels
 useGLTF.preload('/3Dmodels/hero3d.glb');
 useGLTF.preload('/3Dmodels/logo3d.glb');
+useGLTF.preload('/3Dmodels/Table1.glb');
+useGLTF.preload('/3Dmodels/table2.glb');
+useGLTF.preload('/3Dmodels/table3.glb');
+useGLTF.preload('/3Dmodels/table4.glb');
+useGLTF.preload('/3Dmodels/Laptop3D.glb');
+useGLTF.preload('/3Dmodels/Phone3D.glb');
+useGLTF.preload('/3Dmodels/Camera3D.glb');
+useGLTF.preload('/3Dmodels/gimbal3D.glb');
+useGLTF.preload('/3Dmodels/Pen.glb');
+useGLTF.preload('/3Dmodels/clipboard.glb');
+useGLTF.preload('/3Dmodels/stack of paper.glb');
+useGLTF.preload('/3Dmodels/Billboard.glb');
+
+// Helper to clone GLTF scenes safely and configure shadows and color spaces
+function useClonedGLTF(path: string) {
+  const gltf = useGLTF(path);
+  return useMemo(() => {
+    const cloned = gltf.scene.clone(true);
+    cloned.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        const mat = (child as THREE.Mesh).material;
+        if (mat) {
+          const matList = Array.isArray(mat) ? mat : [mat];
+          matList.forEach((m) => {
+            const stdMat = m as THREE.MeshStandardMaterial;
+            if (stdMat.map) {
+              stdMat.map.colorSpace = THREE.SRGBColorSpace;
+            }
+          });
+        }
+      }
+    });
+    return cloned;
+  }, [gltf.scene]);
+}
 
 interface CampusProps {
   scrollProgress: number; // 0 to 1
@@ -514,115 +551,183 @@ interface ServicePavilionProps {
   onHover?: (slug: string | null) => void;
 }
 
-function ServiceMotifMesh({
-  type,
-  isHighlighted,
-  color,
-  accent,
-}: {
-  type: 'web' | 'instagram' | 'video' | 'branding' | 'billboard';
-  isHighlighted: boolean;
-  color: string;
-  accent: string;
-}) {
-  if (type === 'web') {
-    // Modular Digital Lattice Cube
-    return (
-      <group>
-        <RoundedBox args={[1.1, 1.1, 1.1]} radius={0.08} smoothness={4}>
-          <meshStandardMaterial
-            color={isHighlighted ? '#10B981' : color}
-            emissive={isHighlighted ? '#0E946E' : '#047857'}
-            emissiveIntensity={isHighlighted ? 0.9 : 0.3}
-            roughness={0.1}
-            metalness={0.88}
-            wireframe={!isHighlighted}
-          />
-        </RoundedBox>
-        <mesh rotation={[Math.PI / 4, Math.PI / 4, 0]}>
-          <octahedronGeometry args={[0.5, 0]} />
-          <meshBasicMaterial color="#34D399" />
-        </mesh>
-      </group>
-    );
-  }
+// ── STATION 1: WEB DESIGN (TABLE 1 + 3D LAPTOP) ──
+function WebDesignStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
+  const table = useClonedGLTF('/3Dmodels/Table1.glb');
+  const laptop = useClonedGLTF('/3Dmodels/Laptop3D.glb');
 
-  if (type === 'instagram') {
-    // Dynamic Social Prism Tower
-    return (
-      <group>
-        <cylinderGeometry args={[0.5, 0.65, 1.4, 3]} />
-        <meshStandardMaterial
-          color={isHighlighted ? '#2DD4BF' : color}
-          emissive={isHighlighted ? '#14B8A6' : '#0F766E'}
-          emissiveIntensity={isHighlighted ? 0.9 : 0.3}
-          roughness={0.15}
-          metalness={0.85}
-        />
-        <mesh position={[0, 0.8, 0]}>
-          <torusGeometry args={[0.7, 0.03, 16, 32]} />
-          <meshBasicMaterial color={accent} />
-        </mesh>
-      </group>
-    );
-  }
-
-  if (type === 'video') {
-    // Cinematic Lens & Focal Prism
-    return (
-      <group>
-        <torusGeometry args={[0.75, 0.12, 16, 32]} />
-        <meshStandardMaterial
-          color={isHighlighted ? '#FBBF24' : color}
-          roughness={0.2}
-          metalness={0.9}
-        />
-        <mesh position={[0, 0, 0]}>
-          <octahedronGeometry args={[0.55, 0]} />
-          <meshBasicMaterial color="#F59E0B" wireframe={!isHighlighted} />
-        </mesh>
-      </group>
-    );
-  }
-
-  if (type === 'branding') {
-    // Golden Ratio Platinum Identity Jewel
-    return (
-      <group>
-        <coneGeometry args={[0.75, 1.4, 5]} />
-        <meshStandardMaterial
-          color={isHighlighted ? '#A78BFA' : color}
-          emissive={isHighlighted ? '#8B5CF6' : '#6D28D9'}
-          emissiveIntensity={isHighlighted ? 0.8 : 0.3}
-          roughness={0.1}
-          metalness={0.92}
-        />
-        <mesh position={[0, 0.1, 0]} rotation={[Math.PI / 3, 0, 0]}>
-          <ringGeometry args={[0.85, 0.92, 32]} />
-          <meshBasicMaterial color="#DDD6FE" />
-        </mesh>
-      </group>
-    );
-  }
-
-  // Billboard: Curved Monumental Urban Screen Arch
   return (
     <group>
-      <RoundedBox args={[1.4, 1.0, 0.3]} radius={0.06} smoothness={4}>
-        <meshStandardMaterial
-          color={isHighlighted ? '#22D3EE' : color}
-          emissive={isHighlighted ? '#06B6D4' : '#0891B2'}
-          emissiveIntensity={isHighlighted ? 0.85 : 0.3}
-          roughness={0.12}
-          metalness={0.9}
-        />
-      </RoundedBox>
-      <mesh position={[0, -0.6, 0]}>
-        <cylinderGeometry args={[0.1, 0.1, 0.4, 8]} />
-        <meshStandardMaterial color="#1E293B" metalness={0.9} />
+      {/* Table 1 - Round Studio Desk */}
+      <Center bottom>
+        <primitive object={table} scale={[0.95, 0.95, 0.95]} />
+      </Center>
+      {/* 3D Laptop on Table Surface (y ~ 1.15m) facing approaching visitor */}
+      <group position={[0, 1.15, 0]} rotation={[0, Math.PI * 0.75, 0]}>
+        <Center bottom>
+          <primitive object={laptop} scale={[0.00095, 0.00095, 0.00095]} />
+        </Center>
+      </group>
+      {/* Luminous Floor Accent Ring */}
+      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.2, 1.35, 32]} />
+        <meshBasicMaterial color={isHighlighted ? '#34D399' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
       </mesh>
+      <pointLight position={[0, 1.8, 0]} color="#10B981" intensity={isHighlighted ? 2.5 : 1.2} distance={6} />
     </group>
   );
+}
+
+// ── STATION 2: CONTENT PRODUCTION (TABLE 2 + FLOATING PHONE) ──
+function ContentProductionStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
+  const table = useClonedGLTF('/3Dmodels/table2.glb');
+  const phone = useClonedGLTF('/3Dmodels/Phone3D.glb');
+
+  return (
+    <group>
+      {/* Table 2 */}
+      <Center bottom>
+        <primitive object={table} scale={[1.15, 1.15, 1.15]} />
+      </Center>
+      {/* 3D Phone Hovering Above Table with screen clearly visible */}
+      <Float speed={2.5} rotationIntensity={0.2} floatIntensity={0.35} position={[0, 1.68, 0]}>
+        <Center>
+          <primitive object={phone} scale={[0.45, 0.45, 0.45]} rotation={[0.15, Math.PI, 0]} />
+        </Center>
+      </Float>
+      {/* Luminous Floor Accent Ring */}
+      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.05, 1.2, 32]} />
+        <meshBasicMaterial color={isHighlighted ? '#2DD4BF' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
+      </mesh>
+      <pointLight position={[0, 1.7, 0]} color="#2DD4BF" intensity={isHighlighted ? 2.5 : 1.4} distance={6} />
+    </group>
+  );
+}
+
+// ── STATION 3: VIDEO TEASER (TABLE 3 + CAMERA & GIMBAL) ──
+function VideoTeaserStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
+  const table = useClonedGLTF('/3Dmodels/table3.glb');
+  const camera = useClonedGLTF('/3Dmodels/Camera3D.glb');
+  const gimbal = useClonedGLTF('/3Dmodels/gimbal3D.glb');
+
+  return (
+    <group>
+      {/* Table 3 */}
+      <Center bottom>
+        <primitive object={table} scale={[1.25, 1.25, 1.25]} />
+      </Center>
+      {/* Cinema Camera on Table */}
+      <group position={[0.22, 1.18, 0]} rotation={[0, -Math.PI * 0.25, 0]}>
+        <Center bottom>
+          <primitive object={camera} scale={[0.095, 0.095, 0.095]} />
+        </Center>
+      </group>
+      {/* Handheld Gimbal standing on Table next to Camera */}
+      <group position={[-0.25, 1.18, 0.04]} rotation={[0, Math.PI * 0.25, 0]}>
+        <Center bottom>
+          <primitive object={gimbal} scale={[0.035, 0.035, 0.035]} />
+        </Center>
+      </group>
+      {/* Luminous Floor Accent Ring */}
+      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.05, 1.2, 32]} />
+        <meshBasicMaterial color={isHighlighted ? '#FBBF24' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
+      </mesh>
+      <pointLight position={[0, 1.9, 0]} color="#FBBF24" intensity={isHighlighted ? 2.5 : 1.2} distance={6} />
+    </group>
+  );
+}
+
+// ── STATION 4: LOGO DESIGN (TABLE 4 + CLIPBOARD, PAPER STACK & PEN) ──
+function LogoDesignStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
+  const desk = useClonedGLTF('/3Dmodels/table4.glb');
+  const clipboard = useClonedGLTF('/3Dmodels/clipboard.glb');
+  const paper = useClonedGLTF('/3Dmodels/stack of paper.glb');
+  const pen = useClonedGLTF('/3Dmodels/Pen.glb');
+
+  return (
+    <group>
+      {/* Table 4 - Executive Studio Desk */}
+      <Center bottom>
+        <primitive object={desk} scale={[1.22, 1.22, 1.22]} />
+      </Center>
+      {/* Drafting Stack of Paper on Left */}
+      <group position={[-0.32, 1.16, 0]} rotation={[0, 0.12, 0]}>
+        <Center bottom>
+          <primitive object={paper} scale={[2.0, 2.0, 2.0]} />
+        </Center>
+      </group>
+      {/* Sketching Clipboard on Right with gentle drafting incline */}
+      <group position={[0.24, 1.17, 0]} rotation={[-Math.PI / 2 + 0.22, 0, -0.15]}>
+        <Center bottom>
+          <primitive object={clipboard} scale={[1.1, 1.1, 1.1]} />
+        </Center>
+      </group>
+      {/* Design Pen / Stylus positioned creatively */}
+      <group position={[0.02, 1.185, 0.14]} rotation={[Math.PI / 2, 0, Math.PI * 0.35]}>
+        <Center>
+          <primitive object={pen} scale={[0.04, 0.04, 0.04]} />
+        </Center>
+      </group>
+      {/* Luminous Floor Accent Ring */}
+      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.25, 1.4, 32]} />
+        <meshBasicMaterial color={isHighlighted ? '#A78BFA' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
+      </mesh>
+      <pointLight position={[0, 1.9, 0]} color="#A78BFA" intensity={isHighlighted ? 2.5 : 1.2} distance={6} />
+    </group>
+  );
+}
+
+// ── STATION 5: BILLBOARD (GROUND HIGHWAY SCREEN - NO TABLE) ──
+function BillboardStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
+  const billboard = useClonedGLTF('/3Dmodels/Billboard.glb');
+
+  return (
+    <group>
+      {/* Monumental Roadside Billboard standing directly on the runway floor */}
+      <Center bottom>
+        <primitive
+          object={billboard}
+          scale={[0.0058, 0.0058, 0.0058]}
+          rotation={[0, Math.PI / 2, 0]}
+        />
+      </Center>
+      {/* Floor Accent Perimeter Light */}
+      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[1.8, 1.98, 32]} />
+        <meshBasicMaterial color={isHighlighted ? '#22D3EE' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
+      </mesh>
+      {/* Spotlights Illuminating the Billboard */}
+      <pointLight position={[0, 4.2, 1.6]} color="#22D3EE" intensity={isHighlighted ? 3.5 : 2.0} distance={9} />
+      <pointLight position={[0, 1.2, 0.6]} color="#14B8A6" intensity={1.5} distance={6} />
+    </group>
+  );
+}
+
+function ServiceStationRenderer({
+  motifType,
+  isHighlighted,
+  accent,
+}: {
+  motifType: 'web' | 'instagram' | 'video' | 'branding' | 'billboard';
+  isHighlighted: boolean;
+  accent: string;
+}) {
+  if (motifType === 'web') {
+    return <WebDesignStation isHighlighted={isHighlighted} accent={accent} />;
+  }
+  if (motifType === 'instagram') {
+    return <ContentProductionStation isHighlighted={isHighlighted} accent={accent} />;
+  }
+  if (motifType === 'video') {
+    return <VideoTeaserStation isHighlighted={isHighlighted} accent={accent} />;
+  }
+  if (motifType === 'branding') {
+    return <LogoDesignStation isHighlighted={isHighlighted} accent={accent} />;
+  }
+  return <BillboardStation isHighlighted={isHighlighted} accent={accent} />;
 }
 
 function ServicePavilion({
@@ -644,9 +749,11 @@ function ServicePavilion({
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
-    const targetY = isHighlighted ? 0.45 : 0;
+    const targetY = isHighlighted ? 0.25 : 0;
     easing.damp(meshRef.current.position, 'y', targetY, 0.2, delta);
   });
+
+  const badgeY = motifType === 'billboard' ? 4.35 : 2.9;
 
   return (
     <group
@@ -668,35 +775,16 @@ function ServicePavilion({
         if (onSelect) onSelect(slug);
       }}
     >
-      {/* Heavy Architectural Foundation Pier */}
-      <mesh position={[0, 0.4, 0]} castShadow receiveShadow>
-        <cylinderGeometry args={[1.5, 1.8, 0.8, 6]} />
-        <meshStandardMaterial
-          color={isHighlighted ? '#1E293B' : '#0F172A'}
-          roughness={0.25}
-          metalness={0.85}
-        />
-      </mesh>
-
-      {/* Glowing Perimeter Ring */}
-      <mesh position={[0, 0.82, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.2, 1.35, 6]} />
-        <meshBasicMaterial color={isHighlighted ? '#34D399' : accent} />
-      </mesh>
-
-      {/* Floating Center Custom Architectural Motif */}
-      <Float speed={3.0} rotationIntensity={0.4} floatIntensity={0.6} position={[0, 2.0, 0]}>
-        <ServiceMotifMesh
-          type={motifType}
-          isHighlighted={isHighlighted}
-          color={color}
-          accent={accent}
-        />
-      </Float>
+      {/* 3D Station with customized tables and items */}
+      <ServiceStationRenderer
+        motifType={motifType}
+        isHighlighted={isHighlighted}
+        accent={accent}
+      />
 
       {/* Interactive 3D Label Badge - only visible once camera navigates into Sector 1 (hidden behind upright hero card) */}
       {scrollProgress >= 0.16 && (
-        <Html position={[0, 3.2, 0]} center distanceFactor={15}>
+        <Html position={[0, badgeY, 0]} center distanceFactor={15}>
           <div
             className={
               'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 pointer-events-none whitespace-nowrap shadow-2xl border animate-fadeIn ' +
