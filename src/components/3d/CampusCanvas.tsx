@@ -185,7 +185,9 @@ export default function CampusCanvas(props: Props) {
             onContextLost={handleContextLost}
             onContextRestored={handleContextRestored}
           />
-          <DigitalArchitectureCampus {...props} />
+          <React.Suspense fallback={null}>
+            <DigitalArchitectureCampus {...props} />
+          </React.Suspense>
         </Canvas>
       </WebGLErrorBoundary>
     </div>

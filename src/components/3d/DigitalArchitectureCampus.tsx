@@ -2,9 +2,13 @@
 
 import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Float, RoundedBox, Html } from '@react-three/drei';
+import { Float, RoundedBox, Html, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { easing } from 'maath';
+
+// Preload user's GLB models from public/3Dmodels
+useGLTF.preload('/3Dmodels/hero3d.glb');
+useGLTF.preload('/3Dmodels/logo3d.glb');
 
 interface CampusProps {
   scrollProgress: number; // 0 to 1
@@ -192,30 +196,54 @@ function NexusGateway({
   const impactLightRef = useRef<THREE.PointLight>(null);
   const shockwaveRef = useRef<THREE.Mesh>(null);
 
-  // Load UrumSima Calligraphy Brand Logo textures and team hero landing texture
-  const logoEmeraldTex = useMemo(() => {
-    if (typeof window === 'undefined') return null;
-    const loader = new THREE.TextureLoader();
-    const tex = loader.load('/images/urumsima-logo-emerald.png');
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  }, []);
+  // ── Load User's 3D Hero and Logo models from /public/3Dmodels ──
+  const heroGltf = useGLTF('/3Dmodels/hero3d.glb');
+  const logoGltf = useGLTF('/3Dmodels/logo3d.glb');
 
-  const logoWhiteTex = useMemo(() => {
-    if (typeof window === 'undefined') return null;
-    const loader = new THREE.TextureLoader();
-    const tex = loader.load('/images/urumsima-logo-white.png');
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  }, []);
+  // Clone and configure 3D Hero model with double-sided rendering and crisp texture filtering
+  const heroScene = useMemo(() => {
+    const cloned = heroGltf.scene.clone(true);
+    cloned.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        if (mesh.material) {
+          const mat = mesh.material as THREE.MeshStandardMaterial;
+          mat.side = THREE.DoubleSide;
+          mat.roughness = 0.22;
+          mat.metalness = 0.12;
+          if (mat.map) {
+            mat.map.colorSpace = THREE.SRGBColorSpace;
+            mat.map.anisotropy = 8;
+            mat.map.needsUpdate = true;
+          }
+        }
+      }
+    });
+    return cloned;
+  }, [heroGltf.scene]);
 
-  const teamHeroTex = useMemo(() => {
-    if (typeof window === 'undefined') return null;
-    const loader = new THREE.TextureLoader();
-    const tex = loader.load('/images/team-hero-framed.webp');
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  }, []);
+  // Clone and configure 3D Logo model with luminous emerald and metallic cyber finish
+  const logoScene = useMemo(() => {
+    const cloned = logoGltf.scene.clone(true);
+    cloned.traverse((child) => {
+      if ((child as THREE.Mesh).isMesh) {
+        const mesh = child as THREE.Mesh;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.material = new THREE.MeshStandardMaterial({
+          color: '#10B981',
+          roughness: 0.18,
+          metalness: 0.88,
+          emissive: '#047857',
+          emissiveIntensity: 0.45,
+          side: THREE.DoubleSide,
+        });
+      }
+    });
+    return cloned;
+  }, [logoGltf.scene]);
 
   // heroT: progress across the first 16% of scroll (0.00 to 0.16)
   const heroT = Math.min(1, Math.max(0, scrollProgress / 0.16));
@@ -321,8 +349,21 @@ function NexusGateway({
       </group>
 
       {/* ── 2. THE GROUND-HINGED 3D HERO CARD (ROTATES AROUND y = 0.05, z = 0) ── */}
-      <group ref={cardHingeRef} position={[0, 0.05, 0]}>
-        {/* Structural Chassis Slab (Offset along local Y so bottom edge is AT y = 0) */}
+      <group
+        ref={cardHingeRef}
+        position={[0, 0.05, 0]}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (heroT < 0.15 && onExploreServices) onExploreServices();
+        }}
+        onPointerOver={() => {
+          if (heroT < 0.15) document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          document.body.style.cursor = 'auto';
+        }}
+      >
+        {/* Structural Chassis Slab behind 3D Hero */}
         <RoundedBox
           args={[CARD_WIDTH, CARD_HEIGHT, 0.18]}
           position={[0, CARD_HEIGHT / 2, -0.09]}
@@ -344,128 +385,14 @@ function NexusGateway({
           <meshBasicMaterial color="#10B981" wireframe transparent opacity={0.35} />
         </mesh>
 
-        {/* 3D Textured Team Photo (Top Section - Permanent on 3D Slab) */}
-        {teamHeroTex && (
-          <mesh position={[0, CARD_HEIGHT - 1.25, 0.02]}>
-            <planeGeometry args={[CARD_WIDTH - 0.4, 2.2]} />
-            <meshStandardMaterial map={teamHeroTex} roughness={0.25} metalness={0.3} />
-          </mesh>
-        )}
-
-        {/* 3D Textured Lower Panel (Displays UrumSima Calligraphy when flat on floor) */}
-        <mesh position={[0, 1.85, 0.02]}>
-          <planeGeometry args={[CARD_WIDTH - 0.4, 3.2]} />
-          <meshStandardMaterial color="#050C0A" roughness={0.18} metalness={0.88} />
-        </mesh>
-
-        {/* Brand Calligraphy Outline on Lower Panel */}
-        {logoWhiteTex && (
-          <mesh position={[0, 1.85, 0.03]}>
-            <planeGeometry args={[4.2, 1.4]} />
-            <meshBasicMaterial
-              map={logoWhiteTex}
-              transparent
-              opacity={0.35}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
-        )}
-
-        {/* ── 3. RICH INTERACTIVE DREI <Html> FRONT FACE (Crisp in front of canvas) ── */}
-        {heroT < 0.75 && (
-          <Html
-            position={[0, CARD_HEIGHT / 2, 0.12]}
-            center
-            distanceFactor={10.8}
-            style={{
-              width: '1080px',
-              pointerEvents: heroT < 0.08 ? 'auto' : 'none',
-              userSelect: 'none',
-              opacity: Math.max(0, 1 - heroT * 3.5),
-              transition: 'opacity 0.15s ease-out',
-            }}
-          >
-            <div className="w-full rounded-3xl bg-[#050C0A]/92 border border-emerald-500/40 shadow-2xl flex flex-col justify-between p-7 text-right select-none font-sans overflow-hidden backdrop-blur-md">
-              {/* Top Team Photo Area with Framed Team Image */}
-              <div className="relative w-full h-[175px] rounded-2xl overflow-hidden border border-emerald-500/30 shadow-inner bg-black/60 mb-3.5">
-                <img
-                  src="/images/team-hero-framed.webp"
-                  alt="تیم متخصصان اروم سیما"
-                  className="w-full h-full object-cover object-center"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#050C0A] via-transparent to-black/30" />
-                <div className="absolute bottom-2.5 right-4 flex items-center gap-2 text-[11px] font-mono text-emerald-300">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="font-bold tracking-wider">تیم ارشد مهندسی و بازاریابی دیجیتال اروم‌سیما</span>
-                </div>
-              </div>
-
-              {/* Middle Content: Headlines, Description & Service Pills */}
-              <div className="space-y-3 mb-3.5">
-                <div className="space-y-1">
-                  <h1 className="text-3xl font-black text-white tracking-tight">
-                    اروم سیما؛{' '}
-                    <span className="text-emerald-400">آژانس دیجیتال مارکتینگ در ارومیه</span>
-                  </h1>
-                  <p className="text-xs text-gray-300 leading-relaxed max-w-3xl">
-                    تیمی از متخصصان طراحی سایت، سئو و تولید محتوا در ارومیه؛ از ایده تا اجرا، با خلاقیت و شناخت عمیق بازار کنار شما هستیم تا برندتان دیده شود.
-                  </p>
-                </div>
-
-                {/* Service Capabilities Pills */}
-                <div className="flex flex-wrap items-center gap-2">
-                  {[
-                    'طراحی سایت مدرن',
-                    'سئو حرفه‌ای و تکنیکال',
-                    'تبلیغات دیجیتال و گوگل',
-                    'تولید محتوا و ویدیو مارکتینگ',
-                  ].map((item, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-950/60 border border-emerald-500/30 text-emerald-300"
-                    >
-                      {item}
-                    </span>
-                  ))}
-                </div>
-
-                {/* CTA Action Buttons */}
-                <div className="flex items-center gap-3 pt-1">
-                  <button
-                    type="button"
-                    onClick={onExploreServices}
-                    className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-700/40 flex items-center gap-2 transition-transform hover:scale-105 cursor-pointer"
-                  >
-                    <span>مشاهده خدمات استراتژیک</span>
-                    <span>←</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onExploreProjects}
-                    className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-200 border border-white/10 font-bold text-xs flex items-center gap-2 transition-transform hover:scale-105 cursor-pointer"
-                  >
-                    <span>بررسی پروژه‌های شاخص</span>
-                    <span>↗</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Bottom Ticker Badges */}
-              <div className="pt-2.5 border-t border-emerald-500/20 flex items-center justify-between text-[10px] text-gray-400">
-                <div className="flex items-center gap-6">
-                  <span>✓ پشتیبانی ۲۴/۷</span>
-                  <span>✓ تحویل به‌موقع پروژه‌ها</span>
-                  <span>✓ ضمانت کیفیت</span>
-                  <span>✓ مشاوره رایگان</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-emerald-400 font-mono">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                  <span>URUMSIMA CAMPUS NEXUS</span>
-                </div>
-              </div>
-            </div>
-          </Html>
-        )}
+        {/* ── 3D HERO MODEL FROM public/3Dmodels/hero3d.glb ── */}
+        <group position={[0, CARD_HEIGHT / 2, 0.02]}>
+          <primitive
+            object={heroScene}
+            rotation={[Math.PI / 2, 0, 0]}
+            scale={[1.56255, -1.56255, 1.56255]}
+          />
+        </group>
       </group>
 
       {/* ── 4. TOUCHDOWN IMPACT FLASH & EXPANDING RUNWAY SHOCKWAVE ── */}
@@ -504,11 +431,11 @@ function NexusGateway({
         <meshBasicMaterial color="#0E946E" />
       </mesh>
 
-      {/* ── 3D URUMSIMA BRAND LOGO LANDMARK (REPLACES GREEN MONOLITH & RING) ── */}
+      {/* ── 3D URUMSIMA BRAND LOGO LANDMARK ── */}
       <group ref={monolithRef} position={[0, 3.4, -4]}>
         <Float speed={2.0} rotationIntensity={0.2} floatIntensity={0.35}>
           {/* Sleek Obsidian Chamfered Glass Plinth Backing */}
-          <RoundedBox args={[2.7, 3.8, 0.16]} radius={0.16} smoothness={4} castShadow receiveShadow>
+          <RoundedBox args={[3.2, 3.8, 0.16]} radius={0.16} smoothness={4} castShadow receiveShadow>
             <meshPhysicalMaterial
               color="#081018"
               roughness={0.1}
@@ -522,37 +449,20 @@ function NexusGateway({
 
           {/* Luminous Emerald Outer Rim Conduit */}
           <mesh position={[0, 0, 0.09]}>
-            <planeGeometry args={[2.6, 3.7]} />
+            <planeGeometry args={[3.1, 3.7]} />
             <meshBasicMaterial color="#0E946E" wireframe transparent opacity={0.35} />
           </mesh>
 
-          {/* Front Face: Glowing Emerald UrumSima Calligraphy Logo */}
-          {logoEmeraldTex && (
-            <mesh position={[0, 0, 0.10]}>
-              <planeGeometry args={[2.3, 3.25]} />
-              <meshBasicMaterial
-                map={logoEmeraldTex}
-                transparent
-                alphaTest={0.02}
-                side={THREE.DoubleSide}
-                toneMapped={false}
+          {/* ── 3D LOGO MODEL FROM public/3Dmodels/logo3d.glb ── */}
+          <group position={[0, 0, 0.12]}>
+            <Center>
+              <primitive
+                object={logoScene}
+                rotation={[Math.PI / 2, 0, 0]}
+                scale={[1.1, 1.1, 1.1]}
               />
-            </mesh>
-          )}
-
-          {/* Back Face: Glowing White/Silver UrumSima Calligraphy Logo */}
-          {logoWhiteTex && (
-            <mesh position={[0, 0, -0.10]} rotation={[0, Math.PI, 0]}>
-              <planeGeometry args={[2.3, 3.25]} />
-              <meshBasicMaterial
-                map={logoWhiteTex}
-                transparent
-                alphaTest={0.02}
-                side={THREE.DoubleSide}
-                toneMapped={false}
-              />
-            </mesh>
-          )}
+            </Center>
+          </group>
 
           {/* Delicate Quantum Orbit Ring around Logo */}
           <mesh rotation={[Math.PI / 3, 0, 0]}>
