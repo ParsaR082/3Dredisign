@@ -28,9 +28,9 @@ export interface StationConfig {
 }
 
 export const STATIONS_CONFIG = {
-  // ── ایستگاه ۱: طراحی سایت (میز ۱ + لپ‌تاپ سه‌بعدی) ──
+  // ── ایستگاه ۱: طراحی سایت (میز ۱ + لپ‌تاپ سه‌بعدی) - سمت چپ ──
   webDesign: {
-    stationPosition: [-3.8, 0, -22] as [number, number, number],
+    stationPosition: [-2.2, 0, -22] as [number, number, number],
     badgeY: 2.8,
     table: {
       position: [0, 0, 0] as [number, number, number],
@@ -45,9 +45,9 @@ export const STATIONS_CONFIG = {
     },
   },
 
-  // ── ایستگاه ۲: تولید محتوا (میز ۲ + گوشی شناور) ──
+  // ── ایستگاه ۲: تولید محتوا (میز ۲ + گوشی شناور) - سمت راست (متقارن نسبت به خط وسط) ──
   contentProduction: {
-    stationPosition: [0.5, 0, -26] as [number, number, number],
+    stationPosition: [2.2, 0, -27] as [number, number, number],
     badgeY: 2.8,
     table: {
       position: [0, 0, 0] as [number, number, number],
@@ -55,16 +55,16 @@ export const STATIONS_CONFIG = {
       rotation: [0, 0, 0] as [number, number, number],
     },
     phone: {
-      // شناور در ارتفاع ۱.۵۵ متر (حدود ۴۰ سانتیمتر بالای سطح میز)
+      // شناور در ارتفاع ۱.۵۵ متر (حدود ۴۰ سانتیمتر بالای سطح میز رو به دید کاربر)
       position: [0, 1.55, 0] as [number, number, number],
       scale: 0.45,
-      rotation: [0.18, Math.PI, 0] as [number, number, number], // صفحه به سمت کاربر
+      rotation: [0.18, Math.PI - 0.22, 0] as [number, number, number],
     },
   },
 
-  // ── ایستگاه ۳: تیزر تبلیغاتی (میز ۳ + دوربین و گیمبال) ──
+  // ── ایستگاه ۳: تیزر تبلیغاتی (میز ۳ + دوربین و گیمبال) - سمت چپ ──
   videoTeaser: {
-    stationPosition: [-3.2, 0, -32] as [number, number, number],
+    stationPosition: [-2.2, 0, -32] as [number, number, number],
     badgeY: 2.8,
     table: {
       position: [0, 0, 0] as [number, number, number],
@@ -85,9 +85,9 @@ export const STATIONS_CONFIG = {
     },
   },
 
-  // ── ایستگاه ۴: طراحی لوگو (میز ۴ + کاغذ، تخته شاسی و قلم) ──
+  // ── ایستگاه ۴: طراحی لوگو (میز ۴ + کاغذ، تخته شاسی و قلم) - سمت راست (متقارن نسبت به خط وسط) ──
   logoDesign: {
-    stationPosition: [0.8, 0, -37] as [number, number, number],
+    stationPosition: [2.2, 0, -37] as [number, number, number],
     badgeY: 2.8,
     table: {
       position: [0, 0, 0] as [number, number, number],
@@ -114,9 +114,9 @@ export const STATIONS_CONFIG = {
     },
   },
 
-  // ── ایستگاه ۵: بیلبورد محیطی (بدون میز - مستقیم روی زمین) ──
+  // ── ایستگاه ۵: بیلبورد محیطی (بدون میز - مستقیم روی زمین) - سمت چپ ──
   billboard: {
-    stationPosition: [-2.5, 0, -42] as [number, number, number],
+    stationPosition: [-2.6, 0, -43] as [number, number, number],
     badgeY: 4.4,
     billboard: {
       // پایه‌ها دقیقاً مماس روی سطح زمین Y = 0

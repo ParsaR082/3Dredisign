@@ -195,7 +195,7 @@ export default function HomeView({
       {/* ── SECTOR 1: INNOVATION PAVILIONS (SERVICES) ── */}
       <div
         id="sector-services"
-        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 flex flex-col justify-center pointer-events-none ${
+        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 hidden md:flex flex-col justify-center pointer-events-none ${
           activeSector === 1
             ? 'opacity-100 translate-x-0'
             : 'opacity-0 translate-x-12'
@@ -279,7 +279,7 @@ export default function HomeView({
       {/* ── SECTOR 2: MASTERWORKS EXHIBITION HALL (PORTFOLIO) ── */}
       <div
         id="sector-portfolio"
-        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 flex flex-col justify-center pointer-events-none ${
+        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 hidden md:flex flex-col justify-center pointer-events-none ${
           activeSector === 2
             ? 'opacity-100 translate-x-0'
             : 'opacity-0 translate-x-12'
@@ -359,7 +359,7 @@ export default function HomeView({
       {/* ── SECTOR 3: GROWTH CALCULATOR & 5-STEP STRATEGY CONCOURSE ── */}
       <div
         id="sector-process"
-        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 flex flex-col justify-center pointer-events-none ${
+        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 hidden md:flex flex-col justify-center pointer-events-none ${
           activeSector === 3
             ? 'opacity-100 translate-x-0'
             : 'opacity-0 translate-x-12'
@@ -436,7 +436,7 @@ export default function HomeView({
       {/* ── SECTOR 4: TERMINAL PORTAL (CTA & CONTACT) ── */}
       <div
         id="sector-contact"
-        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 flex flex-col justify-center pointer-events-none ${
+        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 hidden md:flex flex-col justify-center pointer-events-none ${
           activeSector === 4
             ? 'opacity-100 translate-x-0'
             : 'opacity-0 translate-x-12'

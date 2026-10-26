@@ -62,32 +62,32 @@ interface CampusProps {
 }
 
 // ── CINEMATIC WAYPOINT SPLINE FOR CAMERA CHOREOGRAPHY ──
-// Desktop Waypoints (Framing ground-hinged hero card at eye level on runway)
+// Desktop Waypoints (Centered along runway centerline X=0)
 const CAMERA_WAYPOINTS = [
   // Sector 0: Grand Nexus Portal (Framing the standing Ground-Hinged Hero Card on the runway floor)
   { pos: new THREE.Vector3(0, 3.6, 11.5), target: new THREE.Vector3(0, 3.2, 0.0) },
-  // Sector 1: Services Concourse (right bank looking down at left pavilions)
-  { pos: new THREE.Vector3(6.2, 3.4, -18.0), target: new THREE.Vector3(-1.8, 1.8, -32.0) },
-  // Sector 2: Masterworks Exhibition Hall (left bank viewing plinths)
-  { pos: new THREE.Vector3(-5.8, 3.6, -52.0), target: new THREE.Vector3(1.8, 1.6, -70.0) },
+  // Sector 1: Services Concourse (traveling straight down centerline between pavilions)
+  { pos: new THREE.Vector3(0, 3.4, -16.0), target: new THREE.Vector3(0, 1.8, -32.0) },
+  // Sector 2: Masterworks Exhibition Hall (centered along runway)
+  { pos: new THREE.Vector3(0, 3.6, -50.0), target: new THREE.Vector3(0, 1.8, -68.0) },
   // Sector 3: Command Observation Deck (elevated panoramic over process & stats)
-  { pos: new THREE.Vector3(0, 8.5, -92.0), target: new THREE.Vector3(0, 2.8, -115.0) },
+  { pos: new THREE.Vector3(0, 8.0, -92.0), target: new THREE.Vector3(0, 2.5, -115.0) },
   // Sector 4: Terminal Gateway (framing contact portal and footer)
   { pos: new THREE.Vector3(0, 3.2, -135.0), target: new THREE.Vector3(0, 2.2, -165.0) },
 ];
 
-// Mobile Waypoints (Narrow portrait composition: backed up to fit full card width)
+// Mobile Waypoints (Centered along runway centerline X=0 with elevated vantage point)
 const MOBILE_CAMERA_WAYPOINTS = [
   // Sector 0: Grand Nexus Portal (backed up to frame full card width on narrow screens)
   { pos: new THREE.Vector3(0, 3.8, 16.5), target: new THREE.Vector3(0, 3.2, 0.0) },
-  // Sector 1: Services Concourse (elevated higher so beacons stay in view above mobile cards)
-  { pos: new THREE.Vector3(1.6, 5.2, -16.0), target: new THREE.Vector3(-0.8, 2.0, -32.0) },
-  // Sector 2: Masterworks Exhibition Hall (elevated & centered)
-  { pos: new THREE.Vector3(-1.2, 5.0, -50.0), target: new THREE.Vector3(0.6, 2.0, -68.0) },
+  // Sector 1: Services Concourse (straight down centerline X=0, capturing both left and right stations)
+  { pos: new THREE.Vector3(0, 3.8, -16.0), target: new THREE.Vector3(0, 1.8, -32.0) },
+  // Sector 2: Masterworks Exhibition Hall (centered along runway)
+  { pos: new THREE.Vector3(0, 4.0, -50.0), target: new THREE.Vector3(0, 1.8, -68.0) },
   // Sector 3: Command Observation Deck (elevated overview)
-  { pos: new THREE.Vector3(0, 10.0, -90.0), target: new THREE.Vector3(0, 3.2, -115.0) },
+  { pos: new THREE.Vector3(0, 8.5, -90.0), target: new THREE.Vector3(0, 2.8, -115.0) },
   // Sector 4: Terminal Gateway (elevated portal)
-  { pos: new THREE.Vector3(0, 4.4, -133.0), target: new THREE.Vector3(0, 2.6, -165.0) },
+  { pos: new THREE.Vector3(0, 3.8, -133.0), target: new THREE.Vector3(0, 2.2, -165.0) },
 ];
 
 function getSplinePoint(t: number, isMobile: boolean) {
@@ -136,8 +136,8 @@ function SmoothScrollCamera({ scrollProgress }: { scrollProgress: number }) {
   useEffect(() => {
     if (!(camera instanceof THREE.PerspectiveCamera)) return;
     // On landscape desktop (aspect >= 1.0), lock to baseline 45 deg
-    // On narrow portrait screens, widen vertical FOV to maintain horizontal span
-    const targetFov = aspect < 0.65 ? 60 : aspect < 1.0 ? 52 : 45;
+    // On narrow portrait screens, widen vertical FOV so lateral stations remain in view
+    const targetFov = aspect < 0.55 ? 64 : aspect < 0.75 ? 58 : aspect < 1.0 ? 50 : 45;
     if (camera.fov !== targetFov) {
       camera.fov = targetFov;
       camera.updateProjectionMatrix();
