@@ -12,6 +12,8 @@ import {
   COLLABORATION_STATIONS_CONFIG,
   CollaborationStationConfig,
   EXECUTIVE_LOUNGE_CONFIG,
+  DiveTargetConfig,
+  DivePhase,
 } from './stationsConfig';
 import CorporateOfficeEnvironment from './CorporateOfficeEnvironment';
 
@@ -81,6 +83,9 @@ interface CampusProps {
   hoveredServiceSlug?: string | null;
   hoveredProjectSlug?: string | null;
   portfolioProjects?: ProjectTVConfig[];
+  activeDiveTarget?: DiveTargetConfig | null;
+  divePhase?: DivePhase;
+  onDiveReachedTarget?: () => void;
   onSelectService?: (slug: string) => void;
   onSelectProject?: (slug: string) => void;
   onHoverService?: (slug: string | null) => void;
@@ -153,18 +158,53 @@ function getSplinePoint(t: number, isMobile: boolean) {
   return { pos, target };
 }
 
-// ── 1. SMOOTH SCROLL CAMERA CONTROLLER WITH RESPONSIVE NARROW-SCREEN ADAPTATION ──
-function SmoothScrollCamera({ scrollProgress }: { scrollProgress: number }) {
+function easeInOutCubic(x: number): number {
+  return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+}
+
+// ── 1. SMOOTH SCROLL CAMERA CONTROLLER WITH DIVE TRANSITION SUPPORT ──
+function SmoothScrollCamera({
+  scrollProgress,
+  activeDiveTarget,
+  divePhase = 'idle',
+  onDiveReachedTarget,
+}: {
+  scrollProgress: number;
+  activeDiveTarget?: DiveTargetConfig | null;
+  divePhase?: DivePhase;
+  onDiveReachedTarget?: () => void;
+}) {
   const { camera, pointer, size } = useThree();
   const currentTarget = useRef(new THREE.Vector3(0, 2, 0));
+  const hasTriggeredDiveReached = useRef(false);
+  const diveInitialized = useRef(false);
+  const pullbackInitialized = useRef(false);
+  const diveStartTime = useRef<number>(0);
+  const pullbackStartTime = useRef<number>(0);
   const aspect = size.width / (size.height || 1);
   const isMobile = aspect < 1.0;
+
+  useEffect(() => {
+    if (divePhase === 'diving') {
+      hasTriggeredDiveReached.current = false;
+      diveInitialized.current = false;
+      diveStartTime.current = performance.now();
+    } else {
+      hasTriggeredDiveReached.current = false;
+      diveInitialized.current = false;
+    }
+
+    if (divePhase === 'pullback') {
+      pullbackInitialized.current = false;
+      pullbackStartTime.current = performance.now();
+    } else if (divePhase !== 'pullback_hold') {
+      pullbackInitialized.current = false;
+    }
+  }, [divePhase]);
 
   // Responsive FOV adjustment on narrow portrait viewports
   useEffect(() => {
     if (!(camera instanceof THREE.PerspectiveCamera)) return;
-    // On landscape desktop (aspect >= 1.0), lock to baseline 45 deg
-    // On narrow portrait screens, widen vertical FOV so lateral stations remain in view
     const targetFov = aspect < 0.55 ? 64 : aspect < 0.75 ? 58 : aspect < 1.0 ? 50 : 45;
     if (camera.fov !== targetFov) {
       camera.fov = targetFov;
@@ -173,9 +213,77 @@ function SmoothScrollCamera({ scrollProgress }: { scrollProgress: number }) {
   }, [camera, aspect]);
 
   useFrame((_, delta) => {
+    // ── 1. CINEMATIC CAMERA DIVE ONTO 3D SCREEN / PAPER (Slower, elegant & cinematic) ──
+    if (divePhase === 'diving' && activeDiveTarget) {
+      if (!diveInitialized.current) {
+        camera.position.set(...activeDiveTarget.startPosition);
+        currentTarget.current.set(...activeDiveTarget.startLookAt);
+        camera.lookAt(currentTarget.current);
+        diveStartTime.current = performance.now();
+        diveInitialized.current = true;
+      }
+
+      const DIVE_DURATION = 1150; // 1.15s of majestic cinematic flight
+      const elapsed = performance.now() - diveStartTime.current;
+      const progress = Math.min(1, Math.max(0, elapsed / DIVE_DURATION));
+      const ease = easeInOutCubic(progress);
+
+      const startPos = new THREE.Vector3(...activeDiveTarget.startPosition);
+      const startLookAt = new THREE.Vector3(...activeDiveTarget.startLookAt);
+      const divePos = new THREE.Vector3(...activeDiveTarget.camPosition);
+      const diveLookAt = new THREE.Vector3(...activeDiveTarget.camLookAt);
+
+      camera.position.lerpVectors(startPos, divePos, ease);
+      currentTarget.current.lerpVectors(startLookAt, diveLookAt, ease);
+      camera.lookAt(currentTarget.current);
+
+      if (progress >= 1 && !hasTriggeredDiveReached.current) {
+        hasTriggeredDiveReached.current = true;
+        if (onDiveReachedTarget) {
+          onDiveReachedTarget();
+        }
+      }
+      return;
+    }
+
+    // ── 2. HOLD POSITION ON SCREEN (Camera zoomed in on screen as black overlay fades) ──
+    if (divePhase === 'pullback_hold' && activeDiveTarget) {
+      camera.position.set(...activeDiveTarget.camPosition);
+      currentTarget.current.set(...activeDiveTarget.camLookAt);
+      camera.lookAt(currentTarget.current);
+      return;
+    }
+
+    // ── 3. REVERSE DIVE: CINEMATIC CAMERA PULLBACK TO ITEM'S DEDICATED STARTING POINT ──
+    if (divePhase === 'pullback' && activeDiveTarget) {
+      if (!pullbackInitialized.current) {
+        camera.position.set(...activeDiveTarget.camPosition);
+        currentTarget.current.set(...activeDiveTarget.camLookAt);
+        camera.lookAt(currentTarget.current);
+        pullbackStartTime.current = performance.now();
+        pullbackInitialized.current = true;
+      }
+
+      const PULLBACK_DURATION = 1150; // 1.15s reverse flight back to unique start point
+      const elapsed = performance.now() - pullbackStartTime.current;
+      const progress = Math.min(1, Math.max(0, elapsed / PULLBACK_DURATION));
+      const ease = easeInOutCubic(progress);
+
+      const startPos = new THREE.Vector3(...activeDiveTarget.startPosition);
+      const startLookAt = new THREE.Vector3(...activeDiveTarget.startLookAt);
+      const divePos = new THREE.Vector3(...activeDiveTarget.camPosition);
+      const diveLookAt = new THREE.Vector3(...activeDiveTarget.camLookAt);
+
+      // Pull back from screen directly to this specific item's starting position & look-at
+      camera.position.lerpVectors(divePos, startPos, ease);
+      currentTarget.current.lerpVectors(diveLookAt, startLookAt, ease);
+      camera.lookAt(currentTarget.current);
+      return;
+    }
+
+    // ── 4. STANDARD CENTERLINE SPLINE TRACKING ──
     const { pos, target } = getSplinePoint(scrollProgress, isMobile);
 
-    // Subtle pointer parallax (toned down on mobile touch to avoid jitter)
     const parallaxMult = isMobile ? 0.2 : 0.7;
     const parallaxX = pointer.x * parallaxMult;
     const parallaxY = pointer.y * (parallaxMult * 0.6);
@@ -186,7 +294,6 @@ function SmoothScrollCamera({ scrollProgress }: { scrollProgress: number }) {
       pos.z
     );
 
-    // Damped camera flight
     easing.damp3(camera.position, desiredPos, 0.42, delta);
     easing.damp3(currentTarget.current, target, 0.42, delta);
 
@@ -1709,6 +1816,9 @@ export default function DigitalArchitectureCampus({
   hoveredServiceSlug,
   hoveredProjectSlug,
   portfolioProjects,
+  activeDiveTarget,
+  divePhase,
+  onDiveReachedTarget,
   onSelectService,
   onSelectProject,
   onHoverService,
@@ -1737,7 +1847,12 @@ export default function DigitalArchitectureCampus({
       <pointLight position={[0, 6, -68]} intensity={1.5} distance={35} color="#3B82F6" />
       <pointLight position={[0, 6, -146]} intensity={1.8} distance={30} color="#10B981" />
 
-      <SmoothScrollCamera scrollProgress={scrollProgress} />
+      <SmoothScrollCamera
+        scrollProgress={scrollProgress}
+        activeDiveTarget={activeDiveTarget}
+        divePhase={divePhase}
+        onDiveReachedTarget={onDiveReachedTarget}
+      />
 
       <CorporateOfficeEnvironment scrollProgress={scrollProgress} />
       <ServicesConcourse

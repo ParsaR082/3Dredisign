@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import DigitalArchitectureCampus from './DigitalArchitectureCampus';
-import { ProjectTVConfig } from './stationsConfig';
+import { ProjectTVConfig, DiveTargetConfig, DivePhase } from './stationsConfig';
 
 interface Props {
   scrollProgress: number;
@@ -11,6 +11,9 @@ interface Props {
   hoveredServiceSlug?: string | null;
   hoveredProjectSlug?: string | null;
   portfolioProjects?: ProjectTVConfig[];
+  activeDiveTarget?: DiveTargetConfig | null;
+  divePhase?: DivePhase;
+  onDiveReachedTarget?: () => void;
   onSelectService?: (slug: string) => void;
   onSelectProject?: (slug: string) => void;
   onHoverService?: (slug: string | null) => void;

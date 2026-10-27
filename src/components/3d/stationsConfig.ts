@@ -361,3 +361,146 @@ export const EXECUTIVE_LOUNGE_CONFIG = {
     logoScale: [1.35, 1.35, 1.35] as [number, number, number],
   },
 };
+
+/**
+ * ── تنظیمات شیرجه سینمایی دوربین روی مانیتورها، گوشی و صفحات (Cinematic Camera Dive Targets) ──
+ * شامل:
+ * - stagingProgress: نقطه اسکرول ثابتی که دوربین ابتدا به آنجا هدایت می‌شود
+ * - camPosition: مختصات نهایی دوربین در فاصله چند سانتی‌متری مانیتور برای پر کردن صفحه
+ * - camLookAt: نقطه مرکزی مانیتور/صفحه که دوربین مستقیماً به آن خیره می‌شود
+ */
+export type DivePhase =
+  | 'idle'
+  | 'staging'
+  | 'diving'
+  | 'pullback_hold'
+  | 'pullback'
+  | 'navigating';
+
+export interface DiveTargetConfig {
+  slug: string;
+  targetUrl: string;
+  stagingProgress: number;
+  startPosition: [number, number, number];
+  startLookAt: [number, number, number];
+  camPosition: [number, number, number];
+  camLookAt: [number, number, number];
+}
+
+export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
+  // ۱. لپ‌تاپ طراحی وبسایت
+  'web-design': {
+    slug: 'web-design',
+    targetUrl: '/web-design-urmia/',
+    stagingProgress: 0.22,
+    startPosition: [-0.60, 1.70, -20.50],
+    startLookAt: [-2.20, 1.20, -22.00],
+    camPosition: [-1.95, 1.30, -21.75],
+    camLookAt: [-2.20, 1.25, -22.00],
+  },
+  // ۲. گوشی موبایل تولید محتوا و اینستاگرام
+  'instagram-content': {
+    slug: 'instagram-content',
+    targetUrl: '/content-production-urmia/',
+    stagingProgress: 0.26,
+    startPosition: [0.60, 1.70, -25.50],
+    startLookAt: [2.20, 1.55, -27.00],
+    camPosition: [2.02, 1.55, -26.68],
+    camLookAt: [2.20, 1.55, -27.00],
+  },
+  'content-production': {
+    slug: 'instagram-content',
+    targetUrl: '/content-production-urmia/',
+    stagingProgress: 0.26,
+    startPosition: [0.60, 1.70, -25.50],
+    startLookAt: [2.20, 1.55, -27.00],
+    camPosition: [2.02, 1.55, -26.68],
+    camLookAt: [2.20, 1.55, -27.00],
+  },
+  // ۳. دوربین فیلمبرداری و تیزر صنعتی
+  'video-teaser': {
+    slug: 'video-teaser',
+    targetUrl: '/video-teaser-urmia/',
+    stagingProgress: 0.30,
+    startPosition: [-0.60, 1.70, -30.50],
+    startLookAt: [-2.20, 1.20, -32.00],
+    camPosition: [-1.80, 1.25, -31.68],
+    camLookAt: [-1.96, 1.25, -32.00],
+  },
+  // ۴. کاغذ و دفترچه اتود طراحی لوگو و هویت بصری
+  'branding-identity': {
+    slug: 'branding-identity',
+    targetUrl: '/services/branding-identity/',
+    stagingProgress: 0.34,
+    startPosition: [0.60, 1.70, -35.50],
+    startLookAt: [2.20, 1.16, -37.00],
+    camPosition: [2.32, 1.46, -36.78],
+    camLookAt: [2.32, 1.16, -36.95],
+  },
+  'branding-logo': {
+    slug: 'branding-identity',
+    targetUrl: '/services/branding-identity/',
+    stagingProgress: 0.34,
+    startPosition: [0.60, 1.70, -35.50],
+    startLookAt: [2.20, 1.16, -37.00],
+    camPosition: [2.32, 1.46, -36.78],
+    camLookAt: [2.32, 1.16, -36.95],
+  },
+  // ۵. بیلبورد تبلیغات محیطی
+  'billboard-advertising': {
+    slug: 'billboard-advertising',
+    targetUrl: '/billboard-urmia/',
+    stagingProgress: 0.38,
+    startPosition: [-0.50, 2.00, -39.50],
+    startLookAt: [-2.60, 2.20, -43.00],
+    camPosition: [-1.56, 2.20, -41.36],
+    camLookAt: [-2.20, 2.20, -42.00],
+  },
+  'billboard': {
+    slug: 'billboard-advertising',
+    targetUrl: '/billboard-urmia/',
+    stagingProgress: 0.38,
+    startPosition: [-0.50, 2.00, -39.50],
+    startLookAt: [-2.60, 2.20, -43.00],
+    camPosition: [-1.56, 2.20, -41.36],
+    camLookAt: [-2.20, 2.20, -42.00],
+  },
+
+  // ── تلویزیون‌های نمونه‌کارها (Project TVs) ──
+  'araz-metal-industrial-portal': {
+    slug: 'araz-metal-industrial-portal',
+    targetUrl: '/portfolio/araz-metal-industrial-portal/',
+    stagingProgress: 0.46,
+    startPosition: [-0.50, 1.75, -53.50],
+    startLookAt: [-2.40, 1.36, -56.00],
+    camPosition: [-1.86, 1.36, -54.70],
+    camLookAt: [-2.40, 1.36, -56.00],
+  },
+  'dr-sadeghi-medical-branding': {
+    slug: 'dr-sadeghi-medical-branding',
+    targetUrl: '/portfolio/dr-sadeghi-medical-branding/',
+    stagingProgress: 0.52,
+    startPosition: [0.50, 1.75, -60.50],
+    startLookAt: [2.40, 1.45, -63.00],
+    camPosition: [1.86, 1.45, -61.70],
+    camLookAt: [2.40, 1.45, -63.00],
+  },
+  'sepid-kooh-outdoor-campaign': {
+    slug: 'sepid-kooh-outdoor-campaign',
+    targetUrl: '/portfolio/sepid-kooh-outdoor-campaign/',
+    stagingProgress: 0.58,
+    startPosition: [-0.50, 1.75, -67.50],
+    startLookAt: [-2.40, 1.58, -70.00],
+    camPosition: [-1.86, 1.58, -68.70],
+    camLookAt: [-2.40, 1.58, -70.00],
+  },
+  'baran-leather-ecommerce': {
+    slug: 'baran-leather-ecommerce',
+    targetUrl: '/portfolio/baran-leather-ecommerce/',
+    stagingProgress: 0.64,
+    startPosition: [0.50, 1.75, -74.50],
+    startLookAt: [2.40, 1.46, -77.00],
+    camPosition: [1.86, 1.46, -75.70],
+    camLookAt: [2.40, 1.46, -77.00],
+  },
+};

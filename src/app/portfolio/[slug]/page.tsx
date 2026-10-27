@@ -36,13 +36,22 @@ export default async function ProjectDetailPage({ params }: Props) {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
       {/* Header */}
       <div className="space-y-6">
-        <Link
-          href="/portfolio/"
-          className="inline-flex items-center gap-2 text-xs font-bold text-brand-400 hover:text-brand-300 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4 rotate-180" />
-          <span>بازگشت به همه نمونه‌کارها</span>
-        </Link>
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            href={`/?returnFrom=${project.slug}`}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-brand-600/25 border border-white/10 hover:border-brand-500/40 text-gray-300 hover:text-white text-xs font-semibold transition-all group shadow-sm"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 rotate-180 text-brand-400 group-hover:-translate-x-1 transition-transform" />
+            <span>بازگشت به محوطه ۳بعدی</span>
+          </Link>
+
+          <Link
+            href="/portfolio/"
+            className="inline-flex items-center gap-2 text-xs font-bold text-gray-400 hover:text-brand-300 transition-colors"
+          >
+            <span>مشاهده همه نمونه‌کارها</span>
+          </Link>
+        </div>
 
         <div className="max-w-4xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass-panel-brand text-brand-300 text-xs font-semibold">

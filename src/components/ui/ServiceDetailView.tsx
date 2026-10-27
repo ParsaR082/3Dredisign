@@ -27,9 +27,26 @@ export default function ServiceDetailView({ service }: ServiceDetailViewProps) {
         <div className="absolute top-1/4 -right-40 w-96 h-96 bg-brand-600/15 rounded-full blur-[140px] pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel-brand text-brand-300 text-xs font-semibold">
-              <Sparkles className="w-4 h-4 text-amber-300" />
-              <span>{service.breadcrumb_label}</span>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href={`/?returnFrom=${service.slug}`}
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    try {
+                      sessionStorage.setItem('last_dive_target', service.slug);
+                    } catch (_) {}
+                  }
+                }}
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-brand-600/25 border border-white/10 hover:border-brand-500/40 text-gray-300 hover:text-white text-xs font-semibold transition-all group shadow-sm"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 rotate-180 text-brand-400 group-hover:-translate-x-1 transition-transform" />
+                <span>بازگشت به محوطه ۳بعدی</span>
+              </Link>
+
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel-brand text-brand-300 text-xs font-semibold">
+                <Sparkles className="w-4 h-4 text-amber-300" />
+                <span>{service.breadcrumb_label}</span>
+              </div>
             </div>
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">

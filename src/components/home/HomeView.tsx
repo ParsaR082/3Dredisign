@@ -21,7 +21,12 @@ import {
 } from 'lucide-react';
 import CampusCanvas from '@/components/3d/CampusCanvas';
 import SpatialHUD from '@/components/3d/SpatialHUD';
-import { PORTFOLIO_TVS_CONFIG } from '@/components/3d/stationsConfig';
+import {
+  PORTFOLIO_TVS_CONFIG,
+  DIVE_TARGETS_CONFIG,
+  DiveTargetConfig,
+  DivePhase,
+} from '@/components/3d/stationsConfig';
 import type { LandingData, Service, Project, SiteSettings } from '@/types/content';
 
 interface HomeViewProps {
@@ -29,6 +34,19 @@ interface HomeViewProps {
   services: Service[];
   projects: Project[];
   settings: SiteSettings;
+}
+
+// Synchronously detect if user is returning from a detail page dive
+function getInitialDiveTarget(): DiveTargetConfig | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const urlParams = new URLSearchParams(window.location.search);
+    const returnSlug = urlParams.get('returnFrom') || sessionStorage.getItem('last_dive_target');
+    if (returnSlug && DIVE_TARGETS_CONFIG[returnSlug]) {
+      return DIVE_TARGETS_CONFIG[returnSlug];
+    }
+  } catch (_) {}
+  return null;
 }
 
 export default function HomeView({
@@ -39,12 +57,17 @@ export default function HomeView({
 }: HomeViewProps) {
   const router = useRouter();
 
+  // Check if returning from a service/project dive transition
+  const initialTarget = useMemo(() => getInitialDiveTarget(), []);
+
   // ── VIRTUAL SMOOTH SPATIAL SCROLL CONTROLLER ──
-  // The HTML window does NOT scroll down. Wheel and touch inputs smoothly drive
-  // scrollProgress, keeping the hero card grounded and eliminating page shifting.
-  const [targetProgress, setTargetProgress] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [activeSector, setActiveSector] = useState(0);
+  const [targetProgress, setTargetProgress] = useState(
+    initialTarget ? initialTarget.stagingProgress : 0
+  );
+  const [scrollProgress, setScrollProgress] = useState(
+    initialTarget ? initialTarget.stagingProgress : 0
+  );
+  const [activeSector, setActiveSector] = useState(initialTarget ? 1 : 0);
   const [hoveredServiceSlug, setHoveredServiceSlug] = useState<string | null>(null);
   const [hoveredProjectSlug, setHoveredProjectSlug] = useState<string | null>(null);
 
@@ -53,6 +76,82 @@ export default function HomeView({
 
   // Growth calculator interactive state
   const [calcBudget, setCalcBudget] = useState<number>(45); // in millions
+
+  // Cinematic camera dive transition state
+  // On return: camera starts LOCKED on the laptop screen ('pullback_hold') under a black overlay (1)
+  const [activeDiveTarget, setActiveDiveTarget] = useState<DiveTargetConfig | null>(initialTarget);
+  const [divePhase, setDivePhase] = useState<DivePhase>(
+    initialTarget ? 'pullback_hold' : 'idle'
+  );
+  const [transitionOverlayOpacity, setTransitionOverlayOpacity] = useState<number>(
+    initialTarget ? 1 : 0
+  );
+  const isTransitioningRef = useRef(Boolean(initialTarget));
+
+  // ── REVERSE DIVE: When returning, fade in from black onto laptop screen, then pull back to normal view ──
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleReturnAnimation = () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const returnSlug =
+          urlParams.get('returnFrom') || sessionStorage.getItem('last_dive_target');
+
+        if (returnSlug && DIVE_TARGETS_CONFIG[returnSlug]) {
+          const targetConfig = DIVE_TARGETS_CONFIG[returnSlug];
+          sessionStorage.removeItem('last_dive_target');
+
+          isTransitioningRef.current = true;
+          setActiveDiveTarget(targetConfig);
+          setScrollProgress(targetConfig.stagingProgress);
+          setTargetProgress(targetConfig.stagingProgress);
+          targetProgressRef.current = targetConfig.stagingProgress;
+
+          // 1. Camera is already zoomed in on screen under solid black
+          setDivePhase('pullback_hold');
+          setTransitionOverlayOpacity(1);
+
+          // 2. Black screen fades away in 80ms, revealing screen up-close
+          const fadeTimer = setTimeout(() => {
+            setTransitionOverlayOpacity(0);
+          }, 80);
+
+          // 3. Camera pauses on screen so user clearly sees it, then smoothly pulls back in reverse!
+          const pullbackTimer = setTimeout(() => {
+            setDivePhase('pullback');
+          }, 450);
+
+          // 4. Camera finishes 1150ms pull-back into item's unique start position; unlock controls completely
+          const doneTimer = setTimeout(() => {
+            setDivePhase('idle');
+            setActiveDiveTarget(null);
+            isTransitioningRef.current = false;
+          }, 1680);
+
+          return () => {
+            clearTimeout(fadeTimer);
+            clearTimeout(pullbackTimer);
+            clearTimeout(doneTimer);
+          };
+        } else {
+          isTransitioningRef.current = false;
+          setDivePhase('idle');
+          setTransitionOverlayOpacity(0);
+        }
+      } catch (_) {
+        isTransitioningRef.current = false;
+        setTransitionOverlayOpacity(0);
+      }
+    };
+
+    handleReturnAnimation();
+
+    // Also listen to pageshow (for browser Back button bfcache)
+    const onPageShow = () => handleReturnAnimation();
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, []);
 
   // Target progress ref for event handlers to avoid stale closures
   const targetProgressRef = useRef(0);
@@ -93,6 +192,12 @@ export default function HomeView({
   // Mouse Wheel listener: Prevents standard window scroll down, drives 3D spatial progress
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
+      // Lock input during camera dive transition
+      if (isTransitioningRef.current) {
+        e.preventDefault();
+        return;
+      }
+
       // Allow internal scrolling inside docked card containers
       const target = e.target as HTMLElement | null;
       const scrollable = target?.closest('.allow-card-scroll');
@@ -124,6 +229,7 @@ export default function HomeView({
       if (e.touches[0]) startY = e.touches[0].clientY;
     };
     const onTouchMove = (e: TouchEvent) => {
+      if (isTransitioningRef.current) return;
       if (!e.touches[0]) return;
       const target = e.target as HTMLElement | null;
       if (target?.closest('.allow-card-scroll')) return;
@@ -146,6 +252,7 @@ export default function HomeView({
   // Keyboard navigation
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (isTransitioningRef.current) return;
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
         e.preventDefault();
         const next = Math.min(1, targetProgressRef.current + 0.08);
@@ -162,16 +269,73 @@ export default function HomeView({
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  const handleSelectServiceFrom3D = (slug: string) => {
-    const service = services.find((s) => s.slug === slug);
-    if (service) {
-      router.push(service.dedicated_url || ('/services/' + service.slug + '/'));
-    }
-  };
+  // ── CINEMATIC CAMERA DIVE TRANSITION CONTROLLER ──
+  const triggerDiveTransition = useCallback((targetConfig: DiveTargetConfig) => {
+    if (isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
+    setActiveDiveTarget(targetConfig);
 
-  const handleSelectProjectFrom3D = (slug: string) => {
-    router.push('/portfolio/' + slug + '/');
-  };
+    // Store target in sessionStorage so when user returns (via back button or link), camera pulls back from screen
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('last_dive_target', targetConfig.slug);
+      } catch (_) {}
+    }
+
+    // Immediately align progress to the station corridor position - ZERO lag
+    targetProgressRef.current = targetConfig.stagingProgress;
+    setTargetProgress(targetConfig.stagingProgress);
+    setScrollProgress(targetConfig.stagingProgress);
+
+    // Start diving forward immediately without waiting!
+    setDivePhase('diving');
+  }, []);
+
+  const handleSelectServiceFrom3D = useCallback((slug: string) => {
+    const targetConfig = DIVE_TARGETS_CONFIG[slug];
+    if (targetConfig) {
+      triggerDiveTransition(targetConfig);
+    } else {
+      const service = services.find((s) => s.slug === slug);
+      if (service) {
+        router.push(service.dedicated_url || ('/services/' + service.slug + '/'));
+      }
+    }
+  }, [services, triggerDiveTransition, router]);
+
+  const handleSelectProjectFrom3D = useCallback((slug: string) => {
+    const targetConfig = DIVE_TARGETS_CONFIG[slug];
+    if (targetConfig) {
+      triggerDiveTransition(targetConfig);
+    } else {
+      router.push('/portfolio/' + slug + '/');
+    }
+  }, [triggerDiveTransition, router]);
+
+  const handleDiveReachedTarget = useCallback(() => {
+    // 1. Lock/freeze camera right on the screen
+    setDivePhase('pullback_hold');
+
+    // 2. Pause on the screen for 220ms, then fade to black smoothly
+    setTimeout(() => {
+      setTransitionOverlayOpacity(1);
+    }, 220);
+
+    // 3. When the screen is fully black (220 + 320 = 540ms), navigate to target page
+    setTimeout(() => {
+      if (activeDiveTarget) {
+        router.push(activeDiveTarget.targetUrl);
+      }
+    }, 550);
+
+    // 4. Safety reset: in case the user navigates back (via bfcache or client router cache)
+    setTimeout(() => {
+      setTransitionOverlayOpacity(0);
+      isTransitioningRef.current = false;
+      setDivePhase('idle');
+      setActiveDiveTarget(null);
+    }, 1800);
+  }, [activeDiveTarget, router]);
 
   // Dynamic mapping of backend/database projects to the 4 3D TV displays
   const portfolioTVs = useMemo(() => {
@@ -192,6 +356,15 @@ export default function HomeView({
 
   return (
     <div className="fixed inset-0 overflow-hidden text-gray-100 select-none">
+      {/* ── CINEMATIC DIVE TRANSITION FULLSCREEN DISSOLVE OVERLAY ── */}
+      <div
+        className="fixed inset-0 pointer-events-none z-50 transition-opacity duration-300 ease-in-out bg-[#070B12]"
+        style={{
+          opacity: transitionOverlayOpacity,
+          backdropFilter: transitionOverlayOpacity > 0 ? 'blur(6px)' : 'none',
+        }}
+      />
+
       {/* ── PERSISTENT 3D DIGITAL ARCHITECTURE BACKGROUND ── */}
       <CampusCanvas
         scrollProgress={scrollProgress}
@@ -199,6 +372,9 @@ export default function HomeView({
         hoveredServiceSlug={hoveredServiceSlug}
         hoveredProjectSlug={hoveredProjectSlug}
         portfolioProjects={portfolioTVs}
+        activeDiveTarget={activeDiveTarget}
+        divePhase={divePhase}
+        onDiveReachedTarget={handleDiveReachedTarget}
         onSelectService={handleSelectServiceFrom3D}
         onSelectProject={handleSelectProjectFrom3D}
         onHoverService={setHoveredServiceSlug}
