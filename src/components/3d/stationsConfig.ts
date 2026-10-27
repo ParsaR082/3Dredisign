@@ -48,7 +48,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۱: طراحی سایت (میز ۱ + لپ‌تاپ سه‌بعدی) - سمت چپ ──
   webDesign: {
     stationPosition: [-2.2, 0, -22],
-    badgeOffset: [5, 2.8, 0], // دقیقاً در مرکز مدل میز و لپ‌تاپ (X=0)
+    badgeOffset: [2, 1.8, -5], // دقیقاً در مرکز مدل میز و لپ‌تاپ (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -65,7 +65,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۲: تولید محتوا (میز ۲ + گوشی شناور) - سمت راست ──
   contentProduction: {
     stationPosition: [2.2, 0, -27],
-    badgeOffset: [2, 2.8, 0], // دقیقاً در مرکز مدل میز و گوشی (X=0)
+    badgeOffset: [6, 2, -3], // دقیقاً در مرکز مدل میز و گوشی (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -82,7 +82,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۳: تیزر تبلیغاتی (میز ۳ + دوربین و گیمبال) - سمت چپ ──
   videoTeaser: {
     stationPosition: [-2.2, 0, -32],
-    badgeOffset: [5.5, 2.8, 0], // دقیقاً در مرکز مدل میز و دوربین (X=0)
+    badgeOffset: [1, 2, -5], // دقیقاً در مرکز مدل میز و دوربین (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -104,7 +104,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۴: طراحی لوگو (میز ۴ + کاغذ، تخته شاسی و قلم) - سمت راست ──
   logoDesign: {
     stationPosition: [2.2, 0, -37],
-    badgeOffset: [2, 2.8, 0], // دقیقاً در مرکز مدل میز و طراحی (X=0)
+    badgeOffset: [4.5, 2, 0], // دقیقاً در مرکز مدل میز و طراحی (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -131,7 +131,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۵: بیلبورد محیطی (بدون میز - مستقیم روی زمین) - سمت چپ ──
   billboard: {
     stationPosition: [-2.6, 0, -43],
-    badgeOffset: [0, 4.4, 0], // دقیقاً در مرکز و بالای بیلبورد (X=0, Y=4.4)
+    badgeOffset: [3, 4.5, -4], // دقیقاً در مرکز و بالای بیلبورد (X=0, Y=4.4)
     badgeY: 4.4,
     billboard: {
       position: [0, 0, 0],
@@ -171,7 +171,7 @@ export const PORTFOLIO_TVS_CONFIG: ProjectTVConfig[] = [
     model: 'TV1',
     position: [-2.4, 0, -56],
     rotationY: Math.PI / 8,
-    badgeOffset: [0, 3.4, 0], // دقیقاً در مرکز و بالای تلویزیون ۱ (X=0)
+    badgeOffset: [4.5, 3, -4], // دقیقاً در مرکز و بالای تلویزیون ۱ (X=0)
     screenImage: '/media/portfolio/thumbnails/attorney-anything_thumb.jpg',
     screenSize: [3.25, 2.02],
     screenOffset: [0, 1.356, 0.035],
@@ -184,7 +184,7 @@ export const PORTFOLIO_TVS_CONFIG: ProjectTVConfig[] = [
     model: 'TV2',
     position: [2.4, 0, -63],
     rotationY: -Math.PI / 8,
-    badgeOffset: [0, 3.4, 0], // دقیقاً در مرکز و بالای تلویزیون ۲ (X=0)
+    badgeOffset: [5, 3, -4], // دقیقاً در مرکز و بالای تلویزیون ۲ (X=0)
     screenImage: '/media/portfolio/thumbnails/detail-feel-result_thumb.jpg',
     screenSize: [3.10, 1.88],
     screenOffset: [0, 1.451, 0.11],
@@ -197,7 +197,7 @@ export const PORTFOLIO_TVS_CONFIG: ProjectTVConfig[] = [
     model: 'TV3',
     position: [-2.4, 0, -70],
     rotationY: Math.PI / 8,
-    badgeOffset: [0, 3.4, 0], // دقیقاً در مرکز و بالای تلویزیون ۳ (X=0)
+    badgeOffset: [3.5, 3, -5], // دقیقاً در مرکز و بالای تلویزیون ۳ (X=0)
     screenImage: '/media/portfolio/thumbnails/east-practice-plant_thumb.jpg',
     screenSize: [3.11, 1.68],
     screenOffset: [0, 1.58, 0.081],
@@ -210,7 +210,7 @@ export const PORTFOLIO_TVS_CONFIG: ProjectTVConfig[] = [
     model: 'TV4',
     position: [2.4, 0, -77],
     rotationY: -Math.PI / 8,
-    badgeOffset: [0, 3.4, 0], // دقیقاً در مرکز و بالای تلویزیون ۴ (X=0)
+    badgeOffset: [4.5, 3, -4], // دقیقاً در مرکز و بالای تلویزیون ۴ (X=0)
     screenImage: '/media/portfolio/thumbnails/feel-oil-piece_thumb.jpg',
     screenSize: [3.20, 1.95],
     screenOffset: [0, 1.456, 0.06],
@@ -245,7 +245,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: '۲ الی ۴ روز کاری',
     position: [-2.6, 0, -94],
     rotationY: Math.PI / 5 + 0.1,
-    badgeOffset: [0, 3.2, 0], // دقیقاً در مرکز مدل میز همکاری ۱ (X=0)
+    badgeOffset: [4.5, 3, -4], // دقیقاً در مرکز مدل میز همکاری ۱ (X=0)
   },
   {
     id: 'step-design',
@@ -256,7 +256,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: '۵ الی ۸ روز کاری',
     position: [2.6, 0, -101],
     rotationY: -Math.PI / 5 - 0.1,
-    badgeOffset: [0, 3.2, 0], // دقیقاً در مرکز مدل میز همکاری ۲ (X=0)
+    badgeOffset: [8, 3, -4], // دقیقاً در مرکز مدل میز همکاری ۲ (X=0)
   },
   {
     id: 'step-engineering',
@@ -267,7 +267,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: '۱۰ الی ۱۵ روز کاری',
     position: [-2.6, 0, -108],
     rotationY: Math.PI / 5 + 0.1,
-    badgeOffset: [0, 3.2, 0], // دقیقاً در مرکز مدل میز همکاری ۳ (X=0)
+    badgeOffset: [1, 3, -7], // دقیقاً در مرکز مدل میز همکاری ۳ (X=0)
   },
   {
     id: 'step-testing',
@@ -278,7 +278,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: '۳ الی ۵ روز کاری',
     position: [2.6, 0, -115],
     rotationY: -Math.PI / 5 - 0.1,
-    badgeOffset: [0, 3.2, 0], // دقیقاً در مرکز مدل میز همکاری ۴ (X=0)
+    badgeOffset: [8, 3, -3], // دقیقاً در مرکز مدل میز همکاری ۴ (X=0)
   },
   {
     id: 'step-launch',
@@ -289,7 +289,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: 'تحویل و لانچ قطعی',
     position: [-2.6, 0, -122],
     rotationY: Math.PI / 5 + 0.1,
-    badgeOffset: [0, 3.2, 0], // دقیقاً در مرکز مدل میز همکاری ۵ (X=0)
+    badgeOffset: [1, 3, -8], // دقیقاً در مرکز مدل میز همکاری ۵ (X=0)
   },
 ];
 
@@ -305,7 +305,7 @@ export const EXECUTIVE_LOUNGE_CONFIG = {
   // ── ایستگاه سمت چپ: لانژ مشاوره حضوری و نقشه موقعیت ارومیه ──
   lounge: {
     stationPosition: [-2.8, 0, -146] as [number, number, number],
-    badgeOffset: [0, 3.2, 0] as [number, number, number], // دقیقاً در مرکز لانژ (X=0)
+    badgeOffset: [3.5, 3, -4] as [number, number, number], // دقیقاً در مرکز لانژ (X=0)
     sofa: {
       position: [-1, 0.5, -1] as [number, number, number],
       scale: 3,
@@ -339,7 +339,7 @@ export const EXECUTIVE_LOUNGE_CONFIG = {
   // ── ایستگاه سمت راست: کانتر رسیپشن و تماس مستقیم مدیریت ──
   reception: {
     stationPosition: [2.8, 0, -146] as [number, number, number],
-    badgeOffset: [0, 3.2, 0] as [number, number, number], // دقیقاً در مرکز کانتر رسیپشن (X=0)
+    badgeOffset: [8, 3, -2] as [number, number, number], // دقیقاً در مرکز کانتر رسیپشن (X=0)
     desk: {
       position: [0, 0, 0] as [number, number, number],
       scale: 1.5,
@@ -370,7 +370,7 @@ export const EXECUTIVE_LOUNGE_CONFIG = {
 
   // ── درگاه انتهای مسیر و لوگوی ۳D معلق ──
   portal: {
-    position: [0, 0, -154] as [number, number, number],
+    position: [0, -1, -154] as [number, number, number],
     badgeOffset: [0, 7, 0] as [number, number, number],
     logoScale: [1.35, 1.35, 1.35] as [number, number, number],
   },
