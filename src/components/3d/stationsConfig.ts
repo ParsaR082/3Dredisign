@@ -245,7 +245,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: '۲ الی ۴ روز کاری',
     position: [-2.6, 0, -94],
     rotationY: Math.PI / 5 + 0.1,
-    badgeOffset: [4.5, 3, -4], // دقیقاً در مرکز مدل میز همکاری ۱ (X=0)
+    badgeOffset: [1, 2, -7], // دقیقاً در مرکز مدل میز همکاری ۱ (X=0)
   },
   {
     id: 'step-design',
@@ -267,7 +267,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: '۱۰ الی ۱۵ روز کاری',
     position: [-2.6, 0, -108],
     rotationY: Math.PI / 5 + 0.1,
-    badgeOffset: [1, 3, -7], // دقیقاً در مرکز مدل میز همکاری ۳ (X=0)
+    badgeOffset: [1, 2, -7], // دقیقاً در مرکز مدل میز همکاری ۳ (X=0)
   },
   {
     id: 'step-testing',
@@ -278,7 +278,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: '۳ الی ۵ روز کاری',
     position: [2.6, 0, -115],
     rotationY: -Math.PI / 5 - 0.1,
-    badgeOffset: [8, 3, -3], // دقیقاً در مرکز مدل میز همکاری ۴ (X=0)
+    badgeOffset: [8, 2.6, -3], // دقیقاً در مرکز مدل میز همکاری ۴ (X=0)
   },
   {
     id: 'step-launch',
@@ -289,7 +289,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: 'تحویل و لانچ قطعی',
     position: [-2.6, 0, -122],
     rotationY: Math.PI / 5 + 0.1,
-    badgeOffset: [1, 3, -8], // دقیقاً در مرکز مدل میز همکاری ۵ (X=0)
+    badgeOffset: [1, 2.5, -8], // دقیقاً در مرکز مدل میز همکاری ۵ (X=0)
   },
 ];
 
@@ -305,7 +305,7 @@ export const EXECUTIVE_LOUNGE_CONFIG = {
   // ── ایستگاه سمت چپ: لانژ مشاوره حضوری و نقشه موقعیت ارومیه ──
   lounge: {
     stationPosition: [-2.8, 0, -146] as [number, number, number],
-    badgeOffset: [3.5, 3, -4] as [number, number, number], // دقیقاً در مرکز لانژ (X=0)
+    badgeOffset: [1, 2, -7] as [number, number, number], // دقیقاً در مرکز لانژ (X=0)
     sofa: {
       position: [-1, 0.5, -1] as [number, number, number],
       scale: 3,
@@ -339,7 +339,7 @@ export const EXECUTIVE_LOUNGE_CONFIG = {
   // ── ایستگاه سمت راست: کانتر رسیپشن و تماس مستقیم مدیریت ──
   reception: {
     stationPosition: [2.8, 0, -146] as [number, number, number],
-    badgeOffset: [8, 3, -2] as [number, number, number], // دقیقاً در مرکز کانتر رسیپشن (X=0)
+    badgeOffset: [8, 2, -2] as [number, number, number], // دقیقاً در مرکز کانتر رسیپشن (X=0)
     desk: {
       position: [0, 0, 0] as [number, number, number],
       scale: 1.5,
