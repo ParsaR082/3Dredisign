@@ -48,7 +48,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۱: طراحی سایت (میز ۱ + لپ‌تاپ سه‌بعدی) - سمت چپ ──
   webDesign: {
     stationPosition: [-2.2, 0, -22],
-    badgeOffset: [0, 2.8, 0], // دقیقاً در مرکز مدل میز و لپ‌تاپ (X=0)
+    badgeOffset: [5, 2.8, 0], // دقیقاً در مرکز مدل میز و لپ‌تاپ (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -65,7 +65,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۲: تولید محتوا (میز ۲ + گوشی شناور) - سمت راست ──
   contentProduction: {
     stationPosition: [2.2, 0, -27],
-    badgeOffset: [0, 2.8, 0], // دقیقاً در مرکز مدل میز و گوشی (X=0)
+    badgeOffset: [2, 2.8, 0], // دقیقاً در مرکز مدل میز و گوشی (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -82,7 +82,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۳: تیزر تبلیغاتی (میز ۳ + دوربین و گیمبال) - سمت چپ ──
   videoTeaser: {
     stationPosition: [-2.2, 0, -32],
-    badgeOffset: [0, 2.8, 0], // دقیقاً در مرکز مدل میز و دوربین (X=0)
+    badgeOffset: [5.5, 2.8, 0], // دقیقاً در مرکز مدل میز و دوربین (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -104,7 +104,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۴: طراحی لوگو (میز ۴ + کاغذ، تخته شاسی و قلم) - سمت راست ──
   logoDesign: {
     stationPosition: [2.2, 0, -37],
-    badgeOffset: [0, 2.8, 0], // دقیقاً در مرکز مدل میز و طراحی (X=0)
+    badgeOffset: [2, 2.8, 0], // دقیقاً در مرکز مدل میز و طراحی (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -420,9 +420,9 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'web-design': {
     slug: 'web-design',
     targetUrl: '/web-design-urmia/',
-    stagingProgress: 0.42,
-    startPosition: [0.0, 3.43, -20.54],
-    startLookAt: [0.0, 1.80, -36.81],
+    stagingProgress: 0.23,
+    startPosition: [0.2, 2.2, -19.2],
+    startLookAt: [-2.2, 1.35, -22.0],
     // 👈 برای تغییر موقعیت نهایی دوربین روی لپ‌تاپ، این دو خط را ویرایش کنید:
     camPosition: [-1.95, 1.5, -21.75], // موقعیت چشم دوربین
     camLookAt: [-2.20, 1.5, -22.00],   // مرکز صفحه لپ‌تاپ
@@ -431,18 +431,18 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'instagram-content': {
     slug: 'instagram-content',
     targetUrl: '/content-production-urmia/',
-    stagingProgress: 0.45,
-    startPosition: [0.0, 3.46, -26.79],
-    startLookAt: [0.0, 1.80, -43.42],
+    stagingProgress: 0.28,
+    startPosition: [-0.2, 2.2, -24.2],
+    startLookAt: [2.2, 1.55, -27.0],
     camPosition: [2.02, 1.55, -26.68],
     camLookAt: [2.20, 1.55, -27.00],
   },
   'content-production': {
     slug: 'instagram-content',
     targetUrl: '/content-production-urmia/',
-    stagingProgress: 0.45,
-    startPosition: [0.0, 3.46, -26.79],
-    startLookAt: [0.0, 1.80, -43.42],
+    stagingProgress: 0.28,
+    startPosition: [-0.2, 2.2, -24.2],
+    startLookAt: [2.2, 1.55, -27.0],
     camPosition: [2.02, 1.55, -26.68],
     camLookAt: [2.20, 1.55, -27.00],
   },
@@ -450,9 +450,9 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'video-teaser': {
     slug: 'video-teaser',
     targetUrl: '/video-teaser-urmia/',
-    stagingProgress: 0.47,
-    startPosition: [0.0, 3.49, -31.73],
-    startLookAt: [0.0, 1.80, -48.65],
+    stagingProgress: 0.33,
+    startPosition: [0.2, 2.2, -29.2],
+    startLookAt: [-2.1, 1.30, -32.0],
     camPosition: [-1.80, 1.25, -31.68],
     camLookAt: [-1.96, 1.25, -32.00],
   },
@@ -460,18 +460,18 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'branding-identity': {
     slug: 'branding-identity',
     targetUrl: '/services/branding-identity/',
-    stagingProgress: 0.49,
-    startPosition: [0.0, 3.52, -36.78],
-    startLookAt: [0.0, 1.80, -54.01],
+    stagingProgress: 0.38,
+    startPosition: [-0.2, 2.2, -34.2],
+    startLookAt: [2.2, 1.25, -37.0],
     camPosition: [2.32, 1.46, -36.78],
     camLookAt: [2.32, 1.16, -36.95],
   },
   'branding-logo': {
     slug: 'branding-identity',
     targetUrl: '/services/branding-identity/',
-    stagingProgress: 0.49,
-    startPosition: [0.0, 3.52, -36.78],
-    startLookAt: [0.0, 1.80, -54.01],
+    stagingProgress: 0.38,
+    startPosition: [-0.2, 2.2, -34.2],
+    startLookAt: [2.2, 1.25, -37.0],
     camPosition: [2.32, 1.46, -36.78],
     camLookAt: [2.32, 1.16, -36.95],
   },
@@ -479,18 +479,18 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'billboard-advertising': {
     slug: 'billboard-advertising',
     targetUrl: '/billboard-urmia/',
-    stagingProgress: 0.51,
-    startPosition: [0.0, 3.55, -41.50],
-    startLookAt: [0.0, 1.80, -59.00],
+    stagingProgress: 0.43,
+    startPosition: [0.3, 2.4, -39.0],
+    startLookAt: [-2.6, 3.2, -43.0],
     camPosition: [-1.56, 2.20, -39.36],
     camLookAt: [-2.20, 2.20, -42.00],
   },
   'billboard': {
     slug: 'billboard-advertising',
     targetUrl: '/billboard-urmia/',
-    stagingProgress: 0.51,
-    startPosition: [0.0, 3.55, -41.50],
-    startLookAt: [0.0, 1.80, -59.00],
+    stagingProgress: 0.43,
+    startPosition: [0.3, 2.4, -39.0],
+    startLookAt: [-2.6, 3.2, -43.0],
     camPosition: [-1.56, 2.20, -39.36],
     camLookAt: [-2.20, 2.20, -42.00],
   },
@@ -499,36 +499,36 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'araz-metal-industrial-portal': {
     slug: 'araz-metal-industrial-portal',
     targetUrl: '/portfolio/araz-metal-industrial-portal/',
-    stagingProgress: 0.62,
-    startPosition: [0.0, 3.58, -53.48],
-    startLookAt: [0.0, 1.80, -71.82],
+    stagingProgress: 0.53,
+    startPosition: [0.2, 2.2, -52.5],
+    startLookAt: [-2.4, 1.45, -56.0],
     camPosition: [-1.86, 1.36, -54.70],
     camLookAt: [-2.40, 1.36, -56.00],
   },
   'dr-sadeghi-medical-branding': {
     slug: 'dr-sadeghi-medical-branding',
     targetUrl: '/portfolio/dr-sadeghi-medical-branding/',
-    stagingProgress: 0.65,
-    startPosition: [0.0, 3.55, -60.00],
-    startLookAt: [0.0, 1.80, -79.00],
+    stagingProgress: 0.58,
+    startPosition: [-0.2, 2.2, -59.5],
+    startLookAt: [2.4, 1.50, -63.0],
     camPosition: [1.86, 1.45, -61.70],
     camLookAt: [2.40, 1.45, -63.00],
   },
   'sepid-kooh-outdoor-campaign': {
     slug: 'sepid-kooh-outdoor-campaign',
     targetUrl: '/portfolio/sepid-kooh-outdoor-campaign/',
-    stagingProgress: 0.68,
-    startPosition: [0.0, 3.51, -68.51],
-    startLookAt: [0.0, 1.80, -88.36],
+    stagingProgress: 0.63,
+    startPosition: [0.2, 2.2, -66.5],
+    startLookAt: [-2.4, 1.60, -70.0],
     camPosition: [-1.86, 1.58, -68.70],
     camLookAt: [-2.40, 1.58, -70.00],
   },
   'baran-leather-ecommerce': {
     slug: 'baran-leather-ecommerce',
     targetUrl: '/portfolio/baran-leather-ecommerce/',
-    stagingProgress: 0.71,
-    startPosition: [0.0, 3.46, -77.31],
-    startLookAt: [0.0, 1.80, -98.04],
+    stagingProgress: 0.68,
+    startPosition: [-0.2, 2.2, -73.5],
+    startLookAt: [2.4, 1.50, -77.0],
     camPosition: [1.86, 1.46, -75.70],
     camLookAt: [2.40, 1.46, -77.00],
   },

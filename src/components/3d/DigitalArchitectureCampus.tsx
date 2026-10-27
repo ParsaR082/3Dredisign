@@ -202,68 +202,156 @@ interface CampusProps {
   onExploreProjects?: () => void;
 }
 
-// ── CINEMATIC WAYPOINT SPLINE FOR CAMERA CHOREOGRAPHY ──
-// Desktop Waypoints (Centered along runway centerline X=0)
-const CAMERA_WAYPOINTS = [
-  // Sector 0: Grand Nexus Portal (Framing the standing Ground-Hinged Hero Card on the runway floor)
-  { pos: new THREE.Vector3(0, 3.6, 11.5), target: new THREE.Vector3(0, 3.2, 0.0) },
-  // Sector 1: Services Concourse (traveling straight down centerline between pavilions)
-  { pos: new THREE.Vector3(0, 3.4, -16.0), target: new THREE.Vector3(0, 1.8, -32.0) },
-  // Sector 2: Masterworks Exhibition Hall (centered along runway)
-  { pos: new THREE.Vector3(0, 3.6, -50.0), target: new THREE.Vector3(0, 1.8, -68.0) },
-  // Sector 3: Collaboration Office Concourse (corridor walk at eye level)
-  { pos: new THREE.Vector3(0, 3.4, -90.0), target: new THREE.Vector3(0, 1.8, -112.0) },
-  // Sector 4: Terminal Gateway (Executive Consultation Lounge & Reception)
-  { pos: new THREE.Vector3(0, 3.1, -136.0), target: new THREE.Vector3(0, 1.8, -153.0) },
+// ── CHOREOGRAPHED CAMERA TRAJECTORY & DYNAMIC ITEM GAZE ──
+// Each waypoint defines an exact scroll progress (t), camera position, and gaze lookAt target.
+// When reaching an item, the camera turns to look directly at it.
+// When leaving a sector, the camera faces straight ahead down the central runway into the next room.
+
+export interface ChoreographedWaypoint {
+  t: number;
+  pos: THREE.Vector3;
+  target: THREE.Vector3;
+}
+
+const CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
+  // ── Sector 0: Grand Nexus Portal & Hero Card ──
+  { t: 0.00, pos: new THREE.Vector3(0, 3.6, 11.5), target: new THREE.Vector3(0, 3.2, 0.0) },
+  { t: 0.16, pos: new THREE.Vector3(0, 3.6, 11.5), target: new THREE.Vector3(0, 3.2, 0.0) },
+  { t: 0.18, pos: new THREE.Vector3(0, 2.4, -14.0), target: new THREE.Vector3(0, 2.0, -25.0) },
+
+  // ── Sector 1: Services Concourse (Room 1) ──
+  // Station 1: Laptop (Web Design - Left)
+  { t: 0.23, pos: new THREE.Vector3(0.2, 2.2, -19.2), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
+  // Station 2: Phone (Content Production - Right)
+  { t: 0.28, pos: new THREE.Vector3(-0.2, 2.2, -24.2), target: new THREE.Vector3(2.2, 1.55, -27.0) },
+  // Station 3: Camera & Gimbal (Video Teaser - Left)
+  { t: 0.33, pos: new THREE.Vector3(0.2, 2.2, -29.2), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
+  // Station 4: Sketchbook & Logo (Branding - Right)
+  { t: 0.38, pos: new THREE.Vector3(-0.2, 2.2, -34.2), target: new THREE.Vector3(2.2, 1.25, -37.0) },
+  // Station 5: Environmental Billboard (Billboard - Left)
+  { t: 0.43, pos: new THREE.Vector3(0.3, 2.4, -39.0), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
+
+  // ── Inter-Room Corridor 1 -> 2: Straighten camera facing forward into Room 2 ──
+  { t: 0.48, pos: new THREE.Vector3(0, 2.4, -48.0), target: new THREE.Vector3(0, 2.0, -62.0) },
+
+  // ── Sector 2: Masterworks Exhibition (Room 2 - Project TVs) ──
+  // TV 1: Araz Metal (Left)
+  { t: 0.53, pos: new THREE.Vector3(0.2, 2.2, -52.5), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
+  // TV 2: Dr Sadeghi (Right)
+  { t: 0.58, pos: new THREE.Vector3(-0.2, 2.2, -59.5), target: new THREE.Vector3(2.4, 1.50, -63.0) },
+  // TV 3: Sepid Kooh (Left)
+  { t: 0.63, pos: new THREE.Vector3(0.2, 2.2, -66.5), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
+  // TV 4: Baran Leather (Right)
+  { t: 0.68, pos: new THREE.Vector3(-0.2, 2.2, -73.5), target: new THREE.Vector3(2.4, 1.50, -77.0) },
+
+  // ── Inter-Room Corridor 2 -> 3: Straighten camera facing forward into Room 3 ──
+  { t: 0.72, pos: new THREE.Vector3(0, 2.4, -84.0), target: new THREE.Vector3(0, 2.0, -98.0) },
+
+  // ── Sector 3: Collaboration Workflow (Room 3 - 5 Pods) ──
+  // Step 1: Discovery (Left)
+  { t: 0.75, pos: new THREE.Vector3(0.2, 2.2, -90.5), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
+  // Step 2: UI/UX Design (Right)
+  { t: 0.78, pos: new THREE.Vector3(-0.2, 2.2, -97.5), target: new THREE.Vector3(2.6, 1.5, -101.0) },
+  // Step 3: Engineering (Left)
+  { t: 0.81, pos: new THREE.Vector3(0.2, 2.2, -104.5), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
+  // Step 4: Testing & QA (Right)
+  { t: 0.84, pos: new THREE.Vector3(-0.2, 2.2, -111.5), target: new THREE.Vector3(2.6, 1.5, -115.0) },
+  // Step 5: Launch & Support (Left)
+  { t: 0.87, pos: new THREE.Vector3(0.2, 2.2, -118.5), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
+
+  // ── Inter-Room Corridor 3 -> 4: Straighten camera facing forward into Executive Room ──
+  { t: 0.90, pos: new THREE.Vector3(0, 2.4, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
+
+  // ── Sector 4: Executive Consultation & Reception (Room 4) ──
+  // VIP Consultation Lounge (Left)
+  { t: 0.93, pos: new THREE.Vector3(0.2, 2.2, -142.0), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
+  // Executive Reception Desk (Right)
+  { t: 0.96, pos: new THREE.Vector3(-0.2, 2.2, -143.0), target: new THREE.Vector3(2.8, 1.4, -146.0) },
+  // Terminal 3D Portal & Grand Floating Brand Landmark
+  { t: 1.00, pos: new THREE.Vector3(0.0, 2.4, -148.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
 ];
 
-// Mobile Waypoints (Centered along runway centerline X=0 with elevated vantage point)
-const MOBILE_CAMERA_WAYPOINTS = [
-  // Sector 0: Grand Nexus Portal (backed up to frame full card width on narrow screens)
-  { pos: new THREE.Vector3(0, 3.8, 16.5), target: new THREE.Vector3(0, 3.2, 0.0) },
-  // Sector 1: Services Concourse (straight down centerline X=0, capturing both left and right stations)
-  { pos: new THREE.Vector3(0, 3.8, -16.0), target: new THREE.Vector3(0, 1.8, -32.0) },
-  // Sector 2: Masterworks Exhibition Hall (centered along runway)
-  { pos: new THREE.Vector3(0, 4.0, -50.0), target: new THREE.Vector3(0, 1.8, -68.0) },
-  // Sector 3: Collaboration Office Concourse (corridor walk at eye level)
-  { pos: new THREE.Vector3(0, 3.8, -90.0), target: new THREE.Vector3(0, 1.8, -112.0) },
-  // Sector 4: Terminal Gateway (Executive Consultation Lounge & Reception)
-  { pos: new THREE.Vector3(0, 3.8, -134.0), target: new THREE.Vector3(0, 1.9, -153.0) },
+const MOBILE_CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
+  // ── Sector 0: Grand Nexus Portal & Hero Card (Elevated Vantage Point) ──
+  { t: 0.00, pos: new THREE.Vector3(0, 3.8, 16.5), target: new THREE.Vector3(0, 3.2, 0.0) },
+  { t: 0.16, pos: new THREE.Vector3(0, 3.8, 16.5), target: new THREE.Vector3(0, 3.2, 0.0) },
+  { t: 0.18, pos: new THREE.Vector3(0, 2.8, -13.0), target: new THREE.Vector3(0, 2.0, -25.0) },
+
+  // ── Sector 1: Services Concourse (Room 1) ──
+  { t: 0.23, pos: new THREE.Vector3(0.3, 2.5, -18.8), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
+  { t: 0.28, pos: new THREE.Vector3(-0.3, 2.5, -23.8), target: new THREE.Vector3(2.2, 1.55, -27.0) },
+  { t: 0.33, pos: new THREE.Vector3(0.3, 2.5, -28.8), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
+  { t: 0.38, pos: new THREE.Vector3(-0.3, 2.5, -33.8), target: new THREE.Vector3(2.2, 1.25, -37.0) },
+  { t: 0.43, pos: new THREE.Vector3(0.4, 2.7, -38.5), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
+
+  // ── Inter-Room Corridor 1 -> 2: Straighten camera facing forward into Room 2 ──
+  { t: 0.48, pos: new THREE.Vector3(0, 2.8, -48.0), target: new THREE.Vector3(0, 2.0, -62.0) },
+
+  // ── Sector 2: Masterworks Exhibition (Room 2 - Project TVs) ──
+  { t: 0.53, pos: new THREE.Vector3(0.3, 2.6, -52.0), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
+  { t: 0.58, pos: new THREE.Vector3(-0.3, 2.6, -59.0), target: new THREE.Vector3(2.4, 1.50, -63.0) },
+  { t: 0.63, pos: new THREE.Vector3(0.3, 2.6, -66.0), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
+  { t: 0.68, pos: new THREE.Vector3(-0.3, 2.6, -73.0), target: new THREE.Vector3(2.4, 1.50, -77.0) },
+
+  // ── Inter-Room Corridor 2 -> 3: Straighten camera facing forward into Room 3 ──
+  { t: 0.72, pos: new THREE.Vector3(0, 2.8, -84.0), target: new THREE.Vector3(0, 2.0, -98.0) },
+
+  // ── Sector 3: Collaboration Workflow (Room 3 - 5 Pods) ──
+  { t: 0.75, pos: new THREE.Vector3(0.3, 2.6, -90.0), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
+  { t: 0.78, pos: new THREE.Vector3(-0.3, 2.6, -97.0), target: new THREE.Vector3(2.6, 1.5, -101.0) },
+  { t: 0.81, pos: new THREE.Vector3(0.3, 2.6, -104.0), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
+  { t: 0.84, pos: new THREE.Vector3(-0.3, 2.6, -111.0), target: new THREE.Vector3(2.6, 1.5, -115.0) },
+  { t: 0.87, pos: new THREE.Vector3(0.3, 2.6, -118.0), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
+
+  // ── Inter-Room Corridor 3 -> 4: Straighten camera facing forward into Executive Room ──
+  { t: 0.90, pos: new THREE.Vector3(0, 2.8, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
+
+  // ── Sector 4: Executive Consultation & Reception (Room 4) ──
+  { t: 0.93, pos: new THREE.Vector3(0.3, 2.6, -141.5), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
+  { t: 0.96, pos: new THREE.Vector3(-0.3, 2.6, -142.5), target: new THREE.Vector3(2.8, 1.4, -146.0) },
+  { t: 1.00, pos: new THREE.Vector3(0.0, 2.8, -147.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
 ];
 
-function getSplinePoint(t: number, isMobile: boolean) {
-  const waypoints = isMobile ? MOBILE_CAMERA_WAYPOINTS : CAMERA_WAYPOINTS;
+const _splinePos = new THREE.Vector3();
+const _splineTarget = new THREE.Vector3();
 
-  // ── PHYSICAL BILLBOARD FALL SYNCHRONIZATION ──
-  // The billboard fall occurs between t = 0.00 and t = 0.16.
-  // During this entire fall and recoil sequence, the camera stays locked in place
-  // at waypoints[0] (gate view). The user cannot fly past the gate until the billboard
-  // has completely fallen and settled onto the runway floor.
-  const FALL_THRESHOLD = 0.16;
-  if (t <= FALL_THRESHOLD) {
-    return waypoints[0];
+function getSplinePoint(t: number, isMobile: boolean): { pos: THREE.Vector3; target: THREE.Vector3 } {
+  const waypoints = isMobile ? MOBILE_CHOREOGRAPHED_CAMERA_WAYPOINTS : CHOREOGRAPHED_CAMERA_WAYPOINTS;
+
+  if (t <= waypoints[0].t) {
+    _splinePos.copy(waypoints[0].pos);
+    _splineTarget.copy(waypoints[0].target);
+    return { pos: _splinePos, target: _splineTarget };
   }
 
-  // Once the billboard has fallen flat, the camera takes off and traverses the campus
-  const flightProgress = Math.min(1, Math.max(0, (t - FALL_THRESHOLD) / (1 - FALL_THRESHOLD)));
-  const segment = flightProgress * (waypoints.length - 1);
-  const index = Math.floor(segment);
-  const fraction = segment - index;
-
-  if (index >= waypoints.length - 1) {
-    return waypoints[waypoints.length - 1];
+  const last = waypoints[waypoints.length - 1];
+  if (t >= last.t) {
+    _splinePos.copy(last.pos);
+    _splineTarget.copy(last.target);
+    return { pos: _splinePos, target: _splineTarget };
   }
 
-  const pA = waypoints[index];
-  const pB = waypoints[index + 1];
+  // Find active segment [i, i + 1]
+  let i = 0;
+  for (let idx = 0; idx < waypoints.length - 1; idx++) {
+    if (t >= waypoints[idx].t && t <= waypoints[idx + 1].t) {
+      i = idx;
+      break;
+    }
+  }
 
-  // Silky smooth Hermite / Cosine interpolation
+  const pA = waypoints[i];
+  const pB = waypoints[i + 1];
+  const span = pB.t - pA.t;
+  const fraction = span > 0 ? (t - pA.t) / span : 0;
+
+  // Cosine smoothing produces zero derivative at each item for an organic, momentary gaze pause
   const smooth = 0.5 - 0.5 * Math.cos(fraction * Math.PI);
 
-  const pos = new THREE.Vector3().lerpVectors(pA.pos, pB.pos, smooth);
-  const target = new THREE.Vector3().lerpVectors(pA.target, pB.target, smooth);
+  _splinePos.lerpVectors(pA.pos, pB.pos, smooth);
+  _splineTarget.lerpVectors(pA.target, pB.target, smooth);
 
-  return { pos, target };
+  return { pos: _splinePos, target: _splineTarget };
 }
 
 function easeInOutCubic(x: number): number {

@@ -174,16 +174,16 @@ export default function HomeView({
 
   // Update activeSector based on scrollProgress
   useEffect(() => {
-    if (scrollProgress < 0.22) setActiveSector(0);
-    else if (scrollProgress < 0.54) setActiveSector(1);
-    else if (scrollProgress < 0.75) setActiveSector(2);
-    else if (scrollProgress < 0.88) setActiveSector(3);
+    if (scrollProgress < 0.20) setActiveSector(0);
+    else if (scrollProgress < 0.50) setActiveSector(1);
+    else if (scrollProgress < 0.72) setActiveSector(2);
+    else if (scrollProgress < 0.90) setActiveSector(3);
     else setActiveSector(4);
   }, [scrollProgress]);
 
   // Jump to specific sector waypoint
   const handleJumpToSector = useCallback((sectorIndex: number) => {
-    const waypoints = [0.0, 0.42, 0.62, 0.80, 0.98];
+    const waypoints = [0.0, 0.23, 0.53, 0.75, 0.93];
     const target = waypoints[sectorIndex] ?? 0;
     targetProgressRef.current = target;
     setTargetProgress(target);
