@@ -17,6 +17,20 @@
  *       منفی = عقب‌تر
  */
 
+/**
+ * ── تنظیمات سیستم هوشمند محو شدن و کنار رفتن نشان‌ها در فاصله نزدیک (Smart Proximity Badges) ──
+ * 
+ * راهنمای تغییر دستی فواصل محو شدن:
+ * - minDist: فاصله بحرانی (متر). اگر کاربر از این فاصله نزدیک‌تر شود، متن کاملاً ناپدید می‌شود تا دید آیتم یا صفحات پشتی باز بماند
+ * - maxDist: فاصله شروع محو شدن (متر). کاربر وقتی نزدیک‌تر از این عدد می‌شود، نشان به آرامی محو شده و به بالا شیفت پیدا می‌کند
+ * - farFadeDist: فاصله افق دور (متر). نشان‌های دورتر از این فاصله برای خلوت ماندن دید محو می‌شوند
+ */
+export const BADGE_PROXIMITY_CONFIG = {
+  minDist: 3.8,      // زیر ۳.۸ متر متن کاملاً ناپدید می‌شود
+  maxDist: 6.8,      // بین ۶.۸ تا ۳.۸ متر با ترنزیشن نرم به بالا حرکت کرده و محو می‌شود
+  farFadeDist: 22.0, // دورتر از ۲۲ متر برای خلوتی افق محو است
+};
+
 export interface ItemTransform {
   position: [number, number, number];
   scale: [number, number, number] | number;
@@ -34,7 +48,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۱: طراحی سایت (میز ۱ + لپ‌تاپ سه‌بعدی) - سمت چپ ──
   webDesign: {
     stationPosition: [-2.2, 0, -22],
-    badgeOffset: [2, 2.8, 0], // متن شناور در مرکز مدل (X=0)
+    badgeOffset: [0, 2.8, 0], // دقیقاً در مرکز مدل میز و لپ‌تاپ (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -51,7 +65,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۲: تولید محتوا (میز ۲ + گوشی شناور) - سمت راست ──
   contentProduction: {
     stationPosition: [2.2, 0, -27],
-    badgeOffset: [4, 2.8, 0], // متن شناور در سمت راست مدل (X=+1.8)
+    badgeOffset: [0, 2.8, 0], // دقیقاً در مرکز مدل میز و گوشی (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -68,7 +82,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۳: تیزر تبلیغاتی (میز ۳ + دوربین و گیمبال) - سمت چپ ──
   videoTeaser: {
     stationPosition: [-2.2, 0, -32],
-    badgeOffset: [2, 2.8, 0], // متن شناور در مرکز مدل (X=0)
+    badgeOffset: [0, 2.8, 0], // دقیقاً در مرکز مدل میز و دوربین (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -90,7 +104,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۴: طراحی لوگو (میز ۴ + کاغذ، تخته شاسی و قلم) - سمت راست ──
   logoDesign: {
     stationPosition: [2.2, 0, -37],
-    badgeOffset: [4, 2.8, 0], // متن شناور در سمت راست مدل (X=+1.8)
+    badgeOffset: [0, 2.8, 0], // دقیقاً در مرکز مدل میز و طراحی (X=0)
     badgeY: 2.8,
     table: {
       position: [0, 0, 0],
@@ -117,7 +131,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
   // ── ایستگاه ۵: بیلبورد محیطی (بدون میز - مستقیم روی زمین) - سمت چپ ──
   billboard: {
     stationPosition: [-2.6, 0, -43],
-    badgeOffset: [1, 4.4, 0], // متن شناور بالای بیلبورد (X=0, Y=4.4)
+    badgeOffset: [0, 4.4, 0], // دقیقاً در مرکز و بالای بیلبورد (X=0, Y=4.4)
     badgeY: 4.4,
     billboard: {
       position: [0, 0, 0],
@@ -157,7 +171,7 @@ export const PORTFOLIO_TVS_CONFIG: ProjectTVConfig[] = [
     model: 'TV1',
     position: [-2.4, 0, -56],
     rotationY: Math.PI / 8,
-    badgeOffset: [2, 3.2, 0], // سمت چپ - مرکز مدل
+    badgeOffset: [0, 3.4, 0], // دقیقاً در مرکز و بالای تلویزیون ۱ (X=0)
     screenImage: '/media/portfolio/thumbnails/attorney-anything_thumb.jpg',
     screenSize: [3.25, 2.02],
     screenOffset: [0, 1.356, 0.035],
@@ -170,7 +184,7 @@ export const PORTFOLIO_TVS_CONFIG: ProjectTVConfig[] = [
     model: 'TV2',
     position: [2.4, 0, -63],
     rotationY: -Math.PI / 8,
-    badgeOffset: [5, 3.2, 0], // سمت راست - شیفت به سمت راست
+    badgeOffset: [0, 3.4, 0], // دقیقاً در مرکز و بالای تلویزیون ۲ (X=0)
     screenImage: '/media/portfolio/thumbnails/detail-feel-result_thumb.jpg',
     screenSize: [3.10, 1.88],
     screenOffset: [0, 1.451, 0.11],
@@ -183,7 +197,7 @@ export const PORTFOLIO_TVS_CONFIG: ProjectTVConfig[] = [
     model: 'TV3',
     position: [-2.4, 0, -70],
     rotationY: Math.PI / 8,
-    badgeOffset: [2, 3.2, 0], // سمت چپ - مرکز مدل
+    badgeOffset: [0, 3.4, 0], // دقیقاً در مرکز و بالای تلویزیون ۳ (X=0)
     screenImage: '/media/portfolio/thumbnails/east-practice-plant_thumb.jpg',
     screenSize: [3.11, 1.68],
     screenOffset: [0, 1.58, 0.081],
@@ -196,7 +210,7 @@ export const PORTFOLIO_TVS_CONFIG: ProjectTVConfig[] = [
     model: 'TV4',
     position: [2.4, 0, -77],
     rotationY: -Math.PI / 8,
-    badgeOffset: [5, 3.2, 0], // سمت راست - شیفت به سمت راست
+    badgeOffset: [0, 3.4, 0], // دقیقاً در مرکز و بالای تلویزیون ۴ (X=0)
     screenImage: '/media/portfolio/thumbnails/feel-oil-piece_thumb.jpg',
     screenSize: [3.20, 1.95],
     screenOffset: [0, 1.456, 0.06],
@@ -231,7 +245,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: '۲ الی ۴ روز کاری',
     position: [-2.6, 0, -94],
     rotationY: Math.PI / 5 + 0.1,
-    badgeOffset: [1, 3.2, 0], // سمت چپ - مرکز مدل
+    badgeOffset: [0, 3.2, 0], // دقیقاً در مرکز مدل میز همکاری ۱ (X=0)
   },
   {
     id: 'step-design',
@@ -242,7 +256,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: '۵ الی ۸ روز کاری',
     position: [2.6, 0, -101],
     rotationY: -Math.PI / 5 - 0.1,
-    badgeOffset: [7, 3.2, 0], // سمت راست - شیفت به سمت راست
+    badgeOffset: [0, 3.2, 0], // دقیقاً در مرکز مدل میز همکاری ۲ (X=0)
   },
   {
     id: 'step-engineering',
@@ -253,7 +267,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: '۱۰ الی ۱۵ روز کاری',
     position: [-2.6, 0, -108],
     rotationY: Math.PI / 5 + 0.1,
-    badgeOffset: [1, 3.2, 0], // سمت چپ - مرکز مدل
+    badgeOffset: [0, 3.2, 0], // دقیقاً در مرکز مدل میز همکاری ۳ (X=0)
   },
   {
     id: 'step-testing',
@@ -264,7 +278,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: '۳ الی ۵ روز کاری',
     position: [2.6, 0, -115],
     rotationY: -Math.PI / 5 - 0.1,
-    badgeOffset: [7, 3.2, 0], // سمت راست - شیفت به سمت راست
+    badgeOffset: [0, 3.2, 0], // دقیقاً در مرکز مدل میز همکاری ۴ (X=0)
   },
   {
     id: 'step-launch',
@@ -275,7 +289,7 @@ export const COLLABORATION_STATIONS_CONFIG: CollaborationStationConfig[] = [
     duration: 'تحویل و لانچ قطعی',
     position: [-2.6, 0, -122],
     rotationY: Math.PI / 5 + 0.1,
-    badgeOffset: [1, 3.2, 0], // سمت چپ - مرکز مدل
+    badgeOffset: [0, 3.2, 0], // دقیقاً در مرکز مدل میز همکاری ۵ (X=0)
   },
 ];
 
@@ -291,7 +305,7 @@ export const EXECUTIVE_LOUNGE_CONFIG = {
   // ── ایستگاه سمت چپ: لانژ مشاوره حضوری و نقشه موقعیت ارومیه ──
   lounge: {
     stationPosition: [-2.8, 0, -146] as [number, number, number],
-    badgeOffset: [5.5, 3.2, 0] as [number, number, number],
+    badgeOffset: [0, 3.2, 0] as [number, number, number], // دقیقاً در مرکز لانژ (X=0)
     sofa: {
       position: [-1, 0.5, -1] as [number, number, number],
       scale: 3,
@@ -325,7 +339,7 @@ export const EXECUTIVE_LOUNGE_CONFIG = {
   // ── ایستگاه سمت راست: کانتر رسیپشن و تماس مستقیم مدیریت ──
   reception: {
     stationPosition: [2.8, 0, -146] as [number, number, number],
-    badgeOffset: [5, 3.2, 0] as [number, number, number],
+    badgeOffset: [0, 3.2, 0] as [number, number, number], // دقیقاً در مرکز کانتر رسیپشن (X=0)
     desk: {
       position: [0, 0, 0] as [number, number, number],
       scale: 1.5,

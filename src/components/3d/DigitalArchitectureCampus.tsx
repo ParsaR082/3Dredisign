@@ -14,6 +14,7 @@ import {
   EXECUTIVE_LOUNGE_CONFIG,
   DiveTargetConfig,
   DivePhase,
+  BADGE_PROXIMITY_CONFIG,
 } from './stationsConfig';
 import CorporateOfficeEnvironment from './CorporateOfficeEnvironment';
 
@@ -75,6 +76,113 @@ function useClonedGLTF(path: string) {
     });
     return cloned;
   }, [gltf.scene]);
+}
+
+// ── SMART PROXIMITY BADGE COMPONENT ──
+// Calculates exact real-time 3D camera distance; smoothly dissolves & lifts badge away as camera gets close
+interface SmartProximityBadgeProps {
+  position?: [number, number, number];
+  distanceFactor?: number;
+  center?: boolean;
+  minDist?: number;
+  maxDist?: number;
+  farFadeDist?: number;
+  isDiving?: boolean;
+  children: React.ReactNode;
+}
+
+function SmartProximityBadge({
+  position = [0, 0, 0],
+  distanceFactor = 16,
+  center = true,
+  minDist = BADGE_PROXIMITY_CONFIG.minDist,
+  maxDist = BADGE_PROXIMITY_CONFIG.maxDist,
+  farFadeDist = BADGE_PROXIMITY_CONFIG.farFadeDist,
+  isDiving = false,
+  children,
+}: SmartProximityBadgeProps) {
+  const groupRef = useRef<THREE.Group>(null);
+  const domRef = useRef<HTMLDivElement>(null);
+  const worldPos = useMemo(() => new THREE.Vector3(), []);
+
+  useFrame(({ camera }) => {
+    if (!domRef.current || !groupRef.current) return;
+
+    // Immediately hide when diving or pulling back
+    if (isDiving) {
+      domRef.current.style.opacity = '0';
+      domRef.current.style.pointerEvents = 'none';
+      domRef.current.style.visibility = 'hidden';
+      return;
+    }
+
+    // World coordinates of this badge in 3D space
+    groupRef.current.getWorldPosition(worldPos);
+
+    // Exact physical distance between camera and badge
+    const dist = camera.position.distanceTo(worldPos);
+
+    // If camera is already past the badge along the runway corridor (camera Z < worldPos.z - 0.2)
+    const isPast = camera.position.z < worldPos.z - 0.2;
+
+    if (isPast || dist <= minDist) {
+      domRef.current.style.opacity = '0';
+      domRef.current.style.pointerEvents = 'none';
+      domRef.current.style.visibility = 'hidden';
+      return;
+    }
+
+    let opacity = 1;
+    let translateY = 0;
+    let scale = 1;
+
+    // Close-range proximity fade: between maxDist (1.0) down to minDist (0.0)
+    if (dist < maxDist) {
+      const factor = (dist - minDist) / (maxDist - minDist);
+      // Smooth cubic ease-in-out curve
+      const eased = factor * factor * (3 - 2 * factor);
+      opacity = eased;
+      // Elegant upward float / slide away effect as it dissolves
+      translateY = (1 - eased) * -16;
+      scale = 0.94 + 0.06 * eased;
+    } else if (dist > farFadeDist) {
+      // Far distance fade out to keep horizon clean
+      const farLimit = farFadeDist + 6;
+      if (dist >= farLimit) {
+        opacity = 0;
+      } else {
+        const factor = 1 - (dist - farFadeDist) / 6;
+        opacity = factor * factor;
+      }
+    }
+
+    if (opacity <= 0.01) {
+      domRef.current.style.opacity = '0';
+      domRef.current.style.pointerEvents = 'none';
+      domRef.current.style.visibility = 'hidden';
+    } else {
+      domRef.current.style.visibility = 'visible';
+      domRef.current.style.opacity = opacity.toFixed(3);
+      domRef.current.style.pointerEvents = opacity > 0.5 ? 'auto' : 'none';
+      domRef.current.style.transform = `translate3d(0, ${translateY.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
+    }
+  });
+
+  return (
+    <group ref={groupRef} position={position}>
+      <Html center={center} distanceFactor={distanceFactor}>
+        <div
+          ref={domRef}
+          style={{
+            willChange: 'opacity, transform',
+            transition: 'opacity 0.06s linear, transform 0.06s linear',
+          }}
+        >
+          {children}
+        </div>
+      </Html>
+    </group>
+  );
 }
 
 interface CampusProps {
@@ -651,6 +759,7 @@ interface ServicePavilionProps {
   motifType: 'web' | 'instagram' | 'video' | 'branding' | 'billboard';
   isHoveredByParent?: boolean;
   scrollProgress?: number;
+  isDiving?: boolean;
   onSelect?: (slug: string) => void;
   onHover?: (slug: string | null) => void;
 }
@@ -877,6 +986,7 @@ function ServicePavilion({
   motifType,
   isHoveredByParent,
   scrollProgress = 0,
+  isDiving = false,
   onSelect,
   onHover,
 }: ServicePavilionProps) {
@@ -922,9 +1032,13 @@ function ServicePavilion({
         accent={accent}
       />
 
-      {/* Interactive 3D Label Badge */}
+      {/* Interactive 3D Label Badge with Smart Proximity Fade */}
       {scrollProgress >= 0.16 && (
-        <Html position={badgeOffset || [position[0] < 0 ? 0 : 1.8, badgeY, 0]} center distanceFactor={15}>
+        <SmartProximityBadge
+          position={badgeOffset || [0, badgeY, 0]}
+          distanceFactor={15}
+          isDiving={isDiving}
+        >
           <div
             className={
               'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 pointer-events-none whitespace-nowrap shadow-2xl border animate-fadeIn ' +
@@ -936,7 +1050,7 @@ function ServicePavilion({
             <span className="ml-1.5">{iconSymbol}</span>
             <span>{title}</span>
           </div>
-        </Html>
+        </SmartProximityBadge>
       )}
     </group>
   );
@@ -947,11 +1061,13 @@ function ServicesConcourse({
   hoveredServiceSlug,
   onSelectService,
   onHoverService,
+  isDiving = false,
 }: {
   scrollProgress?: number;
   hoveredServiceSlug?: string | null;
   onSelectService?: (slug: string) => void;
   onHoverService?: (slug: string | null) => void;
+  isDiving?: boolean;
 }) {
   const servicesData: ServicePavilionProps[] = [
     {
@@ -1019,6 +1135,7 @@ function ServicesConcourse({
           {...s}
           scrollProgress={scrollProgress}
           isHoveredByParent={hoveredServiceSlug === s.slug}
+          isDiving={isDiving}
           onSelect={onSelectService}
           onHover={onHoverService}
         />
@@ -1132,6 +1249,7 @@ function TVModelRenderer({ model }: { model: 'TV1' | 'TV2' | 'TV3' | 'TV4' }) {
 interface ProjectTVStationProps extends ProjectTVConfig {
   isHoveredByParent?: boolean;
   scrollProgress?: number;
+  isDiving?: boolean;
   onSelect?: (slug: string) => void;
   onHover?: (slug: string | null) => void;
 }
@@ -1151,6 +1269,7 @@ function ProjectTVStation({
   screenRotation,
   isHoveredByParent,
   scrollProgress = 0,
+  isDiving = false,
   onSelect,
   onHover,
 }: ProjectTVStationProps) {
@@ -1209,9 +1328,13 @@ function ProjectTVStation({
         isHighlighted={isHighlighted}
       />
 
-      {/* Holographic 3D Overlay Badge */}
+      {/* Holographic 3D Overlay Badge with Smart Proximity Fade */}
       {scrollProgress >= 0.38 && (
-        <Html position={badgeOffset || [position[0] < 0 ? 0 : 1.8, screenSize[1] + 0.9, 0]} center distanceFactor={16}>
+        <SmartProximityBadge
+          position={badgeOffset || [0, screenSize[1] + 0.9, 0]}
+          distanceFactor={16}
+          isDiving={isDiving}
+        >
           <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-52 animate-fadeIn">
             <span className="text-[10px] font-mono text-brand-300 block mb-0.5">{category}</span>
             <div className="text-xs font-black text-white line-clamp-1">{title}</div>
@@ -1219,7 +1342,7 @@ function ProjectTVStation({
               {kpi}
             </div>
           </div>
-        </Html>
+        </SmartProximityBadge>
       )}
     </group>
   );
@@ -1231,12 +1354,14 @@ function ExhibitionGallery({
   hoveredProjectSlug,
   onSelectProject,
   onHoverProject,
+  isDiving = false,
 }: {
   projects?: ProjectTVConfig[];
   scrollProgress?: number;
   hoveredProjectSlug?: string | null;
   onSelectProject?: (slug: string) => void;
   onHoverProject?: (slug: string | null) => void;
+  isDiving?: boolean;
 }) {
   const activeProjects = projects && projects.length > 0 ? projects : PORTFOLIO_TVS_CONFIG;
 
@@ -1248,6 +1373,7 @@ function ExhibitionGallery({
           {...tvConfig}
           scrollProgress={scrollProgress}
           isHoveredByParent={hoveredProjectSlug === tvConfig.slug}
+          isDiving={isDiving}
           onSelect={onSelectProject}
           onHover={onHoverProject}
         />
@@ -1446,9 +1572,11 @@ function LaunchHandoverStation() {
 function CollaborationDepartmentStation({
   config,
   scrollProgress = 0,
+  isDiving = false,
 }: {
   config: CollaborationStationConfig;
   scrollProgress: number;
+  isDiving?: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
   const groupRef = useRef<THREE.Group>(null);
@@ -1461,8 +1589,6 @@ function CollaborationDepartmentStation({
     easing.damp(groupRef.current.scale, 'y', targetScale, 0.2, delta);
     easing.damp(groupRef.current.scale, 'z', targetScale, 0.2, delta);
   });
-
-  const isLeft = config.position[0] < 0;
 
   return (
     <group position={config.position}>
@@ -1499,9 +1625,13 @@ function CollaborationDepartmentStation({
         {config.id === 'step-launch' && <LaunchHandoverStation />}
       </group>
 
-      {/* Holographic 3D Overlay Badge */}
+      {/* Holographic 3D Overlay Badge with Smart Proximity Fade */}
       {scrollProgress >= 0.62 && (
-        <Html position={config.badgeOffset || [isLeft ? 0 : 2.0, 3.2, 0]} center distanceFactor={16}>
+        <SmartProximityBadge
+          position={config.badgeOffset || [0, 3.2, 0]}
+          distanceFactor={16}
+          isDiving={isDiving}
+        >
           <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-56 animate-fadeIn">
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
@@ -1516,13 +1646,19 @@ function CollaborationDepartmentStation({
               ⏱ {config.duration}
             </div>
           </div>
-        </Html>
+        </SmartProximityBadge>
       )}
     </group>
   );
 }
 
-function CollaborationOfficeConcourse({ scrollProgress = 0 }: { scrollProgress?: number }) {
+function CollaborationOfficeConcourse({
+  scrollProgress = 0,
+  isDiving = false,
+}: {
+  scrollProgress?: number;
+  isDiving?: boolean;
+}) {
   return (
     <group>
       {COLLABORATION_STATIONS_CONFIG.map((st) => (
@@ -1530,6 +1666,7 @@ function CollaborationOfficeConcourse({ scrollProgress = 0 }: { scrollProgress?:
           key={st.id}
           config={st}
           scrollProgress={scrollProgress}
+          isDiving={isDiving}
         />
       ))}
     </group>
@@ -1538,7 +1675,13 @@ function CollaborationOfficeConcourse({ scrollProgress = 0 }: { scrollProgress?:
 
 // ── 7. ZONE 4: EXECUTIVE CONSULTATION LOUNGE & RECEPTION ──
 
-function ConsultationLoungeStation({ scrollProgress = 0 }: { scrollProgress?: number }) {
+function ConsultationLoungeStation({
+  scrollProgress = 0,
+  isDiving = false,
+}: {
+  scrollProgress?: number;
+  isDiving?: boolean;
+}) {
   const [hovered, setHovered] = useState(false);
   const groupRef = useRef<THREE.Group>(null);
   const cfg = EXECUTIVE_LOUNGE_CONFIG.lounge;
@@ -1620,9 +1763,13 @@ function ConsultationLoungeStation({ scrollProgress = 0 }: { scrollProgress?: nu
         </Float>
       </group>
 
-      {/* Holographic 3D Overlay Badge */}
+      {/* Holographic 3D Overlay Badge with Smart Proximity Fade */}
       {scrollProgress >= 0.82 && (
-        <Html position={cfg.badgeOffset} center distanceFactor={16}>
+        <SmartProximityBadge
+          position={cfg.badgeOffset}
+          distanceFactor={16}
+          isDiving={isDiving}
+        >
           <div className="p-3.5 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-60 animate-fadeIn backdrop-blur-xl bg-[#030712]/80">
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
@@ -1637,13 +1784,19 @@ function ConsultationLoungeStation({ scrollProgress = 0 }: { scrollProgress?: nu
               شنبه تا پنج‌شنبه • ۹:۰۰ الی ۱۸:۰۰
             </div>
           </div>
-        </Html>
+        </SmartProximityBadge>
       )}
     </group>
   );
 }
 
-function ExecutiveReceptionStation({ scrollProgress = 0 }: { scrollProgress?: number }) {
+function ExecutiveReceptionStation({
+  scrollProgress = 0,
+  isDiving = false,
+}: {
+  scrollProgress?: number;
+  isDiving?: boolean;
+}) {
   const [hovered, setHovered] = useState(false);
   const [phoneHovered, setPhoneHovered] = useState(false);
   const groupRef = useRef<THREE.Group>(null);
@@ -1732,9 +1885,13 @@ function ExecutiveReceptionStation({ scrollProgress = 0 }: { scrollProgress?: nu
         </group>
       </group>
 
-      {/* Holographic 3D Overlay Badge */}
+      {/* Holographic 3D Overlay Badge with Smart Proximity Fade */}
       {scrollProgress >= 0.82 && (
-        <Html position={cfg.badgeOffset} center distanceFactor={16}>
+        <SmartProximityBadge
+          position={cfg.badgeOffset}
+          distanceFactor={16}
+          isDiving={isDiving}
+        >
           <div className="p-3.5 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-60 animate-fadeIn backdrop-blur-xl bg-[#030712]/80">
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
@@ -1749,13 +1906,19 @@ function ExecutiveReceptionStation({ scrollProgress = 0 }: { scrollProgress?: nu
               مشاوره رایگان قبل از عقد قرارداد
             </div>
           </div>
-        </Html>
+        </SmartProximityBadge>
       )}
     </group>
   );
 }
 
-function TerminalPortal({ scrollProgress = 0 }: { scrollProgress?: number }) {
+function TerminalPortal({
+  scrollProgress = 0,
+  isDiving = false,
+}: {
+  scrollProgress?: number;
+  isDiving?: boolean;
+}) {
   const logo = useClonedGLTF('/3Dmodels/logo3d.glb');
   const cfg = EXECUTIVE_LOUNGE_CONFIG.portal;
 
@@ -1797,16 +1960,20 @@ function TerminalPortal({ scrollProgress = 0 }: { scrollProgress?: number }) {
         <pointLight color="#10B981" intensity={3.5} distance={10} />
       </Float>
 
-      {/* Holographic 3D Overlay Badge */}
+      {/* Holographic 3D Overlay Badge with Smart Proximity Fade */}
       {scrollProgress >= 0.82 && (
-        <Html position={cfg.badgeOffset} center distanceFactor={18}>
+        <SmartProximityBadge
+          position={cfg.badgeOffset}
+          distanceFactor={18}
+          isDiving={isDiving}
+        >
           <div className="px-4 py-2 rounded-2xl glass-panel-elevated text-center border border-brand-500/40 shadow-2xl pointer-events-none whitespace-nowrap animate-fadeIn backdrop-blur-xl bg-[#030712]/85">
             <div className="text-xs font-black text-white flex items-center justify-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>اروم‌سیما • پایانه خلق امپراتوری دیجیتال</span>
             </div>
           </div>
-        </Html>
+        </SmartProximityBadge>
       )}
     </group>
   );
@@ -1828,6 +1995,8 @@ export default function DigitalArchitectureCampus({
   onExploreServices,
   onExploreProjects,
 }: CampusProps) {
+  const isDiving = divePhase !== 'idle';
+
   return (
     <>
       <color attach="background" args={['#E0F2FE']} />
@@ -1862,6 +2031,7 @@ export default function DigitalArchitectureCampus({
         hoveredServiceSlug={hoveredServiceSlug}
         onSelectService={onSelectService}
         onHoverService={onHoverService}
+        isDiving={isDiving}
       />
       <ExhibitionGallery
         projects={portfolioProjects}
@@ -1869,11 +2039,24 @@ export default function DigitalArchitectureCampus({
         hoveredProjectSlug={hoveredProjectSlug}
         onSelectProject={onSelectProject}
         onHoverProject={onHoverProject}
+        isDiving={isDiving}
       />
-      <CollaborationOfficeConcourse scrollProgress={scrollProgress} />
-      <ConsultationLoungeStation scrollProgress={scrollProgress} />
-      <ExecutiveReceptionStation scrollProgress={scrollProgress} />
-      <TerminalPortal scrollProgress={scrollProgress} />
+      <CollaborationOfficeConcourse
+        scrollProgress={scrollProgress}
+        isDiving={isDiving}
+      />
+      <ConsultationLoungeStation
+        scrollProgress={scrollProgress}
+        isDiving={isDiving}
+      />
+      <ExecutiveReceptionStation
+        scrollProgress={scrollProgress}
+        isDiving={isDiving}
+      />
+      <TerminalPortal
+        scrollProgress={scrollProgress}
+        isDiving={isDiving}
+      />
     </>
   );
 }

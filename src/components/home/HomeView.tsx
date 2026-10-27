@@ -234,6 +234,11 @@ export default function HomeView({
       const target = e.target as HTMLElement | null;
       if (target?.closest('.allow-card-scroll')) return;
 
+      // Prevent mobile browser native pull-to-refresh & navigation bounce
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+
       const deltaY = startY - e.touches[0].clientY;
       startY = e.touches[0].clientY;
       const next = Math.min(1, Math.max(0, targetProgressRef.current + deltaY * 0.0009));
@@ -242,7 +247,7 @@ export default function HomeView({
     };
 
     window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: false });
     return () => {
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
@@ -382,7 +387,7 @@ export default function HomeView({
   }, [projects]);
 
   return (
-    <div className="fixed inset-0 overflow-hidden text-gray-100 select-none">
+    <div className="fixed inset-0 overflow-hidden text-gray-100 select-none overscroll-none">
       {/* ── CINEMATIC DIVE TRANSITION FULLSCREEN DISSOLVE OVERLAY ── */}
       <div
         className="fixed inset-0 pointer-events-none z-50 transition-opacity duration-300 ease-in-out bg-[#070B12]"
