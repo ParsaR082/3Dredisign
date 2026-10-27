@@ -274,13 +274,15 @@ const CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
   { t: 0.93, pos: new THREE.Vector3(0.2, 2.2, -118.5), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
 
   // ── Inter-Room Corridor 3 -> 4: Straighten camera facing forward into Executive Room ──
-  { t: 0.95, pos: new THREE.Vector3(0, 2.4, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
+  { t: 0.94, pos: new THREE.Vector3(0, 2.4, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
 
   // ── Sector 4: Executive Consultation & Reception (Room 4) ──
-  // VIP Consultation Lounge (Left)
-  { t: 0.965, pos: new THREE.Vector3(0.2, 2.2, -142.0), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
-  // Executive Reception Desk (Right)
-  { t: 0.98, pos: new THREE.Vector3(-0.2, 2.2, -143.0), target: new THREE.Vector3(2.8, 1.4, -146.0) },
+  // VIP Consultation Lounge (Left - Dedicated Dwell Plateau for Calm Reading & Interaction)
+  { t: 0.955, pos: new THREE.Vector3(0.2, 2.2, -142.0), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
+  { t: 0.970, pos: new THREE.Vector3(0.2, 2.2, -142.0), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
+  // Executive Reception Desk (Right - Dedicated Dwell Plateau for Contact Details)
+  { t: 0.980, pos: new THREE.Vector3(-0.2, 2.2, -143.0), target: new THREE.Vector3(2.8, 1.4, -146.0) },
+  { t: 0.992, pos: new THREE.Vector3(-0.2, 2.2, -143.0), target: new THREE.Vector3(2.8, 1.4, -146.0) },
   // Terminal 3D Portal & Grand Floating Brand Landmark
   { t: 1.00, pos: new THREE.Vector3(0.0, 2.4, -148.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
 ];
@@ -332,11 +334,16 @@ const MOBILE_CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
   { t: 0.93, pos: new THREE.Vector3(0.3, 2.6, -118.0), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
 
   // ── Inter-Room Corridor 3 -> 4: Straighten camera facing forward into Executive Room ──
-  { t: 0.95, pos: new THREE.Vector3(0, 2.8, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
+  { t: 0.94, pos: new THREE.Vector3(0, 2.8, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
 
   // ── Sector 4: Executive Consultation & Reception (Room 4) ──
-  { t: 0.965, pos: new THREE.Vector3(0.3, 2.6, -141.5), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
-  { t: 0.98, pos: new THREE.Vector3(-0.3, 2.6, -142.5), target: new THREE.Vector3(2.8, 1.4, -146.0) },
+  // VIP Consultation Lounge (Left - Mobile Dwell Plateau)
+  { t: 0.955, pos: new THREE.Vector3(0.3, 2.6, -141.5), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
+  { t: 0.970, pos: new THREE.Vector3(0.3, 2.6, -141.5), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
+  // Executive Reception Desk (Right - Mobile Dwell Plateau)
+  { t: 0.980, pos: new THREE.Vector3(-0.3, 2.6, -142.5), target: new THREE.Vector3(2.8, 1.4, -146.0) },
+  { t: 0.992, pos: new THREE.Vector3(-0.3, 2.6, -142.5), target: new THREE.Vector3(2.8, 1.4, -146.0) },
+  // Terminal 3D Portal & Grand Floating Brand Landmark
   { t: 1.00, pos: new THREE.Vector3(0.0, 2.8, -147.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
 ];
 
@@ -1796,9 +1803,11 @@ function CollaborationOfficeConcourse({
 function ConsultationLoungeStation({
   scrollProgress = 0,
   isDiving = false,
+  onSelectContact,
 }: {
   scrollProgress?: number;
   isDiving?: boolean;
+  onSelectContact?: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const groupRef = useRef<THREE.Group>(null);
@@ -1819,6 +1828,20 @@ function ConsultationLoungeStation({
     easing.damp(groupRef.current.scale, 'z', targetScale, 0.2, delta);
   });
 
+  const handleContactClick = (e: any) => {
+    e.stopPropagation();
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('last_dive_target', 'contact-us');
+      } catch (_) {}
+    }
+    if (onSelectContact) {
+      onSelectContact();
+    } else {
+      window.location.href = '/contact-us/?returnFrom=contact-us';
+    }
+  };
+
   return (
     <group position={cfg.stationPosition}>
       <group
@@ -1832,10 +1855,7 @@ function ConsultationLoungeStation({
           setHovered(false);
           document.body.style.cursor = 'auto';
         }}
-        onClick={(e) => {
-          e.stopPropagation();
-          window.location.href = '/contact-us/';
-        }}
+        onClick={handleContactClick}
       >
         {/* Floor Glow Accent Light */}
         <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -1888,7 +1908,10 @@ function ConsultationLoungeStation({
           distanceFactor={16}
           isDiving={isDiving}
         >
-          <div className="p-3.5 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-60 animate-fadeIn backdrop-blur-xl bg-[#030712]/80">
+          <div
+            onClick={handleContactClick}
+            className="p-3.5 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl cursor-pointer hover:border-brand-500/60 transition-all hover:scale-105 pointer-events-auto w-60 animate-fadeIn backdrop-blur-xl bg-[#030712]/80 group"
+          >
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
                 🏢 دفتر مرکزی ارومیه
@@ -1900,6 +1923,10 @@ function ConsultationLoungeStation({
             </div>
             <div className="mt-2 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
               شنبه تا پنج‌شنبه • ۹:۰۰ الی ۱۸:۰۰
+            </div>
+            <div className="mt-2.5 flex items-center justify-center gap-1 text-[10px] font-bold text-emerald-400 group-hover:text-emerald-300">
+              <span>رزرو جلسه و صفحه تماس</span>
+              <span className="group-hover:-translate-x-1 transition-transform">←</span>
             </div>
           </div>
         </SmartProximityBadge>
@@ -2166,6 +2193,7 @@ export default function DigitalArchitectureCampus({
       <ConsultationLoungeStation
         scrollProgress={scrollProgress}
         isDiving={isDiving}
+        onSelectContact={onSelectService ? () => onSelectService('contact-us') : undefined}
       />
       <ExecutiveReceptionStation
         scrollProgress={scrollProgress}

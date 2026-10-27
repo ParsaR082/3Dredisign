@@ -67,7 +67,17 @@ export default function HomeView({
   const [scrollProgress, setScrollProgress] = useState(
     initialTarget ? initialTarget.stagingProgress : 0
   );
-  const [activeSector, setActiveSector] = useState(initialTarget ? 1 : 0);
+  const [activeSector, setActiveSector] = useState(
+    initialTarget
+      ? initialTarget.stagingProgress >= 0.95
+        ? 4
+        : initialTarget.stagingProgress >= 0.67
+        ? 3
+        : initialTarget.stagingProgress >= 0.46
+        ? 2
+        : 1
+      : 0
+  );
   const [hoveredServiceSlug, setHoveredServiceSlug] = useState<string | null>(null);
   const [hoveredProjectSlug, setHoveredProjectSlug] = useState<string | null>(null);
 
@@ -154,7 +164,7 @@ export default function HomeView({
   }, []);
 
   // Target progress ref for event handlers to avoid stale closures
-  const targetProgressRef = useRef(0);
+  const targetProgressRef = useRef(initialTarget ? initialTarget.stagingProgress : 0);
   targetProgressRef.current = targetProgress;
 
   // Silky smooth damping interpolation loop
@@ -183,7 +193,7 @@ export default function HomeView({
 
   // Jump to specific sector waypoint
   const handleJumpToSector = useCallback((sectorIndex: number) => {
-    const waypoints = [0.0, 0.23, 0.51, 0.715, 0.965];
+    const waypoints = [0.0, 0.23, 0.51, 0.715, 0.962];
     const target = waypoints[sectorIndex] ?? 0;
     targetProgressRef.current = target;
     setTargetProgress(target);
@@ -212,9 +222,9 @@ export default function HomeView({
       }
 
       e.preventDefault();
-      // Sector 3 (Collaboration 5 Steps) has extra scroll resistance so user can comfortably read each step
-      const isStepsSector = targetProgressRef.current >= 0.67 && targetProgressRef.current <= 0.94;
-      const speedMultiplier = isStepsSector ? 0.58 : 1.0;
+      // Sector 3 (Collaboration Steps) and Sector 4 (Consultation & Reception) have extra scroll resistance so user can comfortably read each section
+      const isDwellSector = targetProgressRef.current >= 0.67;
+      const speedMultiplier = isDwellSector ? 0.55 : 1.0;
       const delta = e.deltaY * (0.00017 * speedMultiplier);
       const next = Math.min(1, Math.max(0, targetProgressRef.current + delta));
       targetProgressRef.current = next;
@@ -244,9 +254,9 @@ export default function HomeView({
 
       const deltaY = startY - e.touches[0].clientY;
       startY = e.touches[0].clientY;
-      // Extra resistance in Sector 3 steps
-      const isStepsSector = targetProgressRef.current >= 0.67 && targetProgressRef.current <= 0.94;
-      const speedMultiplier = isStepsSector ? 0.58 : 1.0;
+      // Extra resistance in Sector 3 steps and Sector 4 Consultation Lounge
+      const isDwellSector = targetProgressRef.current >= 0.67;
+      const speedMultiplier = isDwellSector ? 0.55 : 1.0;
       const delta = deltaY * (0.00040 * speedMultiplier);
       const next = Math.min(1, Math.max(0, targetProgressRef.current + delta));
       targetProgressRef.current = next;

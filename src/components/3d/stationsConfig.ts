@@ -532,4 +532,24 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
     camPosition: [1.86, 1.46, -75.70],
     camLookAt: [2.40, 1.46, -77.00],
   },
+
+  // ── ایستگاه مشاوره حضوری و تماس VIP (کاناپه راحتی - Sector 4) ──
+  'contact-us': {
+    slug: 'contact-us',
+    targetUrl: '/contact-us/',
+    stagingProgress: 0.962,
+    startPosition: [0.2, 2.2, -142.0],
+    startLookAt: [-2.8, 1.4, -146.0],
+    camPosition: [-2.15, 1.15, -145.2],
+    camLookAt: [-2.80, 0.95, -146.0],
+  },
+  'consultation-lounge': {
+    slug: 'contact-us',
+    targetUrl: '/contact-us/',
+    stagingProgress: 0.962,
+    startPosition: [0.2, 2.2, -142.0],
+    startLookAt: [-2.8, 1.4, -146.0],
+    camPosition: [-2.15, 1.15, -145.2],
+    camLookAt: [-2.80, 0.95, -146.0],
+  },
 };

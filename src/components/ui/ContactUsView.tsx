@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { MapPin, Phone, Clock, Send, CheckCircle2, ExternalLink } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { MapPin, Phone, Clock, Send, CheckCircle2, ExternalLink, ArrowRight } from 'lucide-react';
 import type { SiteSettings, Service } from '@/types/content';
 
 interface ContactUsViewProps {
@@ -18,19 +19,47 @@ export default function ContactUsView({ settings, services }: ContactUsViewProps
     message: '',
   });
 
+  // Ensure contact-us is stored so any back navigation (browser back, gestures) returns cleanly to the 3D sofa station
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem('last_dive_target', 'contact-us');
+      } catch (_) {}
+    }
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
-      {/* Header */}
-      <div className="text-center max-w-3xl mx-auto space-y-4">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+      {/* 3D Campus Return Navigation Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
+        <Link
+          href="/?returnFrom=contact-us"
+          onClick={() => {
+            if (typeof window !== 'undefined') {
+              try {
+                sessionStorage.setItem('last_dive_target', 'contact-us');
+              } catch (_) {}
+            }
+          }}
+          className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 hover:bg-brand-600/25 border border-white/10 hover:border-brand-500/40 text-gray-300 hover:text-white text-xs sm:text-sm font-semibold transition-all group shadow-sm backdrop-blur-md"
+        >
+          <ArrowRight className="w-4 h-4 text-brand-400 group-hover:translate-x-1 transition-transform" />
+          <span>بازگشت به پردیس ۳بعدی (ایستگاه مشاوره حضوری)</span>
+        </Link>
+
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel-brand text-brand-300 text-xs font-semibold">
           <Clock className="w-4 h-4 text-amber-300" />
           <span>پاسخگویی سریع در ساعات اداری</span>
         </div>
+      </div>
+
+      {/* Header */}
+      <div className="text-center max-w-3xl mx-auto space-y-4">
         <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight">
           تماس با آژانس دیجیتال مارکتینگ اروم سیما
         </h1>
