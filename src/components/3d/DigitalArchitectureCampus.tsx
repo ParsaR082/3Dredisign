@@ -345,8 +345,10 @@ function getSplinePoint(t: number, isMobile: boolean): { pos: THREE.Vector3; tar
   const span = pB.t - pA.t;
   const fraction = span > 0 ? (t - pA.t) / span : 0;
 
-  // Cosine smoothing produces zero derivative at each item for an organic, momentary gaze pause
-  const smooth = 0.5 - 0.5 * Math.cos(fraction * Math.PI);
+  // Ken Perlin's Smootherstep curve (zero 1st and 2nd derivatives at endpoints).
+  // Creates an extended, stable dwelling plateau around each 3D item so the camera
+  // comfortably lingers and stays locked looking at the item before gracefully panning to the next.
+  const smooth = fraction * fraction * fraction * (fraction * (fraction * 6 - 15) + 10);
 
   _splinePos.lerpVectors(pA.pos, pB.pos, smooth);
   _splineTarget.lerpVectors(pA.target, pB.target, smooth);

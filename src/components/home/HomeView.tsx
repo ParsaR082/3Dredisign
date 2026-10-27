@@ -163,8 +163,8 @@ export default function HomeView({
     const tick = () => {
       setScrollProgress((curr) => {
         const diff = targetProgressRef.current - curr;
-        if (Math.abs(diff) < 0.0003) return targetProgressRef.current;
-        return curr + diff * 0.14;
+        if (Math.abs(diff) < 0.0002) return targetProgressRef.current;
+        return curr + diff * 0.10;
       });
       animId = requestAnimationFrame(tick);
     };
@@ -212,7 +212,8 @@ export default function HomeView({
       }
 
       e.preventDefault();
-      const delta = e.deltaY * 0.00042;
+      // Refined wheel sensitivity (calm, controllable pace)
+      const delta = e.deltaY * 0.00017;
       const next = Math.min(1, Math.max(0, targetProgressRef.current + delta));
       targetProgressRef.current = next;
       setTargetProgress(next);
@@ -241,7 +242,9 @@ export default function HomeView({
 
       const deltaY = startY - e.touches[0].clientY;
       startY = e.touches[0].clientY;
-      const next = Math.min(1, Math.max(0, targetProgressRef.current + deltaY * 0.0009));
+      // Refined touch sensitivity (gentle, steady control without fast jumps)
+      const delta = deltaY * 0.00040;
+      const next = Math.min(1, Math.max(0, targetProgressRef.current + delta));
       targetProgressRef.current = next;
       setTargetProgress(next);
     };
@@ -260,12 +263,12 @@ export default function HomeView({
       if (isTransitioningRef.current) return;
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
         e.preventDefault();
-        const next = Math.min(1, targetProgressRef.current + 0.08);
+        const next = Math.min(1, targetProgressRef.current + 0.035);
         targetProgressRef.current = next;
         setTargetProgress(next);
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
-        const next = Math.max(0, targetProgressRef.current - 0.08);
+        const next = Math.max(0, targetProgressRef.current - 0.035);
         targetProgressRef.current = next;
         setTargetProgress(next);
       }
