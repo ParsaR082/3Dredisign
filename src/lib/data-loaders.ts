@@ -16,8 +16,15 @@ import type {
   PricingSettings,
   TechLead,
   AboutSettings,
-  BlogPost
+  BlogPost,
 } from '@/types/content';
+
+export {
+  getLiveSiteSettings,
+  getLiveServices,
+  getLiveProjects,
+  getLiveCounters,
+} from './db';
 
 export function getSiteSettings(): SiteSettings {
   return siteSettingsData as SiteSettings;

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { MessageCircle } from 'lucide-react';
 
 interface WhatsAppButtonProps {
@@ -8,6 +9,11 @@ interface WhatsAppButtonProps {
 }
 
 export default function WhatsAppButton({ number }: WhatsAppButtonProps) {
+  const pathname = usePathname();
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   const cleanNumber = number.replace(/[^0-9]/g, '');
   const waUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent('سلام و وقت بخیر؛ مایل به دریافت مشاوره در خصوص پروژه‌های دیجیتال مارکتینگ و طراحی سایت اروم‌سیما هستم.')}`;
 

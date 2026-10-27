@@ -16,7 +16,7 @@ export default function Footer({ settings, services }: FooterProps) {
 
   // On the immersive 3D homepage ('/'), navigation is handled through the 3D campus & Sector 4 terminal portal.
   // We hide the static footer on the homepage so it does not block the 3D scene and hero card.
-  if (pathname === '/') {
+  if (pathname === '/' || pathname?.startsWith('/admin')) {
     return null;
   }
 

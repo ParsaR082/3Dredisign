@@ -4,7 +4,8 @@ import { saveContactMessage } from '@/lib/db';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, phone, email, message, serviceId } = body;
+    const name = body.name || body.full_name;
+    const { phone, email, message, serviceId } = body;
 
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
       return NextResponse.json(

@@ -1,6 +1,6 @@
 import React from 'react';
 import HomeView from '@/components/home/HomeView';
-import { getLandingData, getServices, getFeaturedProjects, getSiteSettings } from '@/lib/data-loaders';
+import { getLandingData, getLiveServices, getLiveProjects, getLiveSiteSettings } from '@/lib/data-loaders';
 import { generatePageMetadata } from '@/lib/seo';
 
 export const metadata = generatePageMetadata({
@@ -9,17 +9,20 @@ export const metadata = generatePageMetadata({
   path: '/',
 });
 
-export default function HomePage() {
+export default async function HomePage() {
   const landing = getLandingData();
-  const services = getServices();
-  const projects = getFeaturedProjects();
-  const settings = getSiteSettings();
+  const [services, allProjects, settings] = await Promise.all([
+    getLiveServices(),
+    getLiveProjects(),
+    getLiveSiteSettings(),
+  ]);
+  const featuredProjects = allProjects.filter((p) => p.featured);
 
   return (
     <HomeView
       landing={landing}
       services={services}
-      projects={projects}
+      projects={featuredProjects}
       settings={settings}
     />
   );

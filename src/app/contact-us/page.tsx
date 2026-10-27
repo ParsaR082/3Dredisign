@@ -1,6 +1,6 @@
 import React from 'react';
 import ContactUsView from '@/components/ui/ContactUsView';
-import { getSiteSettings, getServices } from '@/lib/data-loaders';
+import { getLiveSiteSettings, getLiveServices } from '@/lib/data-loaders';
 import { generatePageMetadata } from '@/lib/seo';
 
 export const metadata = generatePageMetadata({
@@ -9,8 +9,10 @@ export const metadata = generatePageMetadata({
   path: '/contact-us/',
 });
 
-export default function ContactUsPage() {
-  const settings = getSiteSettings();
-  const services = getServices();
+export default async function ContactUsPage() {
+  const [settings, services] = await Promise.all([
+    getLiveSiteSettings(),
+    getLiveServices(),
+  ]);
   return <ContactUsView settings={settings} services={services} />;
 }

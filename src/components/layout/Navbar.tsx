@@ -25,6 +25,10 @@ export default function Navbar({ settings, services }: NavbarProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   const navLinks = [
     { label: 'صفحه اصلی', href: '/' },
     {

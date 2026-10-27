@@ -1,6 +1,6 @@
 import React from 'react';
 import PortfolioView from '@/components/portfolio/PortfolioView';
-import { getProjects } from '@/lib/data-loaders';
+import { getLiveProjects } from '@/lib/db';
 import { generatePageMetadata } from '@/lib/seo';
 
 export const metadata = generatePageMetadata({
@@ -9,7 +9,7 @@ export const metadata = generatePageMetadata({
   path: '/portfolio/',
 });
 
-export default function PortfolioPage() {
-  const allProjects = getProjects();
+export default async function PortfolioPage() {
+  const allProjects = await getLiveProjects();
   return <PortfolioView allProjects={allProjects} />;
 }

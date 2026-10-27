@@ -60,6 +60,32 @@ export async function getLiveServices(): Promise<Service[]> {
     const rows = await prisma.serviceService.findMany({
       where: { is_active: true },
       orderBy: { order: 'asc' },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        short_description: true,
+        description: true,
+        icon: true,
+        image: true,
+        price_start: true,
+        duration: true,
+        difficulty: true,
+        is_popular: true,
+        is_featured: true,
+        is_active: true,
+        order: true,
+        breadcrumb_label: true,
+        canonical_url: true,
+        meta_title: true,
+        meta_description: true,
+        features_section_title: true,
+        features_intro: true,
+        why_us_title: true,
+        why_us_intro: true,
+        why_us_bullets: true,
+        faq_section_title: true,
+      },
     });
 
     if (!rows || rows.length === 0) return servicesFallback as Service[];

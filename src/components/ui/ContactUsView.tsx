@@ -38,7 +38,7 @@ export default function ContactUsView({ settings, services }: ContactUsViewProps
 
     try {
       const selectedService = services.find((s) => s.slug === formData.service);
-      const res = await fetch('/api/contact', {
+      const res = await fetch('/api/contact/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

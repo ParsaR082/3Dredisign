@@ -105,7 +105,7 @@ model AbnerAbnerpage {
   meta_description               String
   og_image                       String?
   is_active                      Boolean
-  updated_at                     DateTime
+  updated_at                     String
   canonical_url                  String
   meta_robots                    String
 
@@ -317,14 +317,14 @@ model AuthPermission {
 model AuthUser {
   id                             Int @id @default(autoincrement())
   password                       String
-  last_login                     DateTime?
+  last_login                     String?
   is_superuser                   Boolean
   username                       String
   last_name                      String
   email                          String
   is_staff                       Boolean
   is_active                      Boolean
-  date_joined                    DateTime
+  date_joined                    String
   first_name                     String
 
   @@map("auth_user")
@@ -382,9 +382,9 @@ model BackstageBackstageitem {
   status                         String
   is_featured                    Boolean
   order                          Int
-  published_at                   DateTime?
-  created_at                     DateTime
-  updated_at                     DateTime
+  published_at                   String?
+  created_at                     String
+  updated_at                     String
   meta_title                     String
   meta_description               String
   og_image                       String?
@@ -495,15 +495,15 @@ model BlogPost {
   status                         String
   is_featured                    Boolean
   read_time                      Int
-  published_at                   DateTime?
-  created_at                     DateTime
-  updated_at                     DateTime
+  published_at                   String?
+  created_at                     String
+  updated_at                     String
   category_id                    Int?
   body_html                      String
   content_format                 String
   is_pinned                      Boolean
   read_time_manual               Boolean
-  scheduled_at                   DateTime?
+  scheduled_at                   String?
   series_order                   Int
   view_count                     Int
   author_id                      Int?
@@ -545,7 +545,7 @@ model ContactConsultationblockeddate {
   id                             Int @id @default(autoincrement())
   blocked_date                   String
   reason                         String
-  created_at                     DateTime
+  created_at                     String
 
   @@map("contact_consultationblockeddate")
 }
@@ -559,7 +559,7 @@ model ContactConsultationbooking {
   start_time                     String
   notes                          String
   status                         String
-  created_at                     DateTime
+  created_at                     String
 
   @@map("contact_consultationbooking")
 }
@@ -596,7 +596,7 @@ model ContactContactpagesettings {
 model ContactNewslettersubscriber {
   id                             Int @id @default(autoincrement())
   email                          String
-  created_at                     DateTime
+  created_at                     String
   is_active                      Boolean
 
   @@map("contact_newslettersubscriber")
@@ -617,7 +617,7 @@ model ContactProjectwizardsubmission {
   message                        String
   wizard_summary                 String
   is_seen                        Boolean
-  created_at                     DateTime
+  created_at                     String
 
   @@map("contact_projectwizardsubmission")
 }
@@ -715,7 +715,7 @@ model PortfolioProjectcategory {
   id                             Int @id @default(autoincrement())
   name                           String
   cover_image                    String?
-  created_at                     DateTime?
+  created_at                     String?
   description                    String
   icon                           String
   is_active                      Boolean
@@ -723,7 +723,7 @@ model PortfolioProjectcategory {
   meta_description               String
   meta_title                     String
   order                          Int
-  updated_at                     DateTime?
+  updated_at                     String?
   slug                           String
 
   @@map("portfolio_projectcategory")
@@ -1066,8 +1066,8 @@ model ServiceService {
   is_featured                    Boolean
   is_active                      Boolean
   order                          Int
-  created_at                     DateTime
-  updated_at                     DateTime
+  created_at                     String
+  updated_at                     String
   category_id                    Int
   breadcrumb_label               String
   bts_poster                     String?
@@ -1115,8 +1115,8 @@ model ServiceServicebundle {
   is_popular                     Boolean
   is_active                      Boolean
   order                          Int
-  created_at                     DateTime
-  updated_at                     DateTime
+  created_at                     String
+  updated_at                     String
   discount_percentage            Int
 
   @@map("service_servicebundle")
@@ -1219,9 +1219,9 @@ model WebsitesWebsite {
   status                         String
   is_featured                    Boolean
   order                          Int
-  published_at                   DateTime?
-  created_at                     DateTime
-  updated_at                     DateTime
+  published_at                   String?
+  created_at                     String
+  updated_at                     String
   meta_title                     String
   meta_description               String
   og_image                       String?

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, Sparkles, Layers, ShieldCheck, Compass } from 'lucide-react';
-import { getServices } from '@/lib/data-loaders';
+import { getLiveServices } from '@/lib/db';
 import { generatePageMetadata } from '@/lib/seo';
 
 export const metadata = generatePageMetadata({
@@ -10,8 +10,8 @@ export const metadata = generatePageMetadata({
   path: '/services/',
 });
 
-export default function ServicesPage() {
-  const services = getServices();
+export default async function ServicesPage() {
+  const services = await getLiveServices();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">

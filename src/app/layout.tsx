@@ -3,7 +3,7 @@ import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import WhatsAppButton from '@/components/ui/WhatsAppButton';
-import { getSiteSettings, getServices } from '@/lib/data-loaders';
+import { getLiveSiteSettings, getLiveServices } from '@/lib/db';
 import { generatePageMetadata, generateOrganizationJsonLd } from '@/lib/seo';
 
 export const viewport: Viewport = {
@@ -23,13 +23,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = getSiteSettings();
-  const services = getServices();
+  const [settings, services] = await Promise.all([
+    getLiveSiteSettings(),
+    getLiveServices(),
+  ]);
   const orgJsonLd = generateOrganizationJsonLd();
 
   return (
