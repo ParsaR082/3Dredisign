@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  X,
   Sparkles,
   PhoneCall,
   Compass,
@@ -44,6 +47,9 @@ export default function HomeView({
   const [activeSector, setActiveSector] = useState(0);
   const [hoveredServiceSlug, setHoveredServiceSlug] = useState<string | null>(null);
   const [hoveredProjectSlug, setHoveredProjectSlug] = useState<string | null>(null);
+
+  // Toggle for 2D overlay panels (hidden by default for clean 3D experience)
+  const [isOverlayVisible, setIsOverlayVisible] = useState(false);
 
   // Growth calculator interactive state
   const [calcBudget, setCalcBudget] = useState<number>(45); // in millions
@@ -206,7 +212,36 @@ export default function HomeView({
         activeSector={activeSector}
         scrollProgress={scrollProgress}
         onJumpToSector={handleJumpToSector}
+        isOverlayVisible={isOverlayVisible}
+        onToggleOverlay={() => setIsOverlayVisible((prev) => !prev)}
       />
+
+      {/* ── دکمه فلش‌طور کناره صفحه برای مشاهده توضیحات (در حالت عادی مخفی) ── */}
+      {scrollProgress > 0.08 && !isOverlayVisible && (
+        <button
+          onClick={() => setIsOverlayVisible(true)}
+          aria-label="مشاهده توضیحات و مشخصات"
+          className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex items-center gap-2 py-3 px-3.5 sm:px-4 rounded-l-2xl glass-panel-dock border-y border-l border-brand-500/40 bg-[#030712]/90 hover:bg-[#070E1B] text-white shadow-2xl backdrop-blur-xl transition-all duration-300 hover:pr-5 group cursor-pointer"
+        >
+          <ChevronLeft className="w-5 h-5 text-brand-400 group-hover:-translate-x-1 transition-transform animate-pulse" />
+          <span className="text-xs font-bold text-gray-200 group-hover:text-white select-none hidden sm:inline">
+            مشاهده توضیحات
+          </span>
+          <span className="w-2 h-2 rounded-full bg-brand-400 shadow-md shadow-brand-500/50" />
+        </button>
+      )}
+
+      {/* ── دکمه بستن پنل توضیحات ── */}
+      {isOverlayVisible && (
+        <button
+          onClick={() => setIsOverlayVisible(false)}
+          aria-label="بستن توضیحات"
+          className="fixed top-24 right-4 sm:right-8 md:right-12 z-30 flex items-center gap-2 py-2 px-3.5 rounded-xl bg-brand-600/90 hover:bg-brand-500 text-white shadow-xl backdrop-blur-md border border-brand-400/40 transition-all duration-300 group cursor-pointer"
+        >
+          <ChevronRight className="w-4 h-4 text-white group-hover:translate-x-0.5 transition-transform" />
+          <span className="text-xs font-bold select-none">بستن پنل توضیحات</span>
+        </button>
+      )}
 
       {/* ── DOCKED NARRATIVE PANELS FOR SECTORS 1, 2, 3, 4 ── */}
       {/* Sector 0 has the Ground-Hinged 3D Card right on the runway floor */}
@@ -214,14 +249,21 @@ export default function HomeView({
       {/* ── SECTOR 1: INNOVATION PAVILIONS (SERVICES) ── */}
       <div
         id="sector-services"
-        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 hidden md:flex flex-col justify-center pointer-events-none ${
-          activeSector === 1
+        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 flex flex-col justify-center pointer-events-none ${
+          activeSector === 1 && isOverlayVisible
             ? 'opacity-100 translate-x-0'
-            : 'opacity-0 translate-x-12'
+            : 'opacity-0 translate-x-16 pointer-events-none'
         }`}
       >
-        <div className="allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 pointer-events-auto">
-          <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-2.5 backdrop-blur-xl bg-[#030712]/60 border border-white/10 shadow-2xl">
+        <div className={`allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+          <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-2.5 backdrop-blur-xl bg-[#030712]/60 border border-white/10 shadow-2xl relative">
+            <button
+              onClick={() => setIsOverlayVisible(false)}
+              className="absolute top-5 left-5 p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+              title="بستن توضیحات"
+            >
+              <X className="w-4 h-4" />
+            </button>
             <div className="inline-flex items-center gap-2 text-brand-400 text-xs font-bold">
               <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
               <span>پاویون‌های تعاملی خدمات ۳۶۰ درجه</span>
@@ -298,14 +340,21 @@ export default function HomeView({
       {/* ── SECTOR 2: MASTERWORKS EXHIBITION HALL (PORTFOLIO) ── */}
       <div
         id="sector-portfolio"
-        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 hidden md:flex flex-col justify-center pointer-events-none ${
-          activeSector === 2
+        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 flex flex-col justify-center pointer-events-none ${
+          activeSector === 2 && isOverlayVisible
             ? 'opacity-100 translate-x-0'
-            : 'opacity-0 translate-x-12'
+            : 'opacity-0 translate-x-16 pointer-events-none'
         }`}
       >
-        <div className="allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 pointer-events-auto">
-          <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-2.5 backdrop-blur-xl bg-[#030712]/60 border border-white/10 shadow-2xl">
+        <div className={`allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+          <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-2.5 backdrop-blur-xl bg-[#030712]/60 border border-white/10 shadow-2xl relative">
+            <button
+              onClick={() => setIsOverlayVisible(false)}
+              className="absolute top-5 left-5 p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+              title="بستن توضیحات"
+            >
+              <X className="w-4 h-4" />
+            </button>
             <div className="inline-flex items-center gap-2 text-brand-400 text-xs font-bold">
               <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
               <span>تالار نمایش آثار شاخص</span>
@@ -378,14 +427,21 @@ export default function HomeView({
       {/* ── SECTOR 3: GROWTH CALCULATOR & 5-STEP STRATEGY CONCOURSE ── */}
       <div
         id="sector-process"
-        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 hidden md:flex flex-col justify-center pointer-events-none ${
-          activeSector === 3
+        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 flex flex-col justify-center pointer-events-none ${
+          activeSector === 3 && isOverlayVisible
             ? 'opacity-100 translate-x-0'
-            : 'opacity-0 translate-x-12'
+            : 'opacity-0 translate-x-16 pointer-events-none'
         }`}
       >
-        <div className="allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 pointer-events-auto">
-          <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-2.5 backdrop-blur-xl bg-[#030712]/60 border border-white/10 shadow-2xl">
+        <div className={`allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+          <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-2.5 backdrop-blur-xl bg-[#030712]/60 border border-white/10 shadow-2xl relative">
+            <button
+              onClick={() => setIsOverlayVisible(false)}
+              className="absolute top-5 left-5 p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+              title="بستن توضیحات"
+            >
+              <X className="w-4 h-4" />
+            </button>
             <div className="inline-flex items-center gap-2 text-brand-400 text-xs font-bold">
               <span className="w-2 h-2 rounded-full bg-brand-400 animate-pulse" />
               <span>نقشه راه ۵ مرحله‌ای همکاری و خلق ارزش</span>
@@ -455,14 +511,21 @@ export default function HomeView({
       {/* ── SECTOR 4: TERMINAL PORTAL (CTA & CONTACT) ── */}
       <div
         id="sector-contact"
-        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 hidden md:flex flex-col justify-center pointer-events-none ${
-          activeSector === 4
+        className={`fixed top-20 bottom-6 right-4 sm:right-8 md:right-12 w-full max-w-md lg:max-w-lg z-20 transition-all duration-500 flex flex-col justify-center pointer-events-none ${
+          activeSector === 4 && isOverlayVisible
             ? 'opacity-100 translate-x-0'
-            : 'opacity-0 translate-x-12'
+            : 'opacity-0 translate-x-16 pointer-events-none'
         }`}
       >
-        <div className="allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 pointer-events-auto">
-          <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-3 backdrop-blur-xl bg-[#030712]/60 border border-brand-500/40 shadow-2xl">
+        <div className={`allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+          <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-3 backdrop-blur-xl bg-[#030712]/60 border border-brand-500/40 shadow-2xl relative">
+            <button
+              onClick={() => setIsOverlayVisible(false)}
+              className="absolute top-5 left-5 p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+              title="بستن توضیحات"
+            >
+              <X className="w-4 h-4" />
+            </button>
             <div className="inline-flex items-center gap-2 text-brand-300 text-xs font-bold">
               <span className="w-2 h-2 rounded-full bg-brand-300 animate-pulse" />
               <span>آغاز تحول دیجیتال • مشاوره و استعلام مستقیم</span>

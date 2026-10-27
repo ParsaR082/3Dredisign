@@ -11,7 +11,9 @@ import {
   ProjectTVConfig,
   COLLABORATION_STATIONS_CONFIG,
   CollaborationStationConfig,
+  EXECUTIVE_LOUNGE_CONFIG,
 } from './stationsConfig';
+import CorporateOfficeEnvironment from './CorporateOfficeEnvironment';
 
 // Preload user's GLB models from public/3Dmodels
 useGLTF.preload('/3Dmodels/hero3d.glb');
@@ -41,6 +43,12 @@ useGLTF.preload('/3Dmodels/desk_lamp.glb');
 useGLTF.preload('/3Dmodels/pc_case.glb');
 useGLTF.preload('/3Dmodels/keyboard.glb');
 useGLTF.preload('/3Dmodels/whiteboard.glb');
+useGLTF.preload('/3Dmodels/sofa.glb');
+useGLTF.preload('/3Dmodels/desk_phone.glb');
+useGLTF.preload('/3Dmodels/map_pin.glb');
+useGLTF.preload('/3Dmodels/Table1.glb');
+useGLTF.preload('/3Dmodels/stack of paper.glb');
+useGLTF.preload('/3Dmodels/Pen.glb');
 
 // Helper to clone GLTF scenes safely and configure shadows and color spaces
 function useClonedGLTF(path: string) {
@@ -92,8 +100,8 @@ const CAMERA_WAYPOINTS = [
   { pos: new THREE.Vector3(0, 3.6, -50.0), target: new THREE.Vector3(0, 1.8, -68.0) },
   // Sector 3: Collaboration Office Concourse (corridor walk at eye level)
   { pos: new THREE.Vector3(0, 3.4, -90.0), target: new THREE.Vector3(0, 1.8, -112.0) },
-  // Sector 4: Terminal Gateway (framing contact portal and footer)
-  { pos: new THREE.Vector3(0, 3.2, -135.0), target: new THREE.Vector3(0, 2.2, -165.0) },
+  // Sector 4: Terminal Gateway (Executive Consultation Lounge & Reception)
+  { pos: new THREE.Vector3(0, 3.1, -136.0), target: new THREE.Vector3(0, 1.8, -153.0) },
 ];
 
 // Mobile Waypoints (Centered along runway centerline X=0 with elevated vantage point)
@@ -106,8 +114,8 @@ const MOBILE_CAMERA_WAYPOINTS = [
   { pos: new THREE.Vector3(0, 4.0, -50.0), target: new THREE.Vector3(0, 1.8, -68.0) },
   // Sector 3: Collaboration Office Concourse (corridor walk at eye level)
   { pos: new THREE.Vector3(0, 3.8, -90.0), target: new THREE.Vector3(0, 1.8, -112.0) },
-  // Sector 4: Terminal Gateway (elevated portal)
-  { pos: new THREE.Vector3(0, 3.8, -133.0), target: new THREE.Vector3(0, 2.2, -165.0) },
+  // Sector 4: Terminal Gateway (Executive Consultation Lounge & Reception)
+  { pos: new THREE.Vector3(0, 3.8, -134.0), target: new THREE.Vector3(0, 1.9, -153.0) },
 ];
 
 function getSplinePoint(t: number, isMobile: boolean) {
@@ -527,6 +535,7 @@ interface ServicePavilionProps {
   slug: string;
   title: string;
   position: [number, number, number];
+  badgeOffset?: [number, number, number];
   color: string;
   accent: string;
   iconSymbol: string;
@@ -752,6 +761,7 @@ function ServicePavilion({
   slug,
   title,
   position,
+  badgeOffset,
   color,
   accent,
   iconSymbol,
@@ -803,9 +813,9 @@ function ServicePavilion({
         accent={accent}
       />
 
-      {/* Interactive 3D Label Badge - Left stations centered over model (X=0), Right stations to the right of model (X=+1.8) */}
+      {/* Interactive 3D Label Badge */}
       {scrollProgress >= 0.16 && (
-        <Html position={[position[0] < 0 ? 0 : 1.8, badgeY, 0]} center distanceFactor={15}>
+        <Html position={badgeOffset || [position[0] < 0 ? 0 : 1.8, badgeY, 0]} center distanceFactor={15}>
           <div
             className={
               'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 pointer-events-none whitespace-nowrap shadow-2xl border animate-fadeIn ' +
@@ -840,6 +850,7 @@ function ServicesConcourse({
       slug: 'web-design',
       title: 'طراحی سایت و پرتال سازمانی',
       position: STATIONS_CONFIG.webDesign.stationPosition,
+      badgeOffset: STATIONS_CONFIG.webDesign.badgeOffset,
       color: '#0E946E',
       accent: '#10B981',
       iconSymbol: '🌐',
@@ -850,6 +861,7 @@ function ServicesConcourse({
       slug: 'instagram-content',
       title: 'تولید محتوا و اینستاگرام',
       position: STATIONS_CONFIG.contentProduction.stationPosition,
+      badgeOffset: STATIONS_CONFIG.contentProduction.badgeOffset,
       color: '#14B8A6',
       accent: '#2DD4BF',
       iconSymbol: '📱',
@@ -860,6 +872,7 @@ function ServicesConcourse({
       slug: 'video-teaser',
       title: 'تیزر صنعتی و هلی‌شات هوایی',
       position: STATIONS_CONFIG.videoTeaser.stationPosition,
+      badgeOffset: STATIONS_CONFIG.videoTeaser.badgeOffset,
       color: '#F59E0B',
       accent: '#FBBF24',
       iconSymbol: '🎬',
@@ -870,6 +883,7 @@ function ServicesConcourse({
       slug: 'branding-identity',
       title: 'طراحی لوگو و هویت بصری',
       position: STATIONS_CONFIG.logoDesign.stationPosition,
+      badgeOffset: STATIONS_CONFIG.logoDesign.badgeOffset,
       color: '#8B5CF6',
       accent: '#A78BFA',
       iconSymbol: '✨',
@@ -880,6 +894,7 @@ function ServicesConcourse({
       slug: 'billboard-advertising',
       title: 'تبلیغات محیطی و بیلبورد ارومیه',
       position: STATIONS_CONFIG.billboard.stationPosition,
+      badgeOffset: STATIONS_CONFIG.billboard.badgeOffset,
       color: '#06B6D4',
       accent: '#22D3EE',
       iconSymbol: '🏙️',
@@ -1020,6 +1035,7 @@ function ProjectTVStation({
   model,
   position,
   rotationY,
+  badgeOffset,
   screenImage,
   screenSize,
   screenOffset,
@@ -1084,9 +1100,9 @@ function ProjectTVStation({
         isHighlighted={isHighlighted}
       />
 
-      {/* Holographic 3D Overlay Badge - Left TVs centered over model (X=0), Right TVs to the right of model (X=+1.8) */}
+      {/* Holographic 3D Overlay Badge */}
       {scrollProgress >= 0.38 && (
-        <Html position={[position[0] < 0 ? 0 : 1.8, screenSize[1] + 0.9, 0]} center distanceFactor={16}>
+        <Html position={badgeOffset || [position[0] < 0 ? 0 : 1.8, screenSize[1] + 0.9, 0]} center distanceFactor={16}>
           <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-52 animate-fadeIn">
             <span className="text-[10px] font-mono text-brand-300 block mb-0.5">{category}</span>
             <div className="text-xs font-black text-white line-clamp-1">{title}</div>
@@ -1374,9 +1390,9 @@ function CollaborationDepartmentStation({
         {config.id === 'step-launch' && <LaunchHandoverStation />}
       </group>
 
-      {/* Holographic 3D Overlay Badge - Left stations centered over model (X=0), Right stations to the right of model (X=+2.0) */}
+      {/* Holographic 3D Overlay Badge */}
       {scrollProgress >= 0.62 && (
-        <Html position={[isLeft ? 0 : 2.0, 3.2, 0]} center distanceFactor={16}>
+        <Html position={config.badgeOffset || [isLeft ? 0 : 2.0, 3.2, 0]} center distanceFactor={16}>
           <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-56 animate-fadeIn">
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
@@ -1411,15 +1427,237 @@ function CollaborationOfficeConcourse({ scrollProgress = 0 }: { scrollProgress?:
   );
 }
 
-// ── 7. ZONE 4: TERMINAL PORTAL (CONTACT GATEWAY) ──
-function TerminalPortal() {
+// ── 7. ZONE 4: EXECUTIVE CONSULTATION LOUNGE & RECEPTION ──
+
+function ConsultationLoungeStation({ scrollProgress = 0 }: { scrollProgress?: number }) {
+  const [hovered, setHovered] = useState(false);
+  const groupRef = useRef<THREE.Group>(null);
+  const cfg = EXECUTIVE_LOUNGE_CONFIG.lounge;
+
+  const sofa = useClonedGLTF('/3Dmodels/sofa.glb');
+  const coffeeTable = useClonedGLTF('/3Dmodels/Table1.glb');
+  const cup = useClonedGLTF('/3Dmodels/cup_tea.glb');
+  const paper = useClonedGLTF('/3Dmodels/stack of paper.glb');
+  const pen = useClonedGLTF('/3Dmodels/Pen.glb');
+  const mapPin = useClonedGLTF('/3Dmodels/map_pin.glb');
+
+  useFrame((_, delta) => {
+    if (!groupRef.current) return;
+    const targetScale = hovered ? 1.03 : 1.0;
+    easing.damp(groupRef.current.scale, 'x', targetScale, 0.2, delta);
+    easing.damp(groupRef.current.scale, 'y', targetScale, 0.2, delta);
+    easing.damp(groupRef.current.scale, 'z', targetScale, 0.2, delta);
+  });
+
   return (
-    <group position={[0, 0, -150]}>
-      <mesh position={[-6, 6, 0]} castShadow>
+    <group position={cfg.stationPosition}>
+      <group
+        ref={groupRef}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHovered(true);
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          setHovered(false);
+          document.body.style.cursor = 'auto';
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          window.location.href = '/contact-us/';
+        }}
+      >
+        {/* Floor Glow Accent Light */}
+        <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[1.8, 2.1, 48]} />
+          <meshBasicMaterial
+            color={hovered ? '#10B981' : '#0E946E'}
+            transparent
+            opacity={hovered ? 0.85 : 0.4}
+          />
+        </mesh>
+
+        {/* 1. کاناپه راحتی مدرن VIP */}
+        <group position={cfg.sofa.position} rotation={cfg.sofa.rotation} scale={cfg.sofa.scale}>
+          <primitive object={sofa} />
+        </group>
+
+        {/* 2. میز جلو مبلی مدرن */}
+        <group position={cfg.coffeeTable.position} rotation={cfg.coffeeTable.rotation} scale={cfg.coffeeTable.scale}>
+          <primitive object={coffeeTable} position={[0, 0.022, 0]} />
+        </group>
+
+        {/* 3. فنجان قهوه روی میز جلو مبلی */}
+        <group position={cfg.cup.position} scale={cfg.cup.scale}>
+          <primitive object={cup} />
+        </group>
+
+        {/* 4. بروشور و کاتالوگ پروپوزال اروم‌سیما */}
+        <group position={cfg.paper.position} rotation={cfg.paper.rotation} scale={cfg.paper.scale}>
+          <primitive object={paper} />
+        </group>
+
+        {/* 5. خودکار لوکس اروم‌سیما */}
+        <group position={cfg.pen.position} rotation={cfg.pen.rotation} scale={cfg.pen.scale}>
+          <primitive object={pen} />
+        </group>
+
+        {/* 6. پین لوکیشن سه‌بعدی شناور ارومیه */}
+        <Float speed={2.4} rotationIntensity={0.2} floatIntensity={0.35} position={cfg.mapPin.position}>
+          <group scale={cfg.mapPin.scale} rotation={[0, Math.PI / 4, 0]}>
+            <primitive object={mapPin} />
+          </group>
+          <pointLight color="#10B981" intensity={2.5} distance={5} />
+        </Float>
+      </group>
+
+      {/* Holographic 3D Overlay Badge */}
+      {scrollProgress >= 0.82 && (
+        <Html position={cfg.badgeOffset} center distanceFactor={16}>
+          <div className="p-3.5 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-60 animate-fadeIn backdrop-blur-xl bg-[#030712]/80">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
+                🏢 دفتر مرکزی ارومیه
+              </span>
+            </div>
+            <div className="text-xs font-black text-white">جلسات مشاوره حضوری VIP</div>
+            <div className="text-[10px] text-gray-300 mt-1 leading-tight">
+              خیابان مدنی ۲، مجتمع تجاری اداری اروم‌سیما
+            </div>
+            <div className="mt-2 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+              شنبه تا پنج‌شنبه • ۹:۰۰ الی ۱۸:۰۰
+            </div>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+}
+
+function ExecutiveReceptionStation({ scrollProgress = 0 }: { scrollProgress?: number }) {
+  const [hovered, setHovered] = useState(false);
+  const [phoneHovered, setPhoneHovered] = useState(false);
+  const groupRef = useRef<THREE.Group>(null);
+  const cfg = EXECUTIVE_LOUNGE_CONFIG.reception;
+
+  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
+  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
+  const phone = useClonedGLTF('/3Dmodels/desk_phone.glb');
+  const lamp = useClonedGLTF('/3Dmodels/desk_lamp.glb');
+  const tablet = useClonedGLTF('/3Dmodels/tablet.glb');
+
+  useFrame((_, delta) => {
+    if (!groupRef.current) return;
+    const targetScale = hovered ? 1.03 : 1.0;
+    easing.damp(groupRef.current.scale, 'x', targetScale, 0.2, delta);
+    easing.damp(groupRef.current.scale, 'y', targetScale, 0.2, delta);
+    easing.damp(groupRef.current.scale, 'z', targetScale, 0.2, delta);
+  });
+
+  return (
+    <group position={cfg.stationPosition}>
+      <group
+        ref={groupRef}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHovered(true);
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          setHovered(false);
+          document.body.style.cursor = 'auto';
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          window.location.href = 'tel:04432241515';
+        }}
+      >
+        {/* Floor Glow Accent Light */}
+        <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[1.8, 2.1, 48]} />
+          <meshBasicMaterial
+            color={hovered ? '#10B981' : '#0E946E'}
+            transparent
+            opacity={hovered ? 0.85 : 0.4}
+          />
+        </mesh>
+
+        {/* 1. میز مدرن کانتر پذیرش */}
+        <group position={cfg.desk.position} rotation={cfg.desk.rotation} scale={cfg.desk.scale}>
+          <primitive object={desk} />
+        </group>
+
+        {/* 2. صندلی اداری ارگونومیک مدیریت */}
+        <group position={cfg.chair.position} rotation={cfg.chair.rotation} scale={cfg.chair.scale}>
+          <primitive object={chair} />
+        </group>
+
+        {/* 3. تلفن ثابت اداری رومیزی (Interactive Call Trigger) */}
+        <group
+          position={cfg.phone.position}
+          rotation={cfg.phone.rotation}
+          scale={cfg.phone.scale}
+          onPointerOver={(e) => {
+            e.stopPropagation();
+            setPhoneHovered(true);
+          }}
+          onPointerOut={() => {
+            setPhoneHovered(false);
+          }}
+        >
+          <primitive object={phone} />
+          {phoneHovered && (
+            <pointLight position={[0, 0.05, 0]} color="#10B981" intensity={3.5} distance={1.5} />
+          )}
+        </group>
+
+        {/* 4. چراغ رومیزی اداری */}
+        <group position={cfg.lamp.position} rotation={cfg.lamp.rotation} scale={cfg.lamp.scale}>
+          <primitive object={lamp} />
+          <pointLight position={[0, 0.4, 0]} color="#FEF08A" intensity={1.8} distance={3} />
+        </group>
+
+        {/* 5. تبلت پذیرش */}
+        <group position={cfg.tablet.position} rotation={cfg.tablet.rotation} scale={cfg.tablet.scale}>
+          <primitive object={tablet} />
+        </group>
+      </group>
+
+      {/* Holographic 3D Overlay Badge */}
+      {scrollProgress >= 0.82 && (
+        <Html position={cfg.badgeOffset} center distanceFactor={16}>
+          <div className="p-3.5 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-60 animate-fadeIn backdrop-blur-xl bg-[#030712]/80">
+            <div className="flex items-center justify-center gap-1.5 mb-1">
+              <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
+                📞 تماس مستقیم و استعلام
+              </span>
+            </div>
+            <div className="text-xs font-black text-white">۰۴۴-۳۲۲۴۱۵۱۵</div>
+            <div className="text-[10px] text-gray-300 mt-1 leading-tight">
+              پاسخگویی سریع کارشناسان ارشد دیجیتال مارکتینگ
+            </div>
+            <div className="mt-2 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+              مشاوره رایگان قبل از عقد قرارداد
+            </div>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+}
+
+function TerminalPortal({ scrollProgress = 0 }: { scrollProgress?: number }) {
+  const logo = useClonedGLTF('/3Dmodels/logo3d.glb');
+  const cfg = EXECUTIVE_LOUNGE_CONFIG.portal;
+
+  return (
+    <group position={cfg.position}>
+      {/* Obelisks & Architectural Frame */}
+      <mesh position={[-6.2, 6, 0]} castShadow>
         <boxGeometry args={[1.5, 12, 2.0]} />
         <meshStandardMaterial color="#0B121E" roughness={0.2} metalness={0.9} />
       </mesh>
-      <mesh position={[6, 6, 0]} castShadow>
+      <mesh position={[6.2, 6, 0]} castShadow>
         <boxGeometry args={[1.5, 12, 2.0]} />
         <meshStandardMaterial color="#0B121E" roughness={0.2} metalness={0.9} />
       </mesh>
@@ -1431,14 +1669,36 @@ function TerminalPortal() {
         <boxGeometry args={[13.5, 0.08, 2.25]} />
         <meshBasicMaterial color="#0E946E" />
       </mesh>
-      <mesh position={[-5.2, 6, 0]}>
+      <mesh position={[-5.4, 6, 0]}>
         <boxGeometry args={[0.15, 11.5, 0.2]} />
         <meshBasicMaterial color="#14B8A6" />
       </mesh>
-      <mesh position={[5.2, 6, 0]}>
+      <mesh position={[5.4, 6, 0]}>
         <boxGeometry args={[0.15, 11.5, 0.2]} />
         <meshBasicMaterial color="#14B8A6" />
       </mesh>
+
+      {/* Floating 3D Logo Landmark between the columns */}
+      <Float speed={2.0} rotationIntensity={0.2} floatIntensity={0.3} position={[0, 5.2, 0]}>
+        <group scale={cfg.logoScale}>
+          <Center>
+            <primitive object={logo} rotation={[Math.PI / 2, 0, 0]} />
+          </Center>
+        </group>
+        <pointLight color="#10B981" intensity={3.5} distance={10} />
+      </Float>
+
+      {/* Holographic 3D Overlay Badge */}
+      {scrollProgress >= 0.82 && (
+        <Html position={cfg.badgeOffset} center distanceFactor={18}>
+          <div className="px-4 py-2 rounded-2xl glass-panel-elevated text-center border border-brand-500/40 shadow-2xl pointer-events-none whitespace-nowrap animate-fadeIn backdrop-blur-xl bg-[#030712]/85">
+            <div className="text-xs font-black text-white flex items-center justify-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>اروم‌سیما • پایانه خلق امپراتوری دیجیتال</span>
+            </div>
+          </div>
+        </Html>
+      )}
     </group>
   );
 }
@@ -1458,32 +1718,28 @@ export default function DigitalArchitectureCampus({
 }: CampusProps) {
   return (
     <>
-      <color attach="background" args={['#070B12']} />
-      <fog attach="fog" args={['#070B12', 8, 80]} />
+      <color attach="background" args={['#E0F2FE']} />
+      <fog attach="fog" args={['#E0F2FE', 35, 170]} />
 
-      <ambientLight intensity={0.65} color="#0F172A" />
+      <ambientLight intensity={1.35} color="#FFFFFF" />
       <directionalLight
-        position={[14, 22, 16]}
-        intensity={2.2}
+        position={[20, 32, 20]}
+        intensity={2.5}
         castShadow
         shadow-mapSize={[1024, 1024]}
         shadow-camera-near={1}
         shadow-camera-far={120}
-        color="#F8FAFC"
+        color="#FFFBEB"
       />
-      <directionalLight position={[-16, 14, -20]} intensity={1.2} color="#F59E0B" />
-      <pointLight position={[0, 6, -4]} intensity={2.5} distance={25} color="#0E946E" />
-      <pointLight position={[-2, 5, -28]} intensity={2.0} distance={30} color="#10B981" />
-      <pointLight position={[0, 6, -68]} intensity={2.0} distance={35} color="#14B8A6" />
+      <directionalLight position={[-20, 24, -40]} intensity={1.2} color="#BAE6FD" />
+      <pointLight position={[0, 6, -4]} intensity={1.8} distance={25} color="#10B981" />
+      <pointLight position={[-2, 5, -28]} intensity={1.5} distance={30} color="#10B981" />
+      <pointLight position={[0, 6, -68]} intensity={1.5} distance={35} color="#3B82F6" />
+      <pointLight position={[0, 6, -146]} intensity={1.8} distance={30} color="#10B981" />
 
       <SmoothScrollCamera scrollProgress={scrollProgress} />
 
-      <ArchitecturalFloor />
-      <NexusGateway
-        scrollProgress={scrollProgress}
-        onExploreServices={onExploreServices}
-        onExploreProjects={onExploreProjects}
-      />
+      <CorporateOfficeEnvironment scrollProgress={scrollProgress} />
       <ServicesConcourse
         scrollProgress={scrollProgress}
         hoveredServiceSlug={hoveredServiceSlug}
@@ -1498,7 +1754,9 @@ export default function DigitalArchitectureCampus({
         onHoverProject={onHoverProject}
       />
       <CollaborationOfficeConcourse scrollProgress={scrollProgress} />
-      <TerminalPortal />
+      <ConsultationLoungeStation scrollProgress={scrollProgress} />
+      <ExecutiveReceptionStation scrollProgress={scrollProgress} />
+      <TerminalPortal scrollProgress={scrollProgress} />
     </>
   );
 }
