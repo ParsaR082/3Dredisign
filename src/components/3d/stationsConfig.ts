@@ -78,7 +78,7 @@ export const STATIONS_CONFIG: Record<string, ServiceStationSetting> = {
     camera: {
       position: [0.24, 1.14, 0],
       scale: 0.088,
-      rotation: [0, -Math.PI * 0.25, 0],
+      rotation: [0, 4, 0],
     },
     gimbal: {
       position: [-0.25, 1.14, 0],
@@ -293,27 +293,27 @@ export const EXECUTIVE_LOUNGE_CONFIG = {
     stationPosition: [-2.8, 0, -146] as [number, number, number],
     badgeOffset: [5.5, 3.2, 0] as [number, number, number],
     sofa: {
-      position: [0, 0.25, 0] as [number, number, number],
-      scale: 1.35,
+      position: [-1, 0.5, -1] as [number, number, number],
+      scale: 3,
       rotation: [0,-8.7, 0] as [number, number, number],
     },
     coffeeTable: {
       position: [0.55, 0, 0.75] as [number, number, number],
-      scale: [0.45, 0.35, 0.45] as [number, number, number],
+      scale: 0.60,
       rotation: [0, Math.PI / 5, 0] as [number, number, number],
     },
     cup: {
-      position: [0.42, 0.425, 0.68] as [number, number, number],
-      scale: 0.45,
+      position: [0.42, 0.7, 0.68] as [number, number, number],
+      scale: 0.7,
     },
     paper: {
-      position: [0.65, 0.435, 0.78] as [number, number, number],
-      scale: 1.4,
+      position: [0.65, 0.7, 0.78] as [number, number, number],
+      scale: 2,
       rotation: [0, 0.3, 0] as [number, number, number],
     },
     pen: {
-      position: [0.72, 0.43, 0.84] as [number, number, number],
-      scale: 0.028,
+      position: [0.8, 0.7, 0.6] as [number, number, number],
+      scale: 0.08,
       rotation: [0, 0.6, 0] as [number, number, number],
     },
     mapPin: {
@@ -328,29 +328,29 @@ export const EXECUTIVE_LOUNGE_CONFIG = {
     badgeOffset: [5, 3.2, 0] as [number, number, number],
     desk: {
       position: [0, 0, 0] as [number, number, number],
-      scale: 1.15,
-      rotation: [0, -Math.PI / 6, 0] as [number, number, number],
+      scale: 1.5,
+      rotation: [0, 9, 0] as [number, number, number],
     },
     chair: {
       position: [0.35, 0, -0.68] as [number, number, number],
-      scale: 1.15,
-      rotation: [0, (5 * Math.PI) / 6, 0] as [number, number, number],
+      scale: 1.8,
+      rotation: [0, -0.5, 0] as [number, number, number],
     },
     phone: {
       // مقیاس استاندارد تلفن اداری رومیزی (عرض حدود ۲۲ سانتیمتر)
-      position: [-0.42, 1.14, 0.05] as [number, number, number],
-      scale: 0.052,
+      position: [-1, 1.58, 0.5] as [number, number, number],
+      scale: 0.08,
       rotation: [0, -Math.PI / 6 - 0.2, 0] as [number, number, number],
     },
     lamp: {
-      position: [0.62, 1.06, -0.25] as [number, number, number],
+      position: [0.62, 1.42, 1] as [number, number, number],
       scale: 0.8,
-      rotation: [0, -Math.PI / 6 - 0.3, 0] as [number, number, number],
+      rotation: [0, 10, 0] as [number, number, number],
     },
     tablet: {
-      position: [0.08, 1.065, 0.12] as [number, number, number],
-      scale: 0.0055,
-      rotation: [-0.2, -Math.PI / 6, 0] as [number, number, number],
+      position: [0.08, 1.4, 0.12] as [number, number, number],
+      scale: 0.0075,
+      rotation: [0, -Math.PI / 6, 0] as [number, number, number],
     },
   },
 
@@ -363,11 +363,22 @@ export const EXECUTIVE_LOUNGE_CONFIG = {
 };
 
 /**
- * ── تنظیمات شیرجه سینمایی دوربین روی مانیتورها، گوشی و صفحات (Cinematic Camera Dive Targets) ──
- * شامل:
- * - stagingProgress: نقطه اسکرول ثابتی که دوربین ابتدا به آنجا هدایت می‌شود
- * - camPosition: مختصات نهایی دوربین در فاصله چند سانتی‌متری مانیتور برای پر کردن صفحه
- * - camLookAt: نقطه مرکزی مانیتور/صفحه که دوربین مستقیماً به آن خیره می‌شود
+ * ── راهنمای تنظیم دستی نقطه پایان زوم دوربین روی مانیتورها / آیتم‌ها ──
+ * 
+ * هر آیتم در DIVE_TARGETS_CONFIG دارای دو فیلد برای کنترل نقطه پایان انیمیشن (کلوزآپ مانیتور) است:
+ * 
+ * ۱. camPosition: [X, Y, Z]
+ *    محل قرارگیری چشم دوربین در پایان زوم:
+ *    - X (محور افقی): کم/زیاد کردنش زاویه دوربین رو به چپ یا راست مانیتور می‌بره.
+ *    - Y (محور عمودی): ارتفاع دوربین از زمین (مثلاً 1.30 برای لپ‌تاپ، 1.55 برای گوشی عمودی).
+ *    - Z (محور عمق): جلو/عقب بودن دوربین در طول راهرو.
+ * 
+ * ۲. camLookAt: [X, Y, Z]
+ *    نقطه‌ای که دوربین مستقیماً به آن خیره می‌شود (مرکز صفحه نمایش/مانیتور).
+ * 
+ * 💡 نکته طلایی برای زوم بیشتر یا کمتر:
+ *    - برای نزدیک‌تر شدن به مانیتور (زوم عمیق‌تر): camPosition را به مقادیر camLookAt نزدیک‌تر کنید.
+ *    - برای دورتر شدن (نمای بازتر از لپ‌تاپ/میز): camPosition را چند سانتی‌متر عقب‌تر ببرید.
  */
 export type DivePhase =
   | 'idle'
@@ -383,20 +394,24 @@ export interface DiveTargetConfig {
   stagingProgress: number;
   startPosition: [number, number, number];
   startLookAt: [number, number, number];
+  /** موقعیت دوربین در نمای کلوزآپ پایانی [X, Y, Z] */
   camPosition: [number, number, number];
+  /** نقطه‌ای از مانیتور که دوربین به آن نگاه می‌کند [X, Y, Z] */
   camLookAt: [number, number, number];
 }
 
 export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
-  // ۱. لپ‌تاپ طراحی وبسایت (ایستگاه ۱ - Z = -22.0)
+  // ۱. لپ‌تاپ طراحی وبسایت (ایستگاه ۱ - روی میز سمت چپ در Z = -22.0)
+  // مانیتور لپ‌تاپ در X = -2.20 و Y = 1.25 قرار دارد
   'web-design': {
     slug: 'web-design',
     targetUrl: '/web-design-urmia/',
     stagingProgress: 0.42,
     startPosition: [0.0, 3.43, -20.54],
     startLookAt: [0.0, 1.80, -36.81],
-    camPosition: [-1.95, 1.30, -21.75],
-    camLookAt: [-2.20, 1.25, -22.00],
+    // 👈 برای تغییر موقعیت نهایی دوربین روی لپ‌تاپ، این دو خط را ویرایش کنید:
+    camPosition: [-1.95, 1.5, -21.75], // موقعیت چشم دوربین
+    camLookAt: [-2.20, 1.5, -22.00],   // مرکز صفحه لپ‌تاپ
   },
   // ۲. گوشی موبایل تولید محتوا و اینستاگرام (ایستگاه ۲ - Z = -27.0)
   'instagram-content': {
@@ -453,7 +468,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
     stagingProgress: 0.51,
     startPosition: [0.0, 3.55, -41.50],
     startLookAt: [0.0, 1.80, -59.00],
-    camPosition: [-1.56, 2.20, -41.36],
+    camPosition: [-1.56, 2.20, -39.36],
     camLookAt: [-2.20, 2.20, -42.00],
   },
   'billboard': {
@@ -462,7 +477,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
     stagingProgress: 0.51,
     startPosition: [0.0, 3.55, -41.50],
     startLookAt: [0.0, 1.80, -59.00],
-    camPosition: [-1.56, 2.20, -41.36],
+    camPosition: [-1.56, 2.20, -39.36],
     camLookAt: [-2.20, 2.20, -42.00],
   },
 
