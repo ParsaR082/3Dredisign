@@ -174,16 +174,16 @@ export default function HomeView({
 
   // Update activeSector based on scrollProgress
   useEffect(() => {
-    if (scrollProgress < 0.18) setActiveSector(0);
-    else if (scrollProgress < 0.42) setActiveSector(1);
-    else if (scrollProgress < 0.68) setActiveSector(2);
+    if (scrollProgress < 0.22) setActiveSector(0);
+    else if (scrollProgress < 0.54) setActiveSector(1);
+    else if (scrollProgress < 0.75) setActiveSector(2);
     else if (scrollProgress < 0.88) setActiveSector(3);
     else setActiveSector(4);
   }, [scrollProgress]);
 
   // Jump to specific sector waypoint
   const handleJumpToSector = useCallback((sectorIndex: number) => {
-    const waypoints = [0.0, 0.28, 0.55, 0.78, 0.98];
+    const waypoints = [0.0, 0.42, 0.62, 0.80, 0.98];
     const target = waypoints[sectorIndex] ?? 0;
     targetProgressRef.current = target;
     setTargetProgress(target);
@@ -282,14 +282,41 @@ export default function HomeView({
       } catch (_) {}
     }
 
-    // Immediately align progress to the station corridor position - ZERO lag
-    targetProgressRef.current = targetConfig.stagingProgress;
-    setTargetProgress(targetConfig.stagingProgress);
-    setScrollProgress(targetConfig.stagingProgress);
+    // Check distance between current camera progress and target station's staging progress
+    const dist = Math.abs(targetProgressRef.current - targetConfig.stagingProgress);
+    const isAlreadyAtStation = dist < 0.02;
 
-    // Start diving forward immediately without waiting!
-    setDivePhase('diving');
+    if (isAlreadyAtStation) {
+      // User is already standing at the station: smoothly dive directly into screen with ZERO delay/jump
+      setDivePhase('diving');
+    } else {
+      // User is somewhere else: automatically and smoothly scroll the normal camera along the runway to the station!
+      setDivePhase('staging');
+      targetProgressRef.current = targetConfig.stagingProgress;
+      setTargetProgress(targetConfig.stagingProgress);
+    }
   }, []);
+
+  // When in 'staging' (auto-scrolling along normal corridor to station), trigger dive upon arrival
+  useEffect(() => {
+    if (divePhase !== 'staging' || !activeDiveTarget) return;
+
+    const dist = Math.abs(scrollProgress - activeDiveTarget.stagingProgress);
+    if (dist < 0.006) {
+      setDivePhase('diving');
+    }
+  }, [divePhase, activeDiveTarget, scrollProgress]);
+
+  // Safety fallback for staging auto-scroll: start diving after 850ms in case of frame-rate slowdown
+  useEffect(() => {
+    if (divePhase !== 'staging' || !activeDiveTarget) return;
+
+    const safetyTimer = setTimeout(() => {
+      setDivePhase('diving');
+    }, 850);
+
+    return () => clearTimeout(safetyTimer);
+  }, [divePhase, activeDiveTarget]);
 
   const handleSelectServiceFrom3D = useCallback((slug: string) => {
     const targetConfig = DIVE_TARGETS_CONFIG[slug];

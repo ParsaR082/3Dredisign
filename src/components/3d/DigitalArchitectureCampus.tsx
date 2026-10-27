@@ -179,6 +179,8 @@ function SmoothScrollCamera({
   const hasTriggeredDiveReached = useRef(false);
   const diveInitialized = useRef(false);
   const pullbackInitialized = useRef(false);
+  const diveStartPos = useRef(new THREE.Vector3());
+  const diveStartLookAt = useRef(new THREE.Vector3());
   const diveStartTime = useRef<number>(0);
   const pullbackStartTime = useRef<number>(0);
   const aspect = size.width / (size.height || 1);
@@ -213,12 +215,12 @@ function SmoothScrollCamera({
   }, [camera, aspect]);
 
   useFrame((_, delta) => {
-    // ── 1. CINEMATIC CAMERA DIVE ONTO 3D SCREEN / PAPER (Slower, elegant & cinematic) ──
+    // ── 1. CINEMATIC CAMERA DIVE ONTO 3D SCREEN / PAPER (Seamless from current normal view) ──
     if (divePhase === 'diving' && activeDiveTarget) {
       if (!diveInitialized.current) {
-        camera.position.set(...activeDiveTarget.startPosition);
-        currentTarget.current.set(...activeDiveTarget.startLookAt);
-        camera.lookAt(currentTarget.current);
+        // Record the camera's actual starting position & target so there is ZERO flash / jump cut!
+        diveStartPos.current.copy(camera.position);
+        diveStartLookAt.current.copy(currentTarget.current);
         diveStartTime.current = performance.now();
         diveInitialized.current = true;
       }
@@ -228,13 +230,12 @@ function SmoothScrollCamera({
       const progress = Math.min(1, Math.max(0, elapsed / DIVE_DURATION));
       const ease = easeInOutCubic(progress);
 
-      const startPos = new THREE.Vector3(...activeDiveTarget.startPosition);
-      const startLookAt = new THREE.Vector3(...activeDiveTarget.startLookAt);
       const divePos = new THREE.Vector3(...activeDiveTarget.camPosition);
       const diveLookAt = new THREE.Vector3(...activeDiveTarget.camLookAt);
 
-      camera.position.lerpVectors(startPos, divePos, ease);
-      currentTarget.current.lerpVectors(startLookAt, diveLookAt, ease);
+      // Smoothly fly from where the camera is standing on the normal path directly into the screen
+      camera.position.lerpVectors(diveStartPos.current, divePos, ease);
+      currentTarget.current.lerpVectors(diveStartLookAt.current, diveLookAt, ease);
       camera.lookAt(currentTarget.current);
 
       if (progress >= 1 && !hasTriggeredDiveReached.current) {
@@ -269,19 +270,19 @@ function SmoothScrollCamera({
       const progress = Math.min(1, Math.max(0, elapsed / PULLBACK_DURATION));
       const ease = easeInOutCubic(progress);
 
-      const startPos = new THREE.Vector3(...activeDiveTarget.startPosition);
-      const startLookAt = new THREE.Vector3(...activeDiveTarget.startLookAt);
+      const normalStartPos = new THREE.Vector3(...activeDiveTarget.startPosition);
+      const normalStartLookAt = new THREE.Vector3(...activeDiveTarget.startLookAt);
       const divePos = new THREE.Vector3(...activeDiveTarget.camPosition);
       const diveLookAt = new THREE.Vector3(...activeDiveTarget.camLookAt);
 
-      // Pull back from screen directly to this specific item's starting position & look-at
-      camera.position.lerpVectors(divePos, startPos, ease);
-      currentTarget.current.lerpVectors(diveLookAt, startLookAt, ease);
+      // Pull back from screen directly to this specific item's normal camera starting position & look-at
+      camera.position.lerpVectors(divePos, normalStartPos, ease);
+      currentTarget.current.lerpVectors(diveLookAt, normalStartLookAt, ease);
       camera.lookAt(currentTarget.current);
       return;
     }
 
-    // ── 4. STANDARD CENTERLINE SPLINE TRACKING ──
+    // ── 4. STANDARD CENTERLINE SPLINE TRACKING (Normal flight, idle & auto-scroll staging) ──
     const { pos, target } = getSplinePoint(scrollProgress, isMobile);
 
     const parallaxMult = isMobile ? 0.2 : 0.7;
@@ -294,8 +295,9 @@ function SmoothScrollCamera({
       pos.z
     );
 
-    easing.damp3(camera.position, desiredPos, 0.42, delta);
-    easing.damp3(currentTarget.current, target, 0.42, delta);
+    const dampSpeed = divePhase === 'staging' ? 0.26 : 0.42;
+    easing.damp3(camera.position, desiredPos, dampSpeed, delta);
+    easing.damp3(currentTarget.current, target, dampSpeed, delta);
 
     camera.lookAt(currentTarget.current);
   });
