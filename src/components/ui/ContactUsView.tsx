@@ -19,6 +19,9 @@ export default function ContactUsView({ settings, services }: ContactUsViewProps
     message: '',
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   // Ensure contact-us is stored so any back navigation (browser back, gestures) returns cleanly to the 3D sofa station
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -28,9 +31,36 @@ export default function ContactUsView({ settings, services }: ContactUsViewProps
     }
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const selectedService = services.find((s) => s.slug === formData.service);
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          serviceId: selectedService ? Number(selectedService.id) : undefined,
+          message: formData.message
+            ? `[خدمت انتخابی: ${selectedService?.title || formData.service}]\n${formData.message}`
+            : `[درخواست مشاوره برای خدمت: ${selectedService?.title || formData.service}]`,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'خطایی در ثبت پیام رخ داد.');
+      }
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.message || 'خطایی در اتصال به سرور رخ داد.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -135,12 +165,25 @@ export default function ContactUsView({ settings, services }: ContactUsViewProps
                 />
               </div>
 
+              {error && (
+                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs text-center">
+                  {error}
+                </div>
+              )}
+
               <button
                 type="submit"
-                className="w-full py-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm shadow-xl shadow-brand-600/30 flex items-center justify-center gap-2 transition-all hover:scale-105"
+                disabled={loading}
+                className="w-full py-4 rounded-xl bg-brand-600 hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-xl shadow-brand-600/30 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-95"
               >
-                <Send className="w-4 h-4" />
-                <span>ارسال درخواست مشاوره</span>
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>ارسال درخواست مشاوره</span>
+                  </>
+                )}
               </button>
             </form>
           )}
