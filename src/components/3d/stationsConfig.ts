@@ -499,7 +499,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'araz-metal-industrial-portal': {
     slug: 'araz-metal-industrial-portal',
     targetUrl: '/portfolio/araz-metal-industrial-portal/',
-    stagingProgress: 0.53,
+    stagingProgress: 0.51,
     startPosition: [0.2, 2.2, -52.5],
     startLookAt: [-2.4, 1.45, -56.0],
     camPosition: [-1.86, 1.36, -54.70],
@@ -508,7 +508,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'dr-sadeghi-medical-branding': {
     slug: 'dr-sadeghi-medical-branding',
     targetUrl: '/portfolio/dr-sadeghi-medical-branding/',
-    stagingProgress: 0.58,
+    stagingProgress: 0.55,
     startPosition: [-0.2, 2.2, -59.5],
     startLookAt: [2.4, 1.50, -63.0],
     camPosition: [1.86, 1.45, -61.70],
@@ -517,7 +517,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'sepid-kooh-outdoor-campaign': {
     slug: 'sepid-kooh-outdoor-campaign',
     targetUrl: '/portfolio/sepid-kooh-outdoor-campaign/',
-    stagingProgress: 0.63,
+    stagingProgress: 0.59,
     startPosition: [0.2, 2.2, -66.5],
     startLookAt: [-2.4, 1.60, -70.0],
     camPosition: [-1.86, 1.58, -68.70],
@@ -526,7 +526,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'baran-leather-ecommerce': {
     slug: 'baran-leather-ecommerce',
     targetUrl: '/portfolio/baran-leather-ecommerce/',
-    stagingProgress: 0.68,
+    stagingProgress: 0.63,
     startPosition: [-0.2, 2.2, -73.5],
     startLookAt: [2.4, 1.50, -77.0],
     camPosition: [1.86, 1.46, -75.70],

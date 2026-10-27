@@ -174,16 +174,16 @@ export default function HomeView({
 
   // Update activeSector based on scrollProgress
   useEffect(() => {
-    if (scrollProgress < 0.20) setActiveSector(0);
-    else if (scrollProgress < 0.50) setActiveSector(1);
-    else if (scrollProgress < 0.72) setActiveSector(2);
-    else if (scrollProgress < 0.90) setActiveSector(3);
+    if (scrollProgress < 0.18) setActiveSector(0);
+    else if (scrollProgress < 0.46) setActiveSector(1);
+    else if (scrollProgress < 0.67) setActiveSector(2);
+    else if (scrollProgress < 0.95) setActiveSector(3);
     else setActiveSector(4);
   }, [scrollProgress]);
 
   // Jump to specific sector waypoint
   const handleJumpToSector = useCallback((sectorIndex: number) => {
-    const waypoints = [0.0, 0.23, 0.53, 0.75, 0.93];
+    const waypoints = [0.0, 0.23, 0.51, 0.715, 0.965];
     const target = waypoints[sectorIndex] ?? 0;
     targetProgressRef.current = target;
     setTargetProgress(target);
@@ -212,8 +212,10 @@ export default function HomeView({
       }
 
       e.preventDefault();
-      // Refined wheel sensitivity (calm, controllable pace)
-      const delta = e.deltaY * 0.00017;
+      // Sector 3 (Collaboration 5 Steps) has extra scroll resistance so user can comfortably read each step
+      const isStepsSector = targetProgressRef.current >= 0.67 && targetProgressRef.current <= 0.94;
+      const speedMultiplier = isStepsSector ? 0.58 : 1.0;
+      const delta = e.deltaY * (0.00017 * speedMultiplier);
       const next = Math.min(1, Math.max(0, targetProgressRef.current + delta));
       targetProgressRef.current = next;
       setTargetProgress(next);
@@ -242,8 +244,10 @@ export default function HomeView({
 
       const deltaY = startY - e.touches[0].clientY;
       startY = e.touches[0].clientY;
-      // Refined touch sensitivity (gentle, steady control without fast jumps)
-      const delta = deltaY * 0.00040;
+      // Extra resistance in Sector 3 steps
+      const isStepsSector = targetProgressRef.current >= 0.67 && targetProgressRef.current <= 0.94;
+      const speedMultiplier = isStepsSector ? 0.58 : 1.0;
+      const delta = deltaY * (0.00040 * speedMultiplier);
       const next = Math.min(1, Math.max(0, targetProgressRef.current + delta));
       targetProgressRef.current = next;
       setTargetProgress(next);

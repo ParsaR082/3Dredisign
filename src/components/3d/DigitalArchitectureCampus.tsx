@@ -214,59 +214,73 @@ export interface ChoreographedWaypoint {
 }
 
 const CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
-  // ── Sector 0: Grand Nexus Portal & Hero Card ──
-  { t: 0.00, pos: new THREE.Vector3(0, 3.6, 11.5), target: new THREE.Vector3(0, 3.2, 0.0) },
-  { t: 0.16, pos: new THREE.Vector3(0, 3.6, 11.5), target: new THREE.Vector3(0, 3.2, 0.0) },
+  // ── Sector 0: Grand Nexus Portal & Hero Card (Desktop Zoomed-Out Framing) ──
+  { t: 0.00, pos: new THREE.Vector3(0, 4.3, 16.5), target: new THREE.Vector3(0, 3.4, 0.0) },
+  { t: 0.16, pos: new THREE.Vector3(0, 4.3, 16.5), target: new THREE.Vector3(0, 3.4, 0.0) },
   { t: 0.18, pos: new THREE.Vector3(0, 2.4, -14.0), target: new THREE.Vector3(0, 2.0, -25.0) },
 
-  // ── Sector 1: Services Concourse (Room 1) ──
+  // ── Sector 1: Services Concourse (Room 1 - With Restful Dwell Windows) ──
   // Station 1: Laptop (Web Design - Left)
-  { t: 0.23, pos: new THREE.Vector3(0.2, 2.2, -19.2), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
+  { t: 0.22, pos: new THREE.Vector3(0.2, 2.2, -19.2), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
+  { t: 0.24, pos: new THREE.Vector3(0.2, 2.2, -19.2), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
   // Station 2: Phone (Content Production - Right)
-  { t: 0.28, pos: new THREE.Vector3(-0.2, 2.2, -24.2), target: new THREE.Vector3(2.2, 1.55, -27.0) },
+  { t: 0.27, pos: new THREE.Vector3(-0.2, 2.2, -24.2), target: new THREE.Vector3(2.2, 1.55, -27.0) },
+  { t: 0.29, pos: new THREE.Vector3(-0.2, 2.2, -24.2), target: new THREE.Vector3(2.2, 1.55, -27.0) },
   // Station 3: Camera & Gimbal (Video Teaser - Left)
-  { t: 0.33, pos: new THREE.Vector3(0.2, 2.2, -29.2), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
+  { t: 0.32, pos: new THREE.Vector3(0.2, 2.2, -29.2), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
+  { t: 0.34, pos: new THREE.Vector3(0.2, 2.2, -29.2), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
   // Station 4: Sketchbook & Logo (Branding - Right)
-  { t: 0.38, pos: new THREE.Vector3(-0.2, 2.2, -34.2), target: new THREE.Vector3(2.2, 1.25, -37.0) },
+  { t: 0.37, pos: new THREE.Vector3(-0.2, 2.2, -34.2), target: new THREE.Vector3(2.2, 1.25, -37.0) },
+  { t: 0.39, pos: new THREE.Vector3(-0.2, 2.2, -34.2), target: new THREE.Vector3(2.2, 1.25, -37.0) },
   // Station 5: Environmental Billboard (Billboard - Left)
-  { t: 0.43, pos: new THREE.Vector3(0.3, 2.4, -39.0), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
+  { t: 0.42, pos: new THREE.Vector3(0.3, 2.4, -39.0), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
+  { t: 0.44, pos: new THREE.Vector3(0.3, 2.4, -39.0), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
 
   // ── Inter-Room Corridor 1 -> 2: Straighten camera facing forward into Room 2 ──
-  { t: 0.48, pos: new THREE.Vector3(0, 2.4, -48.0), target: new THREE.Vector3(0, 2.0, -62.0) },
+  { t: 0.47, pos: new THREE.Vector3(0, 2.4, -48.0), target: new THREE.Vector3(0, 2.0, -62.0) },
 
   // ── Sector 2: Masterworks Exhibition (Room 2 - Project TVs) ──
   // TV 1: Araz Metal (Left)
-  { t: 0.53, pos: new THREE.Vector3(0.2, 2.2, -52.5), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
+  { t: 0.50, pos: new THREE.Vector3(0.2, 2.2, -52.5), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
+  { t: 0.52, pos: new THREE.Vector3(0.2, 2.2, -52.5), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
   // TV 2: Dr Sadeghi (Right)
-  { t: 0.58, pos: new THREE.Vector3(-0.2, 2.2, -59.5), target: new THREE.Vector3(2.4, 1.50, -63.0) },
+  { t: 0.54, pos: new THREE.Vector3(-0.2, 2.2, -59.5), target: new THREE.Vector3(2.4, 1.50, -63.0) },
+  { t: 0.56, pos: new THREE.Vector3(-0.2, 2.2, -59.5), target: new THREE.Vector3(2.4, 1.50, -63.0) },
   // TV 3: Sepid Kooh (Left)
-  { t: 0.63, pos: new THREE.Vector3(0.2, 2.2, -66.5), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
+  { t: 0.58, pos: new THREE.Vector3(0.2, 2.2, -66.5), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
+  { t: 0.60, pos: new THREE.Vector3(0.2, 2.2, -66.5), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
   // TV 4: Baran Leather (Right)
-  { t: 0.68, pos: new THREE.Vector3(-0.2, 2.2, -73.5), target: new THREE.Vector3(2.4, 1.50, -77.0) },
+  { t: 0.62, pos: new THREE.Vector3(-0.2, 2.2, -73.5), target: new THREE.Vector3(2.4, 1.50, -77.0) },
+  { t: 0.64, pos: new THREE.Vector3(-0.2, 2.2, -73.5), target: new THREE.Vector3(2.4, 1.50, -77.0) },
 
   // ── Inter-Room Corridor 2 -> 3: Straighten camera facing forward into Room 3 ──
-  { t: 0.72, pos: new THREE.Vector3(0, 2.4, -84.0), target: new THREE.Vector3(0, 2.0, -98.0) },
+  { t: 0.67, pos: new THREE.Vector3(0, 2.4, -84.0), target: new THREE.Vector3(0, 2.0, -98.0) },
 
-  // ── Sector 3: Collaboration Workflow (Room 3 - 5 Pods) ──
-  // Step 1: Discovery (Left)
-  { t: 0.75, pos: new THREE.Vector3(0.2, 2.2, -90.5), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
-  // Step 2: UI/UX Design (Right)
+  // ── Sector 3: Collaboration Workflow (Room 3 - Extended Extra Long Dwelling for 5 Steps) ──
+  // Step 1: Discovery (Left - 3% dwell window)
+  { t: 0.70, pos: new THREE.Vector3(0.2, 2.2, -90.5), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
+  { t: 0.73, pos: new THREE.Vector3(0.2, 2.2, -90.5), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
+  // Step 2: UI/UX Design (Right - 3% dwell window)
+  { t: 0.75, pos: new THREE.Vector3(-0.2, 2.2, -97.5), target: new THREE.Vector3(2.6, 1.5, -101.0) },
   { t: 0.78, pos: new THREE.Vector3(-0.2, 2.2, -97.5), target: new THREE.Vector3(2.6, 1.5, -101.0) },
-  // Step 3: Engineering (Left)
-  { t: 0.81, pos: new THREE.Vector3(0.2, 2.2, -104.5), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
-  // Step 4: Testing & QA (Right)
-  { t: 0.84, pos: new THREE.Vector3(-0.2, 2.2, -111.5), target: new THREE.Vector3(2.6, 1.5, -115.0) },
-  // Step 5: Launch & Support (Left)
-  { t: 0.87, pos: new THREE.Vector3(0.2, 2.2, -118.5), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
+  // Step 3: Engineering (Left - 3% dwell window)
+  { t: 0.80, pos: new THREE.Vector3(0.2, 2.2, -104.5), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
+  { t: 0.83, pos: new THREE.Vector3(0.2, 2.2, -104.5), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
+  // Step 4: Testing & QA (Right - 3% dwell window)
+  { t: 0.85, pos: new THREE.Vector3(-0.2, 2.2, -111.5), target: new THREE.Vector3(2.6, 1.5, -115.0) },
+  { t: 0.88, pos: new THREE.Vector3(-0.2, 2.2, -111.5), target: new THREE.Vector3(2.6, 1.5, -115.0) },
+  // Step 5: Launch & Support (Left - 3% dwell window)
+  { t: 0.90, pos: new THREE.Vector3(0.2, 2.2, -118.5), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
+  { t: 0.93, pos: new THREE.Vector3(0.2, 2.2, -118.5), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
 
   // ── Inter-Room Corridor 3 -> 4: Straighten camera facing forward into Executive Room ──
-  { t: 0.90, pos: new THREE.Vector3(0, 2.4, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
+  { t: 0.95, pos: new THREE.Vector3(0, 2.4, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
 
   // ── Sector 4: Executive Consultation & Reception (Room 4) ──
   // VIP Consultation Lounge (Left)
-  { t: 0.93, pos: new THREE.Vector3(0.2, 2.2, -142.0), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
+  { t: 0.965, pos: new THREE.Vector3(0.2, 2.2, -142.0), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
   // Executive Reception Desk (Right)
-  { t: 0.96, pos: new THREE.Vector3(-0.2, 2.2, -143.0), target: new THREE.Vector3(2.8, 1.4, -146.0) },
+  { t: 0.98, pos: new THREE.Vector3(-0.2, 2.2, -143.0), target: new THREE.Vector3(2.8, 1.4, -146.0) },
   // Terminal 3D Portal & Grand Floating Brand Landmark
   { t: 1.00, pos: new THREE.Vector3(0.0, 2.4, -148.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
 ];
@@ -278,37 +292,51 @@ const MOBILE_CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
   { t: 0.18, pos: new THREE.Vector3(0, 2.8, -13.0), target: new THREE.Vector3(0, 2.0, -25.0) },
 
   // ── Sector 1: Services Concourse (Room 1) ──
-  { t: 0.23, pos: new THREE.Vector3(0.3, 2.5, -18.8), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
-  { t: 0.28, pos: new THREE.Vector3(-0.3, 2.5, -23.8), target: new THREE.Vector3(2.2, 1.55, -27.0) },
-  { t: 0.33, pos: new THREE.Vector3(0.3, 2.5, -28.8), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
-  { t: 0.38, pos: new THREE.Vector3(-0.3, 2.5, -33.8), target: new THREE.Vector3(2.2, 1.25, -37.0) },
-  { t: 0.43, pos: new THREE.Vector3(0.4, 2.7, -38.5), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
+  { t: 0.22, pos: new THREE.Vector3(0.3, 2.5, -18.8), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
+  { t: 0.24, pos: new THREE.Vector3(0.3, 2.5, -18.8), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
+  { t: 0.27, pos: new THREE.Vector3(-0.3, 2.5, -23.8), target: new THREE.Vector3(2.2, 1.55, -27.0) },
+  { t: 0.29, pos: new THREE.Vector3(-0.3, 2.5, -23.8), target: new THREE.Vector3(2.2, 1.55, -27.0) },
+  { t: 0.32, pos: new THREE.Vector3(0.3, 2.5, -28.8), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
+  { t: 0.34, pos: new THREE.Vector3(0.3, 2.5, -28.8), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
+  { t: 0.37, pos: new THREE.Vector3(-0.3, 2.5, -33.8), target: new THREE.Vector3(2.2, 1.25, -37.0) },
+  { t: 0.39, pos: new THREE.Vector3(-0.3, 2.5, -33.8), target: new THREE.Vector3(2.2, 1.25, -37.0) },
+  { t: 0.42, pos: new THREE.Vector3(0.4, 2.7, -38.5), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
+  { t: 0.44, pos: new THREE.Vector3(0.4, 2.7, -38.5), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
 
   // ── Inter-Room Corridor 1 -> 2: Straighten camera facing forward into Room 2 ──
-  { t: 0.48, pos: new THREE.Vector3(0, 2.8, -48.0), target: new THREE.Vector3(0, 2.0, -62.0) },
+  { t: 0.47, pos: new THREE.Vector3(0, 2.8, -48.0), target: new THREE.Vector3(0, 2.0, -62.0) },
 
   // ── Sector 2: Masterworks Exhibition (Room 2 - Project TVs) ──
-  { t: 0.53, pos: new THREE.Vector3(0.3, 2.6, -52.0), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
-  { t: 0.58, pos: new THREE.Vector3(-0.3, 2.6, -59.0), target: new THREE.Vector3(2.4, 1.50, -63.0) },
-  { t: 0.63, pos: new THREE.Vector3(0.3, 2.6, -66.0), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
-  { t: 0.68, pos: new THREE.Vector3(-0.3, 2.6, -73.0), target: new THREE.Vector3(2.4, 1.50, -77.0) },
+  { t: 0.50, pos: new THREE.Vector3(0.3, 2.6, -52.0), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
+  { t: 0.52, pos: new THREE.Vector3(0.3, 2.6, -52.0), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
+  { t: 0.54, pos: new THREE.Vector3(-0.3, 2.6, -59.0), target: new THREE.Vector3(2.4, 1.50, -63.0) },
+  { t: 0.56, pos: new THREE.Vector3(-0.3, 2.6, -59.0), target: new THREE.Vector3(2.4, 1.50, -63.0) },
+  { t: 0.58, pos: new THREE.Vector3(0.3, 2.6, -66.0), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
+  { t: 0.60, pos: new THREE.Vector3(0.3, 2.6, -66.0), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
+  { t: 0.62, pos: new THREE.Vector3(-0.3, 2.6, -73.0), target: new THREE.Vector3(2.4, 1.50, -77.0) },
+  { t: 0.64, pos: new THREE.Vector3(-0.3, 2.6, -73.0), target: new THREE.Vector3(2.4, 1.50, -77.0) },
 
   // ── Inter-Room Corridor 2 -> 3: Straighten camera facing forward into Room 3 ──
-  { t: 0.72, pos: new THREE.Vector3(0, 2.8, -84.0), target: new THREE.Vector3(0, 2.0, -98.0) },
+  { t: 0.67, pos: new THREE.Vector3(0, 2.8, -84.0), target: new THREE.Vector3(0, 2.0, -98.0) },
 
-  // ── Sector 3: Collaboration Workflow (Room 3 - 5 Pods) ──
-  { t: 0.75, pos: new THREE.Vector3(0.3, 2.6, -90.0), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
+  // ── Sector 3: Collaboration Workflow (Room 3 - Extended Extra Long Dwelling for 5 Steps) ──
+  { t: 0.70, pos: new THREE.Vector3(0.3, 2.6, -90.0), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
+  { t: 0.73, pos: new THREE.Vector3(0.3, 2.6, -90.0), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
+  { t: 0.75, pos: new THREE.Vector3(-0.3, 2.6, -97.0), target: new THREE.Vector3(2.6, 1.5, -101.0) },
   { t: 0.78, pos: new THREE.Vector3(-0.3, 2.6, -97.0), target: new THREE.Vector3(2.6, 1.5, -101.0) },
-  { t: 0.81, pos: new THREE.Vector3(0.3, 2.6, -104.0), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
-  { t: 0.84, pos: new THREE.Vector3(-0.3, 2.6, -111.0), target: new THREE.Vector3(2.6, 1.5, -115.0) },
-  { t: 0.87, pos: new THREE.Vector3(0.3, 2.6, -118.0), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
+  { t: 0.80, pos: new THREE.Vector3(0.3, 2.6, -104.0), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
+  { t: 0.83, pos: new THREE.Vector3(0.3, 2.6, -104.0), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
+  { t: 0.85, pos: new THREE.Vector3(-0.3, 2.6, -111.0), target: new THREE.Vector3(2.6, 1.5, -115.0) },
+  { t: 0.88, pos: new THREE.Vector3(-0.3, 2.6, -111.0), target: new THREE.Vector3(2.6, 1.5, -115.0) },
+  { t: 0.90, pos: new THREE.Vector3(0.3, 2.6, -118.0), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
+  { t: 0.93, pos: new THREE.Vector3(0.3, 2.6, -118.0), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
 
   // ── Inter-Room Corridor 3 -> 4: Straighten camera facing forward into Executive Room ──
-  { t: 0.90, pos: new THREE.Vector3(0, 2.8, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
+  { t: 0.95, pos: new THREE.Vector3(0, 2.8, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
 
   // ── Sector 4: Executive Consultation & Reception (Room 4) ──
-  { t: 0.93, pos: new THREE.Vector3(0.3, 2.6, -141.5), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
-  { t: 0.96, pos: new THREE.Vector3(-0.3, 2.6, -142.5), target: new THREE.Vector3(2.8, 1.4, -146.0) },
+  { t: 0.965, pos: new THREE.Vector3(0.3, 2.6, -141.5), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
+  { t: 0.98, pos: new THREE.Vector3(-0.3, 2.6, -142.5), target: new THREE.Vector3(2.8, 1.4, -146.0) },
   { t: 1.00, pos: new THREE.Vector3(0.0, 2.8, -147.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
 ];
 
