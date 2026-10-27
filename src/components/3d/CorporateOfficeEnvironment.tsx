@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
 import { Float, useGLTF, Html } from '@react-three/drei';
+import CampusInteriorDecorations from './CampusInteriorDecorations';
 
 interface OfficeEnvironmentProps {
   scrollProgress: number;
@@ -592,6 +593,9 @@ export default function CorporateOfficeEnvironment({ scrollProgress }: OfficeEnv
         <boxGeometry args={[18.2, 0.25, 0.3]} />
         <meshStandardMaterial color="#0F172A" roughness={0.3} metalness={0.9} />
       </mesh>
+
+      {/* ── 10. NEW COMPREHENSIVE 3D ENVIRONMENTAL PROPS & DECORATIONS ── */}
+      <CampusInteriorDecorations />
     </group>
   );
 }
