@@ -1291,25 +1291,46 @@ function TVScreenDisplay({
       setTexture(null);
       return;
     }
+
+    // Ensure valid public path (default to /media/ if relative)
+    const resolvedUrl =
+      imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('/')
+        ? imageUrl
+        : `/media/${imageUrl}`;
+
+    const safeUrl = resolvedUrl.includes('%') ? resolvedUrl : encodeURI(resolvedUrl);
+
     const loader = new THREE.TextureLoader();
+    loader.setCrossOrigin('anonymous');
     let isMounted = true;
+    let createdTexture: THREE.Texture | null = null;
+
     loader.load(
-      imageUrl,
+      safeUrl,
       (loadedTex) => {
-        if (!isMounted) return;
+        if (!isMounted) {
+          loadedTex.dispose();
+          return;
+        }
         loadedTex.colorSpace = THREE.SRGBColorSpace;
         loadedTex.minFilter = THREE.LinearFilter;
         loadedTex.magFilter = THREE.LinearFilter;
         loadedTex.generateMipmaps = false;
+        loadedTex.needsUpdate = true;
+        createdTexture = loadedTex;
         setTexture(loadedTex);
       },
       undefined,
       (err) => {
-        console.warn('Could not load TV screen texture:', imageUrl, err);
+        console.warn('Could not load TV screen texture:', safeUrl, err);
       }
     );
+
     return () => {
       isMounted = false;
+      if (createdTexture) {
+        createdTexture.dispose();
+      }
     };
   }, [imageUrl]);
 

@@ -358,14 +358,48 @@ export default function HomeView({
     }
   }, [services, triggerDiveTransition, router]);
 
+  // Dynamic mapping of backend/database projects to the 4 3D TV displays
+  const portfolioTVs = useMemo(() => {
+    if (!projects || projects.length === 0) return undefined;
+    return PORTFOLIO_TVS_CONFIG.map((tvDefault, idx) => {
+      const p = projects[idx];
+      if (!p) return tvDefault;
+      return {
+        ...tvDefault,
+        slug: p.slug || tvDefault.slug,
+        title: p.title || tvDefault.title,
+        category: p.category || tvDefault.category,
+        kpi: p.kpis?.[0]?.value || tvDefault.kpi,
+        screenImage: p.thumbnail_image || tvDefault.screenImage,
+      };
+    });
+  }, [projects]);
+
   const handleSelectProjectFrom3D = useCallback((slug: string) => {
-    const targetConfig = DIVE_TARGETS_CONFIG[slug];
+    let targetConfig = DIVE_TARGETS_CONFIG[slug];
+
+    // If dynamic project slug from database, map to the physical TV station's camera dive coordinates
+    if (!targetConfig && portfolioTVs) {
+      const tvIndex = portfolioTVs.findIndex((tv) => tv.slug === slug);
+      if (tvIndex !== -1) {
+        const defaultTv = PORTFOLIO_TVS_CONFIG[tvIndex];
+        const defaultDiveTarget = DIVE_TARGETS_CONFIG[defaultTv.slug];
+        if (defaultDiveTarget) {
+          targetConfig = {
+            ...defaultDiveTarget,
+            slug: slug,
+            targetUrl: `/portfolio/${slug}/`,
+          };
+        }
+      }
+    }
+
     if (targetConfig) {
       triggerDiveTransition(targetConfig);
     } else {
       router.push('/portfolio/' + slug + '/');
     }
-  }, [triggerDiveTransition, router]);
+  }, [portfolioTVs, triggerDiveTransition, router]);
 
   const handleDiveReachedTarget = useCallback(() => {
     // 1. Lock/freeze camera right on the screen
@@ -391,23 +425,6 @@ export default function HomeView({
       setActiveDiveTarget(null);
     }, 1800);
   }, [activeDiveTarget, router]);
-
-  // Dynamic mapping of backend/database projects to the 4 3D TV displays
-  const portfolioTVs = useMemo(() => {
-    if (!projects || projects.length === 0) return undefined;
-    return PORTFOLIO_TVS_CONFIG.map((tvDefault, idx) => {
-      const p = projects[idx];
-      if (!p) return tvDefault;
-      return {
-        ...tvDefault,
-        slug: p.slug || tvDefault.slug,
-        title: p.title || tvDefault.title,
-        category: p.category || tvDefault.category,
-        kpi: p.kpis?.[0]?.value || tvDefault.kpi,
-        screenImage: p.thumbnail_image || tvDefault.screenImage,
-      };
-    });
-  }, [projects]);
 
   return (
     <div className="fixed inset-0 overflow-hidden text-gray-100 select-none overscroll-none">

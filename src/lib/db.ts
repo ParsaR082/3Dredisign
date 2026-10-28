@@ -4,13 +4,27 @@ import siteSettingsFallback from '@/content/site-settings.json';
 import servicesFallback from '@/content/services.json';
 import projectsFallback from '@/content/projects.json';
 
-const MEDIA_BASE = (process.env.NEXT_PUBLIC_MEDIA_URL || 'https://urumsima.ir/media').replace(/\/$/, '');
-
 export function resolveMediaUrl(path: string | null | undefined): string {
   if (!path) return '';
+  // 1. External absolute URLs
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  return `${MEDIA_BASE}/${cleanPath}`;
+
+  // 2. Already starts with /media/ (e.g. /media/uploads/... or /media/portfolio/...)
+  if (path.startsWith('/media/')) return path;
+
+  // 3. Starts with media/ without leading slash
+  if (path.startsWith('media/')) return `/${path}`;
+
+  // 4. Starts with /uploads/ or uploads/
+  if (path.startsWith('/uploads/')) return `/media${path}`;
+  if (path.startsWith('uploads/')) return `/media/${path}`;
+
+  // 5. Starts with any leading slash
+  if (path.startsWith('/')) return path;
+
+  // 6. All media files (both uploaded and seed files) exist in public/media/
+  // Serving them locally via /media/... guarantees same-origin access with 0 CORS issues in WebGL textures
+  return `/media/${path}`;
 }
 
 /**

@@ -114,6 +114,15 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
     return p.title?.toLowerCase().includes(term) || p.slug?.toLowerCase().includes(term);
   });
 
+  // Determine top 4 projects for the 3D TV stations on the homepage
+  const top4TvIds = React.useMemo(() => {
+    const sorted = [...projects].sort((a, b) => {
+      if (a.featured !== b.featured) return a.featured ? -1 : 1;
+      return (a.order || 0) - (b.order || 0);
+    });
+    return sorted.slice(0, 4).map((p) => p.id);
+  }, [projects]);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -124,7 +133,7 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
             <span>مدیریت پروژه‌ها و نمونه‌کارها ({projects.length} پروژه)</span>
           </h2>
           <p className="text-xs text-gray-400 mt-1">
-            پروژه‌های ثبت‌شده در جدول portfolio_project که در پردیس ۳بعدی و صفحات نمونه‌کارها نمایش داده می‌شوند.
+            تصاویر آپلود شده مستقیماً بر روی ۴ مانیتور تلویزیون سه‌بعدی صفحه اصلی پردیس اروم‌سیما نمایش داده می‌شوند.
           </p>
         </div>
 
@@ -156,62 +165,100 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
             <thead className="bg-white/5 text-gray-400 border-b border-white/10">
               <tr>
                 <th className="py-3.5 px-4 font-bold">شناسه</th>
+                <th className="py-3.5 px-4 font-bold text-center">کاور مانیتور ۳D</th>
                 <th className="py-3.5 px-4 font-bold">عنوان پروژه</th>
                 <th className="py-3.5 px-4 font-bold">اسلاگ (URL)</th>
-                <th className="py-3.5 px-4 font-bold">تاریخ پروژه</th>
+                <th className="py-3.5 px-4 font-bold text-center">جایگاه تلویزیون ۳D</th>
                 <th className="py-3.5 px-4 font-bold text-center">وضعیت ویژه</th>
                 <th className="py-3.5 px-4 font-bold text-center">عملیات</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-gray-200">
-              {filtered.map((proj) => (
-                <tr key={proj.id} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="py-3.5 px-4 font-mono text-gray-500">#{proj.id}</td>
-                  <td className="py-3.5 px-4 font-bold text-white max-w-xs truncate">
-                    {proj.title}
-                    {proj.subtitle && (
-                      <span className="block text-[11px] font-normal text-gray-400 truncate">{proj.subtitle}</span>
-                    )}
-                  </td>
-                  <td className="py-3.5 px-4 font-mono dir-ltr text-brand-300 text-[11px]">{proj.slug}</td>
-                  <td className="py-3.5 px-4 font-mono text-gray-400">{proj.project_date}</td>
-                  <td className="py-3.5 px-4 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      {proj.featured && (
-                        <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-amber-300" />
-                          <span>ویژه</span>
-                        </span>
+              {filtered.map((proj) => {
+                const tvStationIndex = top4TvIds.indexOf(proj.id);
+                const thumbSrc = proj.thumbnail_image
+                  ? proj.thumbnail_image.startsWith('/')
+                    ? proj.thumbnail_image
+                    : `/media/${proj.thumbnail_image}`
+                  : null;
+
+                return (
+                  <tr key={proj.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3.5 px-4 font-mono text-gray-500">#{proj.id}</td>
+                    
+                    {/* Live TV Monitor Thumbnail Preview */}
+                    <td className="py-3.5 px-4 text-center">
+                      {thumbSrc ? (
+                        <div className="w-14 h-9 rounded-lg overflow-hidden border border-white/20 bg-black/40 mx-auto relative shadow-md">
+                          <img
+                            src={thumbSrc}
+                            alt={proj.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-gray-500 text-[10px]">بدون تصویر</span>
                       )}
-                      {proj.popular && (
-                        <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold flex items-center gap-1">
-                          <Flame className="w-3 h-3" />
-                          <span>محبوب</span>
-                        </span>
+                    </td>
+
+                    <td className="py-3.5 px-4 font-bold text-white max-w-xs truncate">
+                      {proj.title}
+                      {proj.subtitle && (
+                        <span className="block text-[11px] font-normal text-gray-400 truncate">{proj.subtitle}</span>
                       )}
-                      {!proj.featured && !proj.popular && <span className="text-gray-500">-</span>}
-                    </div>
-                  </td>
-                  <td className="py-3.5 px-4 text-center">
-                    <div className="flex items-center justify-center gap-1.5">
-                      <button
-                        onClick={() => openEditModal(proj)}
-                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
-                        title="ویرایش"
-                      >
-                        <Edit className="w-3.5 h-3.5 text-brand-400" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(proj.id)}
-                        className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 transition-colors"
-                        title="حذف"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="py-3.5 px-4 font-mono dir-ltr text-brand-300 text-[11px]">{proj.slug}</td>
+                    
+                    {/* 3D TV Station Indicator */}
+                    <td className="py-3.5 px-4 text-center">
+                      {tvStationIndex !== -1 ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold shadow-sm">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          <span>مانیتور {tvStationIndex + 1} صفحه اصلی</span>
+                        </span>
+                      ) : (
+                        <span className="text-gray-500 text-[11px]">-</span>
+                      )}
+                    </td>
+
+                    <td className="py-3.5 px-4 text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        {proj.featured && (
+                          <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-amber-300" />
+                            <span>ویژه</span>
+                          </span>
+                        )}
+                        {proj.popular && (
+                          <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-bold flex items-center gap-1">
+                            <Flame className="w-3 h-3" />
+                            <span>محبوب</span>
+                          </span>
+                        )}
+                        {!proj.featured && !proj.popular && <span className="text-gray-500">-</span>}
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-4 text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        <button
+                          onClick={() => openEditModal(proj)}
+                          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+                          title="ویرایش"
+                        >
+                          <Edit className="w-3.5 h-3.5 text-brand-400" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(proj.id)}
+                          className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 transition-colors"
+                          title="حذف"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -294,11 +341,11 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
 
                 <div className="space-y-1.5 sm:col-span-2">
                   <ImageUpload
-                    label="تصویر بندانگشتی و کاور پروژه"
+                    label="تصویر کاور و مانیتور سه‌بعدی پروژه (TV Monitor Image)"
                     value={formData.thumbnail_image}
                     onChange={(url) => setFormData({ ...formData, thumbnail_image: url })}
                     folder="portfolio"
-                    hint="تصویر باکیفیت پروژه برای کارت‌های پورتفولیو و نمایش در گالری"
+                    hint="این عکس مستقیماً بر روی صفحه‌نمایش تلویزیون مربوط به این پروژه در پردیس ۳بعدی صفحه اصلی قرار می‌گیرد."
                   />
                 </div>
               </div>
