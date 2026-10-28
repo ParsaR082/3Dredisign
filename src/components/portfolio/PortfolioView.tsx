@@ -7,10 +7,12 @@ import type { Project } from '@/types/content';
 
 interface PortfolioViewProps {
   allProjects: Project[];
+  initialCategory?: string;
+  categoryTitle?: string;
 }
 
-export default function PortfolioView({ allProjects }: PortfolioViewProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+export default function PortfolioView({ allProjects, initialCategory, categoryTitle }: PortfolioViewProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'all');
 
   const categories = [
     { label: 'همه پروژه‌ها', value: 'all' },
@@ -25,7 +27,15 @@ export default function PortfolioView({ allProjects }: PortfolioViewProps) {
   const filtered =
     selectedCategory === 'all'
       ? allProjects
-      : allProjects.filter((p) => p.category_slug === selectedCategory);
+      : allProjects.filter((p) => {
+          if (p.category_slug === selectedCategory) return true;
+          // Support mapping of live server slug categories
+          if (selectedCategory.includes('ecommerce') || selectedCategory.includes('web')) return p.category_slug === 'web';
+          if (selectedCategory.includes('branding')) return p.category_slug === 'branding';
+          if (selectedCategory.includes('social') || selectedCategory.includes('content')) return p.category_slug === 'instagram';
+          if (selectedCategory.includes('video') || selectedCategory.includes('teaser')) return p.category_slug === 'video';
+          return true;
+        });
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
@@ -36,11 +46,22 @@ export default function PortfolioView({ allProjects }: PortfolioViewProps) {
           <span>ویترین دستاوردهای سازمانی و برندینگ</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight">
-          پرونده پروژه‌های شاخص اروم‌سیما
+          {categoryTitle || 'پرونده پروژه‌های شاخص اروم‌سیما'}
         </h1>
         <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
           کاوشی عمیق در استراتژی، هویت بصری، مهندسی وب و نرخ بازگشت سرمایه در شاخص‌ترین کسب‌وکارهای شمال‌غرب کشور.
         </p>
+
+        {/* Link to interactive projects map */}
+        <div className="pt-2">
+          <Link
+            href="/portfolio/projects-map/"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/20 text-brand-300 text-xs font-bold transition-all"
+          >
+            <span>مشاهده نقشه تعاملی پروژه‌ها در سطح ارومیه</span>
+            <ArrowLeft className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
 
       {/* ── SECTION 1: FEATURED SPOTLIGHT PROJECTS ── */}

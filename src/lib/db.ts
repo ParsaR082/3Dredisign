@@ -266,3 +266,308 @@ export async function saveContactMessage(data: {
     },
   });
 }
+
+// ── Showcase Websites (Pre-built & Templates) ────────────────
+
+export interface ShowcaseWebsite {
+  id: number;
+  title: string;
+  slug: string;
+  subtitle: string;
+  excerpt: string;
+  body: string;
+  cover_image: string;
+  mobile_preview?: string | null;
+  live_url: string;
+  client_name: string;
+  industry: string;
+  year?: number | null;
+  is_one_page: boolean;
+  accent_color: string;
+  tech_stack_csv: string;
+  pages_label: string;
+  status: string;
+  is_featured: boolean;
+  order: number;
+  category_name?: string;
+  features?: { title: string; description: string; icon_label: string }[];
+  screenshots?: { image: string; caption: string; device_type: string }[];
+}
+
+const fallbackWebsites: ShowcaseWebsite[] = [
+  {
+    id: 1,
+    title: 'فروشگاه تخصصی کفش و پوشاک ورزشی',
+    slug: 'shoes-website',
+    subtitle: 'طراحی مینیمال و فروشگاه مدرن آنلاین',
+    excerpt: 'طراحی وب‌سایت مدرن فروشگاهی با بالاترین سرعت لود، سیستم فیلتر پیشرفته محصولات و سبد خرید واکنش‌گرا.',
+    body: 'این پروژه یک وبسایت فروشگاهی حرفه‌ای برای عرضه انواع کفش‌های ورزشی و چرمی است که با استفاده از رابط کاربری فوق‌العاده سریع و درگاه‌های پرداخت متصل توسعه یافته است.',
+    cover_image: '/images/websites/shoes.jpg',
+    live_url: 'https://urumsima.ir/websites/shoes-website/',
+    client_name: 'برند کفش مدرن',
+    industry: 'فروشگاهی و پوشاک',
+    year: 1403,
+    is_one_page: false,
+    accent_color: '#0E946E',
+    tech_stack_csv: 'Next.js, Tailwind CSS, TypeScript, PostgreSQL',
+    pages_label: '۵ صفحه اختصاصی',
+    status: 'published',
+    is_featured: true,
+    order: 1,
+    category_name: 'فروشگاهی',
+    features: [
+      { title: 'سیستم فیلتر هوشمند سایز و رنگ', description: 'انتخاب آسان مشخصات محصول بدون تاخیر', icon_label: 'filter' },
+      { title: 'سرعت لود زیر ۱.۲ ثانیه', description: 'بهینه‌سازی تصاویر نسل جدید WebP', icon_label: 'zap' },
+      { title: 'درگاه‌های پرداخت بانکی شاپرک', description: 'اتصال امن به زرین‌پال و بانک ملت', icon_label: 'shield' },
+    ],
+  },
+  {
+    id: 2,
+    title: 'وب‌سایت لوکس گالری طلا و جواهرات',
+    slug: 'jewelry-website',
+    subtitle: 'ویترین آنلاین طلا و جواهرات فاخر',
+    excerpt: 'طراحی بسیار شیک و چشم‌نواز با رنگ‌بندی طلایی و تیره، نمایش نرخ لحظه‌ای طلا و کاتالوگ تصویری لوکس.',
+    body: 'پلتفرم معرفی و رزرو آنلاین جواهرات سفارشی با طراحی اختصاصی متناسب با سلیقه مشتریان لوکس‌پسند.',
+    cover_image: '/images/websites/jewelry.jpg',
+    live_url: 'https://urumsima.ir/websites/jewelry-website/',
+    client_name: 'گالری طلا و جواهر پرنسس',
+    industry: 'طلا، جواهر و اکسسوری',
+    year: 1403,
+    is_one_page: false,
+    accent_color: '#D4AF37',
+    tech_stack_csv: 'React, Three.js, Tailwind CSS',
+    pages_label: '۶ صفحه لوکس',
+    status: 'published',
+    is_featured: true,
+    order: 2,
+    category_name: 'طلا و جواهرات',
+    features: [
+      { title: 'ماشین‌حساب قیمت طلا لحظه‌ای', description: 'محاسبه کارمزد و وزن طلا بر اساس مظنه زنده', icon_label: 'calculator' },
+      { title: 'گالری تصاویر زوم ماکرو', description: 'مشاهده بافت و درخشش سنگ‌های قیمتی با رزولوشن بالا', icon_label: 'camera' },
+      { title: 'فرم مشاوره و رزرو اختصاصی', description: 'سیستم نوبت‌دهی جلسات حضوری در ارومیه', icon_label: 'calendar' },
+    ],
+  },
+  {
+    id: 3,
+    title: 'وب‌سایت گلاسیا - اپتیک و شیشه مدرن',
+    slug: 'glassia-website',
+    subtitle: 'طراحی مدرن اپتیک و فریم‌های مدرن',
+    excerpt: 'طراحی ویژه برندهای اپتیک، عینک و شیشه‌های ساختمانی با سبک مینیمال و اروپایی.',
+    body: 'سایت شرکتی مدرن با تمرکز بر تصویربرداری اختصاصی و هویت سازمانی متمایز.',
+    cover_image: '/images/websites/glassia.jpg',
+    live_url: 'https://urumsima.ir/websites/glassia-website/',
+    client_name: 'صنایع اپتیک گلاسیا',
+    industry: 'پزشکی و اپتیک',
+    year: 1403,
+    is_one_page: false,
+    accent_color: '#0284C7',
+    tech_stack_csv: 'Next.js, Framer Motion, Tailwind CSS',
+    pages_label: '۴ صفحه شرکتی',
+    status: 'published',
+    is_featured: true,
+    order: 3,
+    category_name: 'شرکتی',
+    features: [
+      { title: 'تست فرم صورت و فریم', description: 'راهنمای هوشمند انتخاب سایز عینک', icon_label: 'smile' },
+      { title: 'کاتالوگ تعاملی PDF', description: 'دانلود فوری جدیدترین کالکشن فصلی', icon_label: 'file-text' },
+    ],
+  },
+  {
+    id: 4,
+    title: 'فروشگاه لوازم خانگی و آشپزخانه مدرن',
+    slug: 'Home-Appliances-website',
+    subtitle: 'پلتفرم جامع تجهیزات خانه و آشپزخانه',
+    excerpt: 'سایت فروشگاهی با مقایسه مشخصات فنی، گارانتی آنلاین و ارسال سریع محصولات سنگین و سبک خانگی.',
+    body: 'طراحی ساختاریافته با دسته‌بندی عمیق برای هزاران کالای خانگی با سیستم فیلتر بر اساس برند و توان مصرفی.',
+    cover_image: '/images/websites/appliances.jpg',
+    live_url: 'https://urumsima.ir/websites/Home-Appliances-website/',
+    client_name: 'فروشگاه هوم کالا',
+    industry: 'لوازم خانگی',
+    year: 1403,
+    is_one_page: false,
+    accent_color: '#EA580C',
+    tech_stack_csv: 'Next.js, Prisma, PostgreSQL',
+    pages_label: '۷ صفحه جامع',
+    status: 'published',
+    is_featured: false,
+    order: 4,
+    category_name: 'فروشگاهی',
+    features: [
+      { title: 'مقایسه مشخصات کالاها', description: 'بررسی رو در روی محصولات مشابه', icon_label: 'columns' },
+      { title: 'سیستم استعلام گارانتی معتبر', description: 'ثبت سریال دستگاه برای خدمات پس از فروش', icon_label: 'check-circle' },
+    ],
+  },
+  {
+    id: 5,
+    title: 'گالری آنلاین ساعت‌های مچی لوکس',
+    slug: 'Watch-website',
+    subtitle: 'تجربه خرید ساعت‌های برند و کلاسیک',
+    excerpt: 'وبسایت تخصصی ساعت با جزئیات فنی موتور سوئیسی، جعبه هدیه و ضمانت اصالت کالا.',
+    body: 'طراحی شیک با پس‌زمینه دارک و تایپوگرافی ویژه برای خریداران کالاهای کلکسیونی و شیک.',
+    cover_image: '/images/websites/watch.jpg',
+    live_url: 'https://urumsima.ir/websites/Watch-website/',
+    client_name: 'ساعت پرستیژ',
+    industry: 'ساعت و کالای لوکس',
+    year: 1403,
+    is_one_page: false,
+    accent_color: '#3B82F6',
+    tech_stack_csv: 'React, Tailwind CSS',
+    pages_label: '۵ صفحه شیک',
+    status: 'published',
+    is_featured: false,
+    order: 5,
+    category_name: 'اکسسوری',
+    features: [
+      { title: 'مشخصات کامل موتور و ضدآب', description: 'نمایش گرافیکی مقاومت آب بر اساس ATM', icon_label: 'watch' },
+      { title: 'بسته‌بندی هدیه لوکس', description: 'امکان انتخاب کارت تبریک و جعبه نفیس', icon_label: 'gift' },
+    ],
+  },
+];
+
+export async function getLiveWebsites(): Promise<ShowcaseWebsite[]> {
+  try {
+    const rows = await prisma.websitesWebsite.findMany({
+      orderBy: { order: 'asc' },
+    });
+    if (!rows || rows.length === 0) return fallbackWebsites;
+
+    const [categories, features, screenshots] = await Promise.all([
+      prisma.websitesWebsitecategory.findMany().catch(() => []),
+      prisma.websitesWebsitefeature.findMany({ orderBy: { order: 'asc' } }).catch(() => []),
+      prisma.websitesWebsitescreenshot.findMany({ orderBy: { order: 'asc' } }).catch(() => []),
+    ]);
+
+    const catMap = new Map(categories.map((c) => [c.id, c.name]));
+
+    return rows.map((w) => ({
+      id: w.id,
+      title: w.title,
+      slug: w.slug,
+      subtitle: w.subtitle,
+      excerpt: w.excerpt,
+      body: w.body,
+      cover_image: resolveMediaUrl(w.cover_image) || '/favicon.png',
+      mobile_preview: resolveMediaUrl(w.mobile_preview),
+      live_url: w.live_url || `/websites/${w.slug}/`,
+      client_name: w.client_name,
+      industry: w.industry,
+      year: w.year,
+      is_one_page: w.is_one_page,
+      accent_color: w.accent_color || '#0E946E',
+      tech_stack_csv: w.tech_stack_csv,
+      pages_label: w.pages_label || 'چند صفحه‌ای',
+      status: w.status,
+      is_featured: w.is_featured,
+      order: w.order,
+      category_name: w.category_id ? catMap.get(w.category_id) : undefined,
+      features: features.filter((f) => f.website_id === w.id).map((f) => ({
+        title: f.title,
+        description: f.description,
+        icon_label: f.icon_label,
+      })),
+      screenshots: screenshots.filter((s) => s.website_id === w.id).map((s) => ({
+        image: resolveMediaUrl(s.image),
+        caption: s.caption,
+        device_type: s.device || 'desktop',
+      })),
+    }));
+  } catch (error) {
+    console.warn('DB Websites query failed, using fallback:', error);
+    return fallbackWebsites;
+  }
+}
+
+export async function getLiveWebsiteBySlug(slug: string): Promise<ShowcaseWebsite | null> {
+  const all = await getLiveWebsites();
+  const decoded = decodeURIComponent(slug).toLowerCase().trim();
+  return (
+    all.find(
+      (w) =>
+        w.slug.toLowerCase().trim() === decoded ||
+        encodeURIComponent(w.slug).toLowerCase() === decoded
+    ) || null
+  );
+}
+
+// ── Backstage Items (Behind the Scenes) ──────────────────────
+
+export interface BackstageItem {
+  id: number;
+  title: string;
+  slug: string;
+  subtitle: string;
+  excerpt: string;
+  body: string;
+  cover_image: string;
+  cover_video?: string | null;
+  embed_url: string;
+  location: string;
+  duration_label: string;
+  status: string;
+  is_featured: boolean;
+  order: number;
+  published_at?: string | null;
+}
+
+const fallbackBackstage: BackstageItem[] = [
+  {
+    id: 1,
+    title: 'پشت صحنه فیلمبرداری تیزر تبلیغاتی سپید بام گستر',
+    slug: 'پشت-صحنه-فیلمبرداری-سپید-بام-گستر',
+    subtitle: 'روایتی از تلاش تیم تصویربرداری و جلوه‌های ویژه اروم‌سیما در کارخانجات صنعتی سپید بام گستر',
+    excerpt: 'نگاهی از نزدیک به مراحل ضبط صحنه‌های صنعتی، نورپردازی کارخانه با تجهیزات سینمایی و هماهنگی خط تولید.',
+    body: 'در این پروژه تیم تولید فیلم و تیزر تبلیغاتی اروم‌سیما با بهره‌گیری از دوربین‌های سینمایی Red و تجهیزات حرفه‌ای نورپردازی، فرآیند ساخت عایق‌های رطوبتی در کارخانه سپید بام گستر را با استانداردهای بین‌المللی به تصویر کشیدند.',
+    cover_image: '/images/bts/sepid-bam.jpg',
+    cover_video: '/media/bts/sepidbam-teaser.mp4',
+    embed_url: 'https://aparat.com/v/sepidbam',
+    location: 'ارومیه، شهرک صنعتی فاز ۲',
+    duration_label: '۴ دقیقه پشت صحنه',
+    status: 'published',
+    is_featured: true,
+    order: 1,
+    published_at: '1403/06/15',
+  },
+];
+
+export async function getLiveBackstageItems(): Promise<BackstageItem[]> {
+  try {
+    const rows = await prisma.backstageBackstageitem.findMany({
+      orderBy: { order: 'asc' },
+    });
+    if (!rows || rows.length === 0) return fallbackBackstage;
+
+    return rows.map((b) => ({
+      id: b.id,
+      title: b.title,
+      slug: b.slug,
+      subtitle: b.subtitle,
+      excerpt: b.excerpt,
+      body: b.body,
+      cover_image: resolveMediaUrl(b.cover_image) || '/favicon.png',
+      cover_video: resolveMediaUrl(b.cover_video),
+      embed_url: b.embed_url,
+      location: b.location || 'ارومیه',
+      duration_label: b.duration_label || 'ویدیو کوتاه',
+      status: b.status,
+      is_featured: b.is_featured,
+      order: b.order,
+      published_at: b.published_at,
+    }));
+  } catch (error) {
+    console.warn('DB Backstage query failed, using fallback:', error);
+    return fallbackBackstage;
+  }
+}
+
+export async function getLiveBackstageBySlug(slug: string): Promise<BackstageItem | null> {
+  const all = await getLiveBackstageItems();
+  const decoded = decodeURIComponent(slug).toLowerCase().trim();
+  return (
+    all.find(
+      (b) =>
+        b.slug.toLowerCase().trim() === decoded ||
+        encodeURIComponent(b.slug).toLowerCase() === decoded
+    ) || null
+  );
+}
+

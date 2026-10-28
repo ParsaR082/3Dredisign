@@ -37,6 +37,8 @@ export default function Navbar({ settings, services }: NavbarProps) {
       hasDropdown: true,
     },
     { label: 'نمونه‌کارها', href: '/portfolio/' },
+    { label: 'وبسایت‌ها', href: '/websites/' },
+    { label: 'پشت‌صحنه', href: '/backstage/' },
     { label: 'تعرفه‌ها', href: '/pricing/' },
     { label: 'نمایندگی ابنر', href: '/abner/' },
     { label: 'درباره ما', href: '/about-us/' },

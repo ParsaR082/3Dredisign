@@ -98,9 +98,13 @@ export default function Footer({ settings, services }: FooterProps) {
             <h4 className="text-white font-bold text-sm tracking-wide">دسترسی سریع</h4>
             <ul className="space-y-2 text-sm">
               <li><Link href="/portfolio/" className="hover:text-white transition-colors">نمونه‌کارهای شاخص</Link></li>
+              <li><Link href="/websites/" className="hover:text-white transition-colors">وبسایت‌های نمونه</Link></li>
+              <li><Link href="/backstage/" className="hover:text-white transition-colors">پشت‌صحنه فیلمبرداری</Link></li>
               <li><Link href="/pricing/" className="hover:text-white transition-colors">تعرفه‌ها و پلن‌های رشد</Link></li>
               <li><Link href="/abner/" className="hover:text-white transition-colors">نمایندگی تلویزیون شهری ابنر</Link></li>
-              <li><Link href="/about-us/" className="hover:text-white transition-colors">درباره ما و تیم رهبران ۳D</Link></li>
+              <li><Link href="/tools/seo-checklist/" className="hover:text-white transition-colors">چک‌لیست سئو رایگان</Link></li>
+              <li><Link href="/tools/health-check/" className="hover:text-white transition-colors">تست سلامت دیجیتال</Link></li>
+              <li><Link href="/about-us/" className="hover:text-white transition-colors">درباره ما</Link></li>
               <li><Link href="/blog/" className="hover:text-white transition-colors">مجله تخصصی فناوری و سئو</Link></li>
               <li><Link href="/contact-us/" className="hover:text-white transition-colors">تماس و نقشه دفتر</Link></li>
             </ul>
@@ -132,6 +136,10 @@ export default function Footer({ settings, services }: FooterProps) {
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
           <p>{settings.footer_copyright_text}</p>
           <div className="flex items-center gap-6">
+            <Link href="/privacy-policy/" className="hover:text-brand-300 transition-colors">
+              حریم خصوصی و شرایط
+            </Link>
+            <span>•</span>
             <span>توسعه‌یافته با معماری مدرن سه‌بعدی Next.js & Three.js</span>
           </div>
         </div>
