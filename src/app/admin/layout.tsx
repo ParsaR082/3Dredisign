@@ -2,27 +2,36 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard,
   Inbox,
+  CalendarCheck,
   FolderGit2,
+  BookOpen,
   Cpu,
-  Settings,
+  Globe,
+  Users,
+  DollarSign,
+  Tv,
+  Film,
+  Layers,
   Star,
   BarChart3,
+  Settings,
+  ShieldCheck,
   LogOut,
   ExternalLink,
   Menu,
   X,
-  ShieldCheck,
-  Bell,
-  RefreshCw,
+  UserCog,
 } from 'lucide-react';
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentTab = searchParams.get('tab') || 'overview';
   const isLoginPage = pathname === '/admin/login';
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -63,14 +72,48 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return <div className="-mt-20 min-h-screen">{children}</div>;
   }
 
-  const navItems = [
-    { label: 'داشبورد', href: '/admin', icon: LayoutDashboard },
-    { label: 'پیام‌های تماس و مشاوره', href: '/admin?tab=contacts', icon: Inbox, badge: unreadCount },
-    { label: 'پروژه‌ها و نمونه‌کارها', href: '/admin?tab=projects', icon: FolderGit2 },
-    { label: 'خدمات تخصصی', href: '/admin?tab=services', icon: Cpu },
-    { label: 'تنظیمات سایت و سئو', href: '/admin?tab=settings', icon: Settings },
-    { label: 'نظرات مشتریان', href: '/admin?tab=testimonials', icon: Star },
-    { label: 'شمارنده‌های آمار', href: '/admin?tab=counters', icon: BarChart3 },
+  const navGroups = [
+    {
+      title: 'ورودی‌ها و تعاملات',
+      items: [
+        { id: 'overview', label: 'داشبورد کلی', href: '/admin', icon: LayoutDashboard },
+        { id: 'contacts', label: 'پیام‌های تماس', href: '/admin?tab=contacts', icon: Inbox, badge: unreadCount },
+        { id: 'leads', label: 'رزرو مشاوره و پروپوزال', href: '/admin?tab=leads', icon: CalendarCheck },
+      ],
+    },
+    {
+      title: 'محتوا و نمونه‌کارها',
+      items: [
+        { id: 'projects', label: 'پروژه‌ها و نمونه‌کارها', href: '/admin?tab=projects', icon: FolderGit2 },
+        { id: 'blog', label: 'مقالات وبلاگ', href: '/admin?tab=blog', icon: BookOpen },
+        { id: 'services', label: 'خدمات تخصصی', href: '/admin?tab=services', icon: Cpu },
+        { id: 'websites', label: 'پرتال وبسایت‌ها', href: '/admin?tab=websites', icon: Globe },
+      ],
+    },
+    {
+      title: 'استودیو و آژانس',
+      items: [
+        { id: 'team', label: 'اعضای تیم و ارزش‌ها', href: '/admin?tab=team', icon: Users },
+        { id: 'pricing', label: 'تعرفه‌ها و پلن‌ها', href: '/admin?tab=pricing', icon: DollarSign },
+        { id: 'abner', label: 'تلویزیون و استند آبنر', href: '/admin?tab=abner', icon: Tv },
+        { id: 'backstage', label: 'پشت‌صحنه استودیو', href: '/admin?tab=backstage', icon: Film },
+      ],
+    },
+    {
+      title: 'لندینگ و بازاریابی',
+      items: [
+        { id: 'landing-elements', label: 'المان‌های لندینگ', href: '/admin?tab=landing-elements', icon: Layers },
+        { id: 'testimonials', label: 'نظرات مشتریان', href: '/admin?tab=testimonials', icon: Star },
+        { id: 'counters', label: 'شمارنده‌های آمار', href: '/admin?tab=counters', icon: BarChart3 },
+      ],
+    },
+    {
+      title: 'تنظیمات و امنیت',
+      items: [
+        { id: 'settings', label: 'تنظیمات سایت و سئو', href: '/admin?tab=settings', icon: Settings },
+        { id: 'users', label: 'مدیران و دسترسی‌ها', href: '/admin?tab=users', icon: UserCog },
+      ],
+    },
   ];
 
   return (
@@ -94,7 +137,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span className="font-black text-sm text-white block">پنل مدیریت اروم سیما</span>
               <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-mono">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live Database Active
+                Live Database Active (81 Models)
               </span>
             </div>
           </div>
@@ -122,72 +165,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       <div className="flex flex-1 relative">
         {/* Sidebar Desktop */}
-        <aside className="w-64 bg-dark-base border-l border-white/10 p-4 hidden md:flex flex-col justify-between shrink-0 sticky top-16 h-[calc(100vh-4rem)]">
-          <div className="space-y-1.5">
-            <div className="px-3 py-2 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-              بخش‌های مدیریت
-            </div>
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-all group border border-transparent hover:border-white/5"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className="w-4 h-4 text-gray-400 group-hover:text-brand-400 transition-colors" />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge !== undefined && item.badge > 0 && (
-                    <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Sidebar Footer info */}
-          <div className="p-3.5 rounded-2xl bg-white/5 border border-white/5 text-[11px] text-gray-400 space-y-1">
-            <div className="text-white font-bold">اروم سیما - مدیریت محتوا</div>
-            <div className="text-gray-500">نگارش ۲.۰ (۳D Engine + Prisma)</div>
-          </div>
-        </aside>
-
-        {/* Mobile Drawer */}
-        {mobileMenuOpen && (
-          <div
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm md:hidden flex justify-end"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            <div
-              className="w-72 bg-dark-base border-l border-white/10 p-5 space-y-4 h-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                <span className="font-bold text-sm text-white">منوی مدیریت</span>
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-1 rounded-lg text-gray-400 hover:text-white"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              <div className="space-y-1">
-                {navItems.map((item) => {
+        <aside className="w-64 bg-dark-base border-l border-white/10 p-3 hidden md:flex flex-col justify-between shrink-0 sticky top-16 h-[calc(100vh-4rem)]">
+          <div className="space-y-4 overflow-y-auto pr-1">
+            {navGroups.map((group) => (
+              <div key={group.title} className="space-y-1">
+                <div className="px-3 py-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                  {group.title}
+                </div>
+                {group.items.map((item) => {
                   const Icon = item.icon;
+                  const isActive = currentTab === item.id;
                   return (
                     <Link
-                      key={item.label}
+                      key={item.id}
                       href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-gray-300 hover:text-white hover:bg-white/5 transition-all"
+                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all group border ${
+                        isActive
+                          ? 'bg-brand-600 text-white border-brand-500/30 shadow-md shadow-brand-600/20'
+                          : 'text-gray-300 hover:text-white hover:bg-white/5 border-transparent hover:border-white/5'
+                      }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <Icon className="w-4 h-4 text-brand-400" />
+                        <Icon
+                          className={`w-4 h-4 transition-colors ${
+                            isActive ? 'text-white' : 'text-gray-400 group-hover:text-brand-400'
+                          }`}
+                        />
                         <span>{item.label}</span>
                       </div>
                       {item.badge !== undefined && item.badge > 0 && (
@@ -198,6 +201,71 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </Link>
                   );
                 })}
+              </div>
+            ))}
+          </div>
+
+          {/* Sidebar Footer info */}
+          <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-[11px] text-gray-400 space-y-1 mt-2">
+            <div className="text-white font-bold">اروم سیما - سوپر پنل</div>
+            <div className="text-gray-500 text-[10px]">همگام با دیتابیس جنگو (۱۱ ماژول)</div>
+          </div>
+        </aside>
+
+        {/* Mobile Drawer */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm md:hidden flex justify-end"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <div
+              className="w-72 bg-dark-base border-l border-white/10 p-5 space-y-4 h-full overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                <span className="font-bold text-sm text-white">منوی مدیریت اروم سیما</span>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-1 rounded-lg text-gray-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {navGroups.map((group) => (
+                  <div key={group.title} className="space-y-1">
+                    <div className="px-3 py-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      {group.title}
+                    </div>
+                    {group.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = currentTab === item.id;
+                      return (
+                        <Link
+                          key={item.id}
+                          href={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                            isActive
+                              ? 'bg-brand-600 text-white'
+                              : 'text-gray-300 hover:text-white hover:bg-white/5'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-brand-400'}`} />
+                            <span>{item.label}</span>
+                          </div>
+                          {item.badge !== undefined && item.badge > 0 && (
+                            <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-bold">
+                              {item.badge}
+                            </span>
+                          )}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -211,3 +279,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   );
 }
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen bg-[#070B11]" />}>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </React.Suspense>
+  );
+}
+
