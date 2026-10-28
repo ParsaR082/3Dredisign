@@ -163,8 +163,8 @@ export default function CampusCanvas(props: Props) {
     setContextLost(false);
   }, []);
 
-  const handleBoundaryError = useCallback(() => {
-    setWebglSupported(false);
+  const handleBoundaryError = useCallback((error: Error) => {
+    console.warn('[CampusCanvas] ErrorBoundary caught error:', error?.message);
   }, []);
 
   if (!mounted) {

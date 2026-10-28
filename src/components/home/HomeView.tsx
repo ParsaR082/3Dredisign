@@ -19,7 +19,14 @@ import {
   Instagram,
   Send,
 } from 'lucide-react';
-import CampusCanvas from '@/components/3d/CampusCanvas';
+import dynamic from 'next/dynamic';
+
+const CampusCanvas = dynamic(() => import('@/components/3d/CampusCanvas'), {
+  ssr: false,
+  loading: () => (
+    <div className="fixed inset-0 w-full h-full bg-[#070B12] pointer-events-none -z-10" />
+  ),
+});
 import SpatialHUD from '@/components/3d/SpatialHUD';
 import ExperienceLoader from '@/components/3d/ExperienceLoader';
 import {
