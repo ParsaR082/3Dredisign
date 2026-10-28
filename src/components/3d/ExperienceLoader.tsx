@@ -234,7 +234,7 @@ export default function ExperienceLoader({
 
             {total > 0 && (
               <span className="text-[11px] text-gray-400 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
-                {loaded} / {total} آبجکت
+                {loaded} / {total} پکیج سه‌بعدی (+۲۵۰ آبجکت محیطی)
               </span>
             )}
           </div>

@@ -273,7 +273,7 @@ export default function ServicesTab({ services, onRefresh }: ServicesTabProps) {
                     type="text"
                     value={formData.icon}
                     onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-xs text-center text-base focus:outline-none focus:border-brand-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-center text-base focus:outline-none focus:border-brand-500"
                   />
                 </div>
               </div>
