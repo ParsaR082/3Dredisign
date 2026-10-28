@@ -146,7 +146,7 @@ function EntranceAndZone0Decorations() {
 
 /**
  * ── 2. SECTOR 1: DIGITAL STRATEGY, DEVELOPER PODS & CREATIVE LOUNGE (Z = -4 to -44) ──
- * پادهای مهندسی نرم‌افزار، میز ایستاده، میزهای دونفره تیمی، لانژ خلاقیت، میز مدیریت، ایستگاه بریک
+ * پادهای مهندسی نرم‌افزار، میز ایستاده، میزهای تیمی، لانژ خلاقیت با پارتیشن آکوستیک، میز مدیریت، ایستگاه استراحت
  */
 function Room1StrategyDecorations() {
   return (
@@ -159,7 +159,7 @@ function Room1StrategyDecorations() {
       <AutoProp file="Window Blinds.glb" position={[8.85, 3.8, -20]} rotation={[0, -Math.PI / 2, 0]} targetHeight={3.6} />
       <AutoProp file="Window Blinds.glb" position={[8.85, 3.8, -30]} rotation={[0, -Math.PI / 2, 0]} targetHeight={3.6} />
 
-      {/* ── پاد مهندسی شماره ۱ (راست): میز ایستاده با دو مانیتور، کیس، صندلی چرخدار و کمد ── */}
+      {/* ── پاد مهندسی شماره ۱ (راست، Z = -15): میز ایستاده برقی با دو مانیتور، کیس، صندلی و کمد فایلینگ ── */}
       <AutoProp
         file="Standing Desk.glb"
         position={[5.5, 0, -15]}
@@ -179,7 +179,7 @@ function Room1StrategyDecorations() {
         rotation={[0, -Math.PI / 2 - 0.15, 0]}
         targetHeight={0.46}
       />
-      {/* کیبورد، ماوس، ماوس‌پد و چراغ مطالعه روی میز */}
+      {/* کیبورد، ماوس، چراغ مطالعه و لیوان روی میز */}
       <AutoProp file="Keyboard-fOy2zvPJAj-.glb" position={[5.1, 1.06, -15]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.03} />
       <AutoProp file="Mouse.glb" position={[5.1, 1.06, -14.5]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.04} />
       <AutoProp file="desk_lamp.glb" position={[5.8, 1.06, -15.6]} rotation={[0, -Math.PI / 2 + 0.4, 0]} targetHeight={0.45} />
@@ -187,68 +187,68 @@ function Room1StrategyDecorations() {
       <AutoProp file="Mug.glb" position={[5.2, 1.06, -15.5]} targetMaxDim={0.12} />
       <AutoProp file="Soda Can.glb" position={[5.4, 1.06, -15.5]} targetMaxDim={0.14} />
 
-      {/* صندلی اداری چرخ‌دار ارگونومیک آبی رنگ */}
+      {/* صندلی اداری چرخ‌دار ارگونومیک با فاصله استاندارد از میز */}
       <AutoProp
         file="Chair-1MFMOaz3zqe.glb"
-        position={[4.3, 0, -15]}
+        position={[4.0, 0, -15]}
         rotation={[0, Math.PI / 2, 0]}
         targetHeight={1.05}
       />
 
-      {/* کمد بایگانی فلزی مشکی کشودار چسبیده به میز */}
+      {/* کمد بایگانی فلزی با فاصله مناسب ۱.۵ متری از میز برای جلوگیری از تداخل (Z = -17.5) */}
       <AutoProp
         file="File Cabinet.glb"
-        position={[6.6, 0, -16.5]}
+        position={[6.4, 0, -17.5]}
         rotation={[0, -Math.PI / 2, 0]}
         targetHeight={1.2}
       />
-      {/* اسکیت‌برد جوان تکیه داده شده به جلوی کمد (با مقیاس دقیق انسانی ۷۸ سانتی‌متر) */}
+      {/* اسکیت‌برد جوان با مقیاس انسانی ۷۸ سانتی‌متر و تکیه شیب‌دار به بدنه کمد */}
       <AutoProp
         file="Skateboard.glb"
-        position={[6.2, 0, -16.5]}
-        rotation={[0.15, -Math.PI / 2, 0.25]}
+        position={[6.0, 0, -17.5]}
+        rotation={[0.15, -Math.PI / 2, 1.35]}
         targetMaxDim={0.78}
       />
-      {/* فیگور ربات گاندام روی کمد بایگانی (مقیاس کلکسیونی ۳۲ سانتی‌متر) */}
+      {/* فیگور ربات گاندام روی کمد بایگانی */}
       <AutoProp
         file="MS Gundam RX-78-2 with weapons.glb"
-        position={[6.6, 1.2, -16.3]}
+        position={[6.4, 1.2, -17.3]}
         rotation={[0, -Math.PI / 2 + 0.2, 0]}
         targetMaxDim={0.32}
       />
       {/* کارتن پستی روی کمد */}
       <AutoProp
         file="Cardboard Box.glb"
-        position={[6.6, 1.2, -16.8]}
+        position={[6.4, 1.2, -17.8]}
         rotation={[0, 0.3, 0]}
         targetMaxDim={0.3}
       />
-      {/* گلدان برگ‌انجیری کنار کمد بایگانی */}
+      {/* گلدان برگ‌انجیری کنار کمد بایگانی نزدیک دیوار */}
       <AutoProp
         file="Houseplant.glb"
-        position={[7.4, 0, -16.5]}
+        position={[7.5, 0, -17.5]}
         targetHeight={1.15}
       />
 
-      {/* ── پاد مهندسی شماره ۲ (راست، Z = -25): میز تیمی دونفره توسعه با ۲ صندلی ارگونومیک ── */}
+      {/* ── پاد مهندسی شماره ۲ (راست، Z = -25): میز مدرن توسعه با ۲ صندلی ارگونومیک و ۲ مانیتور ── */}
       <AutoProp
-        file="Desk-ISpMh81QGq.glb"
-        position={[5.8, 0, -25]}
-        rotation={[0, -Math.PI / 2, 0]}
+        file="Adjustable Desk.glb"
+        position={[5.6, 0, -25]}
+        rotation={[0, 0, 0]}
         targetHeight={0.78}
       />
       {/* دو مانیتور ایستگاه دو نفره */}
-      <AutoProp file="Computer.glb" position={[5.8, 0.78, -25.8]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.48} />
-      <AutoProp file="Monitor.glb" position={[5.8, 0.78, -24.2]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.46} />
-      <AutoProp file="keyboard.glb" position={[5.3, 0.79, -25.8]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.03} />
-      <AutoProp file="Keyboard-fOy2zvPJAj-.glb" position={[5.3, 0.79, -24.2]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.03} />
-      <AutoProp file="Small Stack of Paper.glb" position={[6.1, 0.79, -25.0]} targetMaxDim={0.28} />
-      {/* کیس کامپیوتر روی زمین زیر میز */}
-      <AutoProp file="pc_case.glb" position={[6.1, 0, -26.2]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.45} />
-      {/* دو صندلی اداری رو به میز */}
-      <AutoProp file="Office Chair.glb" position={[4.6, 0, -25.8]} rotation={[0, Math.PI / 2 - 0.2, 0]} targetHeight={1.05} />
-      <AutoProp file="Office Chair.glb" position={[4.6, 0, -24.2]} rotation={[0, Math.PI / 2 + 0.1, 0]} targetHeight={1.05} />
-      <AutoProp file="Trashcan Small.glb" position={[6.5, 0, -23.6]} targetHeight={0.35} />
+      <AutoProp file="Computer.glb" position={[5.6, 0.78, -25.7]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.48} />
+      <AutoProp file="Monitor.glb" position={[5.6, 0.78, -24.3]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.46} />
+      <AutoProp file="keyboard.glb" position={[5.1, 0.79, -25.7]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.03} />
+      <AutoProp file="Keyboard-fOy2zvPJAj-.glb" position={[5.1, 0.79, -24.3]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.03} />
+      <AutoProp file="Small Stack of Paper.glb" position={[5.8, 0.79, -25.0]} targetMaxDim={0.28} />
+      {/* کیس کامپیوتر روی زمین کنار میز */}
+      <AutoProp file="pc_case.glb" position={[6.2, 0, -26.1]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.45} />
+      {/* دو صندلی اداری رو به میز بدون تداخل */}
+      <AutoProp file="Office Chair.glb" position={[4.3, 0, -25.7]} rotation={[0, Math.PI / 2, 0]} targetHeight={1.05} />
+      <AutoProp file="Office Chair.glb" position={[4.3, 0, -24.3]} rotation={[0, Math.PI / 2, 0]} targetHeight={1.05} />
+      <AutoProp file="Trashcan Small.glb" position={[6.6, 0, -23.5]} targetHeight={0.35} />
 
       {/* ── پاد لانژ خلاقیت چپ (Z = -12 تا -18) ── */}
       {/* فرش هندسی آبی و خاکستری بزرگ زیر مبل‌ها */}
@@ -259,7 +259,7 @@ function Room1StrategyDecorations() {
         targetWidth={4.2}
         targetHeight={0.03}
       />
-      {/* میز جلو مبلی مشکی دوتایی فلزی با طبقه زیرین */}
+      {/* میز جلو مبلی مدرن دوتایی */}
       <AutoProp
         file="Coffee Table.glb"
         position={[-5.8, 0, -15]}
@@ -271,7 +271,7 @@ function Room1StrategyDecorations() {
       <AutoProp file="Coffee cup.glb" position={[-5.4, 0.52, -15.2]} targetMaxDim={0.11} />
       <AutoProp file="Magazine.glb" position={[-5.5, 0.52, -14.7]} rotation={[0, 0.3, 0]} targetHeight={0.03} />
 
-      {/* مبل تک‌نفره پارچه‌ای سرمه‌ای مدرن رو به میز */}
+      {/* مبل تک‌نفره پارچه‌ای سرمه‌ای مدرن رو به میز جلو مبلی */}
       <AutoProp
         file="Couch Small.glb"
         position={[-7.6, 0, -15]}
@@ -279,10 +279,10 @@ function Room1StrategyDecorations() {
         targetHeight={0.9}
       />
 
-      {/* بین‌بگ قرمز رنگ راحت در کنج لانژ */}
+      {/* بین‌بگ راحت در کنج لانژ روبه‌روی میز */}
       <AutoProp
         file="Couch Small-ZOPP3KzNIk.glb"
-        position={[-5.8, 0, -17.8]}
+        position={[-5.8, 0, -17.5]}
         rotation={[0, 0.5, 0]}
         targetHeight={0.75}
       />
@@ -294,7 +294,8 @@ function Room1StrategyDecorations() {
         targetHeight={0.45}
       />
 
-      {/* ── پارتیشن دیواری آکوستیک ایستاده سالن ۱: پایه روی زمین، تخته اعلانات و دارت نصب‌شده روی آن ── */}
+      {/* ── پارتیشن دیواری آکوستیک ایستاده سالن ۱: کاملاً پایدار روی زمین با پایه‌های فولادی ── */}
+      {/* دیواره جداکننده بین لانژ خلاقیت (Z = -15) و میز مدیریت (Z = -26) */}
       <group position={[-5.8, 0, -19.5]}>
         {/* پایه‌های فولادی مشکی روی موکت کف (Y=0) برای پایداری فیزیکی */}
         <mesh position={[-1.2, 0.02, 0]}>
@@ -314,27 +315,30 @@ function Room1StrategyDecorations() {
           <boxGeometry args={[0.06, 2.4, 0.06]} />
           <meshStandardMaterial color="#0F172A" roughness={0.3} metalness={0.9} />
         </mesh>
-        {/* پنل چوبی گردو با حاشیه تیره */}
+        {/* پنل چوبی عایق با حاشیه تیره */}
         <mesh position={[0, 1.25, 0]}>
           <boxGeometry args={[2.8, 2.1, 0.06]} />
           <meshStandardMaterial color="#1E293B" roughness={0.4} />
         </mesh>
-        {/* روکش پارچه‌ای آکوستیک نمدی تیره (Felt Board) */}
+        {/* روکش پارچه‌ای آکوستیک نمدی تیره (Felt Board) - سطح خارجی در Z = 0.045 رو به لانژ */}
         <mesh position={[0, 1.25, 0.035]}>
           <boxGeometry args={[2.65, 1.95, 0.02]} />
           <meshStandardMaterial color="#132E27" roughness={0.9} />
         </mesh>
-        {/* تخته اعلانات نصب‌شده روی بدنه پارتیشن */}
+
+        {/* تخته اعلانات: با چرخش -90 درجه روی محور Y دقیقاً موازی سطح دیوار و چسبیده به پنل نمدی */}
         <AutoProp
           file="Message board.glb"
-          position={[-0.6, 1.35, 0.05]}
+          position={[-0.65, 1.35, 0.055]}
+          rotation={[0, -Math.PI / 2, 0]}
           targetMaxDim={1.15}
           centerOrigin
         />
-        {/* تخته دارت نصب‌شده روی بدنه پارتیشن در ارتفاع استاندارد ۱.۶ متری */}
+        {/* تخته دارت: با چرخش -90 درجه روی محور Y دقیقاً موازی دیوار و در ارتفاع استاندارد ۱.۴۵ متری */}
         <AutoProp
           file="Dartboard.glb"
-          position={[0.6, 1.55, 0.05]}
+          position={[0.65, 1.45, 0.055]}
+          rotation={[0, -Math.PI / 2, 0]}
           targetMaxDim={0.48}
           centerOrigin
         />
@@ -343,66 +347,71 @@ function Room1StrategyDecorations() {
       {/* ── پاد میز مدیریت چپ (Z = -26): میز شیک مدیریتی با صندلی چرم، تلفن، لپ‌تاپ و کردانزا ── */}
       <AutoProp
         file="Desk-V86Go2rlnq.glb"
-        position={[-5.6, 0, -26]}
+        position={[-5.8, 0, -26]}
         rotation={[0, Math.PI / 2, 0]}
         targetHeight={0.82}
       />
       <AutoProp
         file="Computer.glb"
-        position={[-5.6, 0.82, -26]}
+        position={[-5.8, 0.82, -26]}
         rotation={[0, Math.PI / 2, 0]}
         targetHeight={0.52}
       />
-      <AutoProp file="Office Phone.glb" position={[-5.6, 0.82, -25.2]} rotation={[0, Math.PI / 2 - 0.2, 0]} targetMaxDim={0.22} />
-      <AutoProp file="Mug With Office Tool.glb" position={[-5.8, 0.82, -26.7]} targetMaxDim={0.18} />
-      <AutoProp file="desk_lamp.glb" position={[-5.9, 0.82, -25.3]} rotation={[0, Math.PI / 2 + 0.3, 0]} targetHeight={0.42} />
-      <AutoProp file="Small Stack of Paper.glb" position={[-5.2, 0.82, -26.6]} rotation={[0, 0.2, 0]} targetMaxDim={0.28} />
-      <AutoProp file="Potted Plant.glb" position={[-5.8, 0.82, -26.3]} targetHeight={0.16} />
+      <AutoProp file="Office Phone.glb" position={[-5.8, 0.82, -25.2]} rotation={[0, Math.PI / 2 - 0.2, 0]} targetMaxDim={0.22} />
+      <AutoProp file="Mug With Office Tool.glb" position={[-6.0, 0.82, -26.7]} targetMaxDim={0.18} />
+      <AutoProp file="desk_lamp.glb" position={[-6.1, 0.82, -25.3]} rotation={[0, Math.PI / 2 + 0.3, 0]} targetHeight={0.42} />
+      <AutoProp file="Small Stack of Paper.glb" position={[-5.4, 0.82, -26.6]} rotation={[0, 0.2, 0]} targetMaxDim={0.28} />
+      <AutoProp file="Potted Plant.glb" position={[-6.0, 0.82, -26.3]} targetHeight={0.16} />
       <AutoProp
         file="Office Chair.glb"
         position={[-4.5, 0, -26]}
         rotation={[0, -Math.PI / 2, 0]}
         targetHeight={1.1}
       />
-      {/* کردانزا و فایلینگ کنار میز مدیریت */}
+      {/* کردانزا و فایلینگ کنار میز مدیریت چسبیده به دیوار جانبی */}
       <AutoProp
         file="Cabinet Bed Drawer Tabl.glb"
-        position={[-6.8, 0, -26]}
+        position={[-7.2, 0, -26]}
         rotation={[0, Math.PI / 2, 0]}
         targetHeight={0.75}
       />
       <AutoProp
         file="Plant - White Pot.glb"
-        position={[-6.8, 0.75, -26]}
+        position={[-7.2, 0.75, -26]}
         targetHeight={0.65}
       />
 
-      {/* ── ایستگاه بریک و آبسردکن با کاناپه بزرگ و فرش گرد (Z = -34 تا -40، راست) ── */}
+      {/* ── ایستگاه بریک و آبسردکن با کاناپه بزرگ و فرش گرد (Z = -32 تا -39، سمت راست دیوار) ── */}
       <AutoProp
         file="Rug Round.glb"
-        position={[6.2, 0.015, -36]}
-        targetWidth={3.4}
+        position={[6.0, 0.015, -34]}
+        targetWidth={3.2}
         targetHeight={0.03}
       />
       <AutoProp
         file="Couch _ Wide.glb"
-        position={[6.2, 0, -37.2]}
-        rotation={[0, 0, 0]}
+        position={[6.8, 0, -34]}
+        rotation={[0, -Math.PI / 2, 0]}
         targetHeight={0.9}
       />
-      <AutoProp file="Cushions.glb" position={[5.6, 0.5, -37.0]} targetMaxDim={0.32} />
-      <AutoProp file="Cushions.glb" position={[6.8, 0.5, -37.0]} targetMaxDim={0.32} />
-      {/* آب‌سردکن ایستاده چسبیده به کاناپه */}
+      <AutoProp file="Cushions.glb" position={[6.8, 0.5, -33.4]} targetMaxDim={0.32} />
+      <AutoProp file="Cushions.glb" position={[6.8, 0.5, -34.6]} targetMaxDim={0.32} />
+      <AutoProp
+        file="Coffee Table.glb"
+        position={[5.4, 0, -34]}
+        targetHeight={0.48}
+      />
+      {/* آب‌سردکن ایستاده با فاصله مطمئن از میز لوگو */}
       <AutoProp
         file="Water Cooler.glb"
-        position={[4.6, 0, -37.2]}
-        rotation={[0, 0.2, 0]}
+        position={[7.4, 0, -31.8]}
+        rotation={[0, -Math.PI / 4, 0]}
         targetHeight={1.45}
       />
       {/* وندینگ ماشین نوشیدنی و اسنک در کنج سالن */}
       <AutoProp
         file="Vending Machine.glb"
-        position={[8.0, 0, -38.5]}
+        position={[7.8, 0, -39.5]}
         rotation={[0, -Math.PI / 4, 0]}
         targetHeight={2.05}
       />
@@ -433,6 +442,7 @@ function Portal1to2Decorations() {
 /**
  * ── 4. SECTOR 2: MASTERWORKS EXHIBITION SHOWROOM (نمایشگاه تلویزیون‌های سه‌بعدی - Z = -44 to -84) ──
  * تلویزیون‌های ۴ گانه در موقعیت‌های اصلی، همراه با میز پرزنتیشن مشتری، میز کاتالوگ، لانژ VIP و قفسه جوایز
+ * مسیر تردد مرکزی (-2.25 تا +2.25) کاملاً باز و عاری از هرگونه شیء مزاحم است.
  */
 function Room2PortfolioDecorations() {
   return (
@@ -458,10 +468,11 @@ function Room2PortfolioDecorations() {
       <AutoProp file="Chair-1MFMOaz3zqe.glb" position={[5.0, 0, -49]} rotation={[0, Math.PI / 2, 0]} targetHeight={0.95} />
       <AutoProp file="Chair-1MFMOaz3zqe.glb" position={[7.3, 0, -49]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.95} />
 
-      {/* ── فرش و تزیینات ایستگاه تلویزیون ۱ (Z = -56، سمت چپ) ── */}
+      {/* ── فرش و لانژ ایستگاه تلویزیون ۱ (Z = -56، سمت چپ) ── */}
       <AutoProp file="Rug.glb" position={[-2.4, 0.015, -56]} rotation={[0, Math.PI / 8, 0]} targetWidth={3.6} targetHeight={0.03} />
-      <AutoProp file="Plant - White Pot.glb" position={[-4.5, 0, -55]} targetHeight={1.4} />
-      <AutoProp file="Plant - White Pot.glb" position={[-0.8, 0, -57.5]} targetHeight={1.2} />
+      {/* گلدان‌های کناری در موقعیت‌های امن خارج از راهروی تردد */}
+      <AutoProp file="Plant - White Pot.glb" position={[-4.5, 0, -54]} targetHeight={1.4} />
+      <AutoProp file="Plant - White Pot.glb" position={[-4.8, 0, -58]} targetHeight={1.2} />
 
       {/* لانژ اختصاصی روبه‌روی تلویزیون ۱ */}
       <AutoProp file="Couch Medium.glb" position={[-6.8, 0, -56]} rotation={[0, Math.PI / 2 + 0.3, 0]} targetHeight={0.88} />
@@ -471,8 +482,8 @@ function Room2PortfolioDecorations() {
 
       {/* ── فرش و تزیینات ایستگاه تلویزیون ۲ (Z = -63، سمت راست) ── */}
       <AutoProp file="Rug Round.glb" position={[2.4, 0.015, -63]} targetWidth={3.5} targetHeight={0.03} />
-      <AutoProp file="Plant - White Pot.glb" position={[4.5, 0, -62]} targetHeight={1.4} />
-      <AutoProp file="Plant - White Pot.glb" position={[0.8, 0, -64.5]} targetHeight={1.2} />
+      <AutoProp file="Plant - White Pot.glb" position={[4.5, 0, -61]} targetHeight={1.4} />
+      <AutoProp file="Plant - White Pot.glb" position={[4.8, 0, -65]} targetHeight={1.2} />
 
       {/* صندلی راحتی و قفسه کاتالوگ کنار تلویزیون ۲ */}
       <AutoProp file="Chair-1MFMOaz3zqe.glb" position={[6.5, 0, -63]} rotation={[0, -Math.PI / 2 - 0.2, 0]} targetHeight={0.95} />
@@ -480,7 +491,7 @@ function Room2PortfolioDecorations() {
       <AutoProp file="Book Stack.glb" position={[8.2, 0.9, -63]} targetMaxDim={0.28} />
       <AutoProp file="Trophy.glb" position={[8.2, 1.4, -63]} targetMaxDim={0.32} />
 
-      {/* ── میز کریتیو و دیزاین ریویو (چپ، Z = -66): میز کار چوبی مدرن با لپ‌تاپ و پالت رنگی ── */}
+      {/* ── میز کریتیو و دیزاین ریویو (چپ، Z = -66): میز کار چوبی مدرن با لپ‌تاپ ── */}
       <AutoProp
         file="Desk.glb"
         position={[-6.5, 0, -66]}
@@ -494,8 +505,8 @@ function Room2PortfolioDecorations() {
 
       {/* ── فرش و تزیینات ایستگاه تلویزیون ۳ (Z = -70، سمت چپ) ── */}
       <AutoProp file="Rug.glb" position={[-2.4, 0.015, -70]} rotation={[0, Math.PI / 8, 0]} targetWidth={3.6} targetHeight={0.03} />
-      <AutoProp file="Houseplant-e9oRt-Ct6js.glb" position={[-4.5, 0, -69]} targetHeight={1.3} />
-      <AutoProp file="Plant - White Pot.glb" position={[-0.8, 0, -71.5]} targetHeight={1.2} />
+      <AutoProp file="Houseplant-e9oRt-Ct6js.glb" position={[-4.5, 0, -68]} targetHeight={1.3} />
+      <AutoProp file="Plant - White Pot.glb" position={[-4.8, 0, -72]} targetHeight={1.2} />
 
       {/* کنسول افتخارات و ربات گاندام کنار تلویزیون ۳ */}
       <AutoProp file="Cabinet.glb" position={[-6.8, 0, -73]} rotation={[0, Math.PI / 2, 0]} targetHeight={0.95} />
@@ -504,8 +515,8 @@ function Room2PortfolioDecorations() {
 
       {/* ── فرش و تزیینات ایستگاه تلویزیون ۴ (Z = -77، سمت راست) ── */}
       <AutoProp file="Rug Round.glb" position={[2.4, 0.015, -77]} targetWidth={3.5} targetHeight={0.03} />
-      <AutoProp file="Plant - White Pot.glb" position={[4.5, 0, -76]} targetHeight={1.4} />
-      <AutoProp file="Houseplant.glb" position={[0.8, 0, -78.5]} targetHeight={1.2} />
+      <AutoProp file="Plant - White Pot.glb" position={[4.5, 0, -75]} targetHeight={1.4} />
+      <AutoProp file="Houseplant.glb" position={[4.8, 0, -79]} targetHeight={1.2} />
 
       {/* لانژ راحتی با کاناپه روبه‌روی تلویزیون ۴ */}
       <AutoProp file="Couch Small.glb" position={[6.5, 0, -77]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.9} />
@@ -526,7 +537,7 @@ function Portal2to3Decorations() {
   return (
     <group position={[0, 0, -84]}>
       <AutoProp file="Fire Exit Sign.glb" position={[0, 5.15, 0.22]} targetMaxDim={0.4} centerOrigin />
-      <AutoProp file="Water Cooler.glb" position={[-2.8, 0, 1.4]} rotation={[0, 0.3, 0]} targetHeight={1.4} />
+      <AutoProp file="Water Cooler.glb" position={[-3.4, 0, 1.4]} rotation={[0, 0.3, 0]} targetHeight={1.4} />
       <AutoProp file="Fire Extinguisher.glb" position={[2.3, 1.1, 0.22]} targetHeight={0.65} centerOrigin />
     </group>
   );
@@ -534,7 +545,7 @@ function Portal2to3Decorations() {
 
 /**
  * ── 6. SECTOR 3: COLLABORATION WORKFLOW & BREAKOUT (Z = -84 to -132) ──
- * میزهای متنوع مهندسی، میز پینگ‌پنگ تفریحی، میز تدوین و پادکست، وایت‌برد دیواری، قفسه بایگانی
+ * میزهای متنوع مهندسی، میز پینگ‌پنگ تفریحی در کنج اختصاصی، میز تدوین و پادکست، وایت‌برد موازی روی دیوار راست
  */
 function Room3CollaborationDecorations() {
   return (
@@ -549,95 +560,95 @@ function Room3CollaborationDecorations() {
       <AutoProp file="Window Blinds.glb" position={[8.85, 3.8, -116]} rotation={[0, -Math.PI / 2, 0]} targetHeight={3.6} />
       <AutoProp file="Window Blinds.glb" position={[8.85, 3.8, -126]} rotation={[0, -Math.PI / 2, 0]} targetHeight={3.6} />
 
-      {/* ── میز پینگ‌پنگ اداری تفریحی (Table Tennis Table) در گوشه بریک (Z = -95، چپ) ── */}
+      {/* ── میز پینگ‌پنگ اداری در کنج بریک ورودی سالن ۳ (Z = -88، چپ): با مقیاس دقیق ۲.۷۴ متر و بدون تداخل با مرحله ۱ ── */}
       <AutoProp
         file="Table tennis table.glb"
-        position={[-6.2, 0, -95]}
-        rotation={[0, Math.PI / 2, 0]}
-        targetHeight={0.88}
+        position={[-6.2, 0, -88]}
+        rotation={[0, 0, 0]}
+        targetWidth={2.74}
       />
-      <AutoProp file="Table Tennis Paddle.glb" position={[-6.0, 0.88, -94.6]} targetMaxDim={0.24} />
-      <AutoProp file="Table Tennis Paddle.glb" position={[-6.4, 0.88, -95.4]} rotation={[0, 0.4, 0]} targetMaxDim={0.24} />
+      <AutoProp file="Table Tennis Paddle.glb" position={[-6.0, 0.74, -87.6]} targetMaxDim={0.24} />
+      <AutoProp file="Table Tennis Paddle.glb" position={[-6.4, 0.74, -88.4]} rotation={[0, 0.4, 0]} targetMaxDim={0.24} />
 
-      {/* ── وایت‌برد جلسات اسپرینت: نصب‌شده روی دیوار سمت راست سالن (پایدار روی دیوار، بدون پرواز در هوا) ── */}
+      {/* ── وایت‌برد جلسات اسپرینت: نصب‌شده کاملاً موازی روی دیوار راست سالن رو به داخل اتاق (Z = -96) ── */}
       <AutoProp
         file="whiteboard.glb"
-        position={[8.85, 2.2, -96]}
-        rotation={[0, -Math.PI / 2, 0]}
+        position={[8.82, 2.2, -96]}
+        rotation={[0, Math.PI, 0]}
         targetMaxDim={2.0}
         centerOrigin
       />
-      {/* میز گرد اسپرینت کنار وایت‌برد با صندلی‌های جلسه */}
+      {/* میز اسپرینت و ایده‌پردازی کنار وایت‌برد با صندلی‌ها */}
       <AutoProp
         file="Table.glb"
-        position={[6.0, 0, -96]}
+        position={[6.4, 0, -96]}
         rotation={[0, 0.2, 0]}
         targetHeight={0.76}
       />
-      <AutoProp file="Sticky Notes.glb" position={[6.0, 0.76, -95.8]} targetMaxDim={0.18} />
-      <AutoProp file="Pen.glb" position={[6.2, 0.76, -96.0]} targetMaxDim={0.15} />
-      <AutoProp file="Office Chair.glb" position={[4.8, 0, -96]} rotation={[0, Math.PI / 2, 0]} targetHeight={1.05} />
-      <AutoProp file="Office Chair.glb" position={[7.2, 0, -96]} rotation={[0, -Math.PI / 2, 0]} targetHeight={1.05} />
+      <AutoProp file="Sticky Notes.glb" position={[6.4, 0.76, -95.8]} targetMaxDim={0.18} />
+      <AutoProp file="Pen.glb" position={[6.6, 0.76, -96.0]} targetMaxDim={0.15} />
+      <AutoProp file="Office Chair.glb" position={[5.2, 0, -96]} rotation={[0, Math.PI / 2, 0]} targetHeight={1.05} />
+      <AutoProp file="Office Chair.glb" position={[7.6, 0, -96]} rotation={[0, -Math.PI / 2, 0]} targetHeight={1.05} />
 
-      {/* ── ایستگاه مهندسی سیستم‌ها (چپ، Z = -106): میز قابل تنظیم ارتفاع (Adjustable Desk) ── */}
-      <AutoProp
-        file="Adjustable Desk.glb"
-        position={[-5.8, 0, -106]}
-        rotation={[0, Math.PI / 2, 0]}
-        targetHeight={0.78}
-      />
-      <AutoProp file="Monitor.glb" position={[-5.8, 0.78, -106.5]} rotation={[0, Math.PI / 2 + 0.1, 0]} targetHeight={0.46} />
-      <AutoProp file="Monitor.glb" position={[-5.8, 0.78, -105.5]} rotation={[0, Math.PI / 2 - 0.1, 0]} targetHeight={0.46} />
-      <AutoProp file="Keyboard-fOy2zvPJAj-.glb" position={[-5.3, 0.79, -106]} rotation={[0, Math.PI / 2, 0]} targetHeight={0.03} />
-      <AutoProp file="Mouse.glb" position={[-5.3, 0.79, -105.4]} targetMaxDim={0.12} />
-      <AutoProp file="pc_case.glb" position={[-6.2, 0, -107]} rotation={[0, Math.PI / 2, 0]} targetHeight={0.45} />
-      <AutoProp file="Chair-1MFMOaz3zqe.glb" position={[-4.5, 0, -106]} rotation={[0, -Math.PI / 2, 0]} targetHeight={1.05} />
-
-      {/* ── ایستگاه تدوین ویدیو و پادکست (راست، Z = -108): میز مدرن با وب‌کم، لپ‌تاپ و هدفون ── */}
+      {/* ── ایستگاه تدوین ویدیو، پادکست و رسانه دیجیتال (راست، Z = -107): بدون تداخل با مرحله ۲ و ۴ ── */}
       <AutoProp
         file="Desk-EtJlOllzbf.glb"
-        position={[6.0, 0, -108]}
+        position={[6.0, 0, -107]}
         rotation={[0, -Math.PI / 2, 0]}
         targetHeight={0.78}
       />
-      <AutoProp file="Computer.glb" position={[6.0, 0.78, -108]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.52} />
-      <AutoProp file="Webcam.glb" position={[6.0, 1.3, -108]} targetMaxDim={0.12} />
-      <AutoProp file="Laptop bag.glb" position={[6.5, 0, -109]} targetMaxDim={0.45} />
-      <AutoProp file="Office Phone.glb" position={[6.0, 0.78, -107.3]} targetMaxDim={0.22} />
-      <AutoProp file="Office Chair.glb" position={[4.7, 0, -108]} rotation={[0, Math.PI / 2, 0]} targetHeight={1.05} />
+      <AutoProp file="Computer.glb" position={[6.0, 0.78, -107]} rotation={[0, -Math.PI / 2, 0]} targetHeight={0.52} />
+      <AutoProp file="Webcam.glb" position={[6.0, 1.3, -107]} targetMaxDim={0.12} />
+      <AutoProp file="Laptop bag.glb" position={[6.5, 0, -108]} targetMaxDim={0.45} />
+      <AutoProp file="Office Phone.glb" position={[6.0, 0.78, -106.3]} targetMaxDim={0.22} />
+      <AutoProp file="Office Chair.glb" position={[4.7, 0, -107]} rotation={[0, Math.PI / 2, 0]} targetHeight={1.05} />
 
-      {/* ── قفسه کتابخانه و پرونده‌های فنی (چپ، Z = -118) ── */}
+      {/* ── ایستگاه مهندسی سیستم‌ها و تحقیق و توسعه (چپ، Z = -115): بین مرحله ۳ و مرحله ۵ بدون هیچ تداخلی ── */}
+      <AutoProp
+        file="Adjustable Desk.glb"
+        position={[-6.0, 0, -115]}
+        rotation={[0, Math.PI / 2, 0]}
+        targetHeight={0.78}
+      />
+      <AutoProp file="Monitor.glb" position={[-6.0, 0.78, -115.5]} rotation={[0, Math.PI / 2 + 0.1, 0]} targetHeight={0.46} />
+      <AutoProp file="Monitor.glb" position={[-6.0, 0.78, -114.5]} rotation={[0, Math.PI / 2 - 0.1, 0]} targetHeight={0.46} />
+      <AutoProp file="Keyboard-fOy2zvPJAj-.glb" position={[-5.5, 0.79, -115]} rotation={[0, Math.PI / 2, 0]} targetHeight={0.03} />
+      <AutoProp file="Mouse.glb" position={[-5.5, 0.79, -114.4]} targetMaxDim={0.12} />
+      <AutoProp file="pc_case.glb" position={[-6.4, 0, -116]} rotation={[0, Math.PI / 2, 0]} targetHeight={0.45} />
+      <AutoProp file="Chair-1MFMOaz3zqe.glb" position={[-4.7, 0, -115]} rotation={[0, -Math.PI / 2, 0]} targetHeight={1.05} />
+
+      {/* ── قفسه کتابخانه و پرونده‌های فنی مهندسی (چپ، Z = -126) چسبیده به دیوار ── */}
       <AutoProp
         file="Medium Book Shelf.glb"
-        position={[-8.2, 0, -118]}
+        position={[-8.2, 0, -126]}
         rotation={[0, Math.PI / 2, 0]}
         targetHeight={1.9}
       />
-      <AutoProp file="Binder.glb" position={[-8.2, 0.95, -118]} targetMaxDim={0.28} />
-      <AutoProp file="Book Stack.glb" position={[-8.2, 0.95, -117.4]} targetMaxDim={0.24} />
+      <AutoProp file="Binder.glb" position={[-8.2, 0.95, -126]} targetMaxDim={0.28} />
+      <AutoProp file="Book Stack.glb" position={[-8.2, 0.95, -125.4]} targetMaxDim={0.24} />
 
-      {/* ── کمد فایلینگ با اسکیت‌برد و جعبه پستی (راست، Z = -118) با مقیاس صحیح ۷۸ سانتی‌متر ── */}
+      {/* ── کمد فایلینگ با اسکیت‌برد و جعبه (راست، Z = -124) با مقیاس صحیح ۷۸ سانتی‌متر ── */}
       <AutoProp
         file="File Cabinet.glb"
-        position={[6.8, 0, -118]}
+        position={[7.0, 0, -124]}
         rotation={[0, -Math.PI / 2, 0]}
         targetHeight={1.2}
       />
       <AutoProp
         file="Skateboard.glb"
-        position={[6.4, 0, -118]}
-        rotation={[0.15, -Math.PI / 2, 0.25]}
+        position={[6.6, 0, -124]}
+        rotation={[0.15, -Math.PI / 2, 1.35]}
         targetMaxDim={0.78}
       />
       <AutoProp
         file="Cardboard Box.glb"
-        position={[6.8, 1.2, -118]}
+        position={[7.0, 1.2, -124]}
         targetMaxDim={0.28}
       />
 
       {/* گلدان‌های شیک سفید پایه‌دار سالن */}
-      <AutoProp file="Plant - White Pot.glb" position={[-5.5, 0, -126]} targetHeight={1.4} />
-      <AutoProp file="Plant - White Pot.glb" position={[5.5, 0, -126]} targetHeight={1.4} />
+      <AutoProp file="Plant - White Pot.glb" position={[-6.0, 0, -130]} targetHeight={1.4} />
+      <AutoProp file="Plant - White Pot.glb" position={[6.0, 0, -130]} targetHeight={1.4} />
     </group>
   );
 }
@@ -700,7 +711,7 @@ function Room4ExecutiveDecorations() {
       <AutoProp file="Tissue Box.glb" position={[-5.6, 0.48, -145.2]} targetMaxDim={0.24} />
       <AutoProp file="Magazine.glb" position={[-5.2, 0.48, -145.0]} targetMaxDim={0.28} />
 
-      {/* کنسول افتخارات و جوایز دیوار پشتی (Z = -157) */}
+      {/* کنسول افتخارات و جوایز دیوار پشتی (Z = -157.5) */}
       <AutoProp
         file="Cabinet.glb"
         position={[0, 0, -157.5]}
