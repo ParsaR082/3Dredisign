@@ -429,20 +429,26 @@ function OfficeRoomEnclosure({
 
   return (
     <group>
-      {/* ── INTERIOR MATTE FLOOR (کف‌پوش اداری لوپلی) ── */}
+      {/* ── REALISTIC CHARCOAL OFFICE CARPET (مشابه موکت اداری عکس مرجع کاربر) ── */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, midZ]} receiveShadow>
         <planeGeometry args={[18, length]} />
-        <meshStandardMaterial color="#F1F5F9" roughness={0.35} metalness={0.05} />
+        <meshStandardMaterial color="#373540" roughness={0.85} metalness={0.05} />
       </mesh>
 
-      {/* Lateral Walkway Boundary Strips on Floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-3.8, 0.005, midZ]}>
-        <planeGeometry args={[0.08, length]} />
-        <meshBasicMaterial color={themeColor} transparent opacity={0.5} />
+      {/* Central Corridor Guide Runner (مسیر تردد مرکزی با رنگ ملایم) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.006, midZ]}>
+        <planeGeometry args={[3.8, length]} />
+        <meshStandardMaterial color="#2D2B34" roughness={0.9} metalness={0.02} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[3.8, 0.005, midZ]}>
-        <planeGeometry args={[0.08, length]} />
-        <meshBasicMaterial color={themeColor} transparent opacity={0.5} />
+
+      {/* Lateral Walkway Boundary Neon Strips on Floor */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-2.8, 0.005, midZ]}>
+        <planeGeometry args={[0.06, length]} />
+        <meshBasicMaterial color={themeColor} transparent opacity={0.65} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[2.8, 0.005, midZ]}>
+        <planeGeometry args={[0.06, length]} />
+        <meshBasicMaterial color={themeColor} transparent opacity={0.65} />
       </mesh>
 
       {/* ── ARCHITECTURAL OFFICE CEILING ── */}
