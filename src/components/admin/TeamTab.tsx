@@ -13,6 +13,7 @@ import {
   X,
   Sparkles,
 } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface TeamTabProps {
   members: any[];
@@ -378,13 +379,12 @@ export default function TeamTab({ members = [], coreValues = [], timeline = [], 
               </div>
 
               <div>
-                <label className="block text-gray-300 mb-1">آدرس تصویر پرتره</label>
-                <input
-                  type="text"
+                <ImageUpload
+                  label="تصویر پرتره همکار"
                   value={formData.poster_image}
-                  onChange={(e) => setFormData({ ...formData, poster_image: e.target.value })}
-                  placeholder="/images/team/member.jpg"
-                  className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-brand-500"
+                  onChange={(url) => setFormData({ ...formData, poster_image: url })}
+                  folder="team"
+                  hint="تصویر پرتره با کیفیت بالا برای بخش معرفی تیم و آواتار"
                 />
               </div>
 

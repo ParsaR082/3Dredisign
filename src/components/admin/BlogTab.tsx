@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   X,
 } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface BlogTabProps {
   posts: any[];
@@ -328,14 +329,13 @@ export default function BlogTab({ posts = [], categories = [], authors = [], onR
                     className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-brand-500"
                   />
                 </div>
-                <div>
-                  <label className="block text-gray-300 mb-1">آدرس تصویر کاور</label>
-                  <input
-                    type="text"
+                <div className="col-span-1 md:col-span-2">
+                  <ImageUpload
+                    label="تصویر کاور مقاله"
                     value={formData.cover_image}
-                    onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
-                    placeholder="/images/blog/cover.jpg"
-                    className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-brand-500"
+                    onChange={(url) => setFormData({ ...formData, cover_image: url })}
+                    folder="blog"
+                    hint="تصویر با وضوح بالا برای کارت وبلاگ و بنر بالای صفحه"
                   />
                 </div>
               </div>

@@ -15,6 +15,7 @@ import {
   Check,
   Loader2,
 } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface ProjectsTabProps {
   projects: any[];
@@ -291,14 +292,13 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-gray-300 font-semibold block">آدرس تصویر بندانگشتی (Thumbnail)</label>
-                  <input
-                    type="text"
+                <div className="space-y-1.5 sm:col-span-2">
+                  <ImageUpload
+                    label="تصویر بندانگشتی و کاور پروژه"
                     value={formData.thumbnail_image}
-                    onChange={(e) => setFormData({ ...formData, thumbnail_image: e.target.value })}
-                    placeholder="portfolio/thumbnails/sample.jpg"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500 dir-ltr text-left font-mono"
+                    onChange={(url) => setFormData({ ...formData, thumbnail_image: url })}
+                    folder="portfolio"
+                    hint="تصویر باکیفیت پروژه برای کارت‌های پورتفولیو و نمایش در گالری"
                   />
                 </div>
               </div>

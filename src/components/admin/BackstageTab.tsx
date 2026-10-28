@@ -14,6 +14,7 @@ import {
   Tag,
   CheckCircle2,
 } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface BackstageTabProps {
   items: any[];
@@ -337,27 +338,24 @@ export default function BackstageTab({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <label className="text-xs text-gray-300 font-semibold">آدرس تصویر کاور</label>
-                  <input
-                    type="text"
-                    value={formData.cover_image}
-                    onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-mono focus:border-brand-500 focus:outline-none"
-                    placeholder="/assets/backstage/..."
-                  />
-                </div>
+              <div>
+                <ImageUpload
+                  label="تصویر کاور پشت‌صحنه"
+                  value={formData.cover_image}
+                  onChange={(url) => setFormData({ ...formData, cover_image: url })}
+                  folder="backstage"
+                  hint="تصویر کاور رویداد یا عکس اصلی پشت‌صحنه ضبط"
+                />
+              </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs text-gray-300 font-semibold">ترتیب نمایش</label>
-                  <input
-                    type="number"
-                    value={formData.order}
-                    onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-brand-500 focus:outline-none"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-xs text-gray-300 font-semibold">ترتیب نمایش</label>
+                <input
+                  type="number"
+                  value={formData.order}
+                  onChange={(e) => setFormData({ ...formData, order: Number(e.target.value) })}
+                  className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-brand-500 focus:outline-none"
+                />
               </div>
 
               <div className="flex items-center gap-6 pt-2">

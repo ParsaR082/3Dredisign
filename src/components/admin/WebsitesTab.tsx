@@ -12,6 +12,7 @@ import {
   X,
   Code,
 } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface WebsitesTabProps {
   websites: any[];
@@ -350,6 +351,16 @@ export default function WebsitesTab({ websites = [], categories = [], onRefresh 
                   onChange={(e) => setFormData({ ...formData, tech_stack_csv: e.target.value })}
                   placeholder="Next.js, Three.js, Tailwind, PostgreSQL"
                   className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-brand-500 font-mono"
+                />
+              </div>
+
+              <div>
+                <ImageUpload
+                  label="تصویر اسکرین‌شات و کاور وبسایت"
+                  value={formData.cover_image}
+                  onChange={(url) => setFormData({ ...formData, cover_image: url })}
+                  folder="websites"
+                  hint="پیش‌نمایش موکاپ یا تصویر شاخص صفحه اصلی وبسایت"
                 />
               </div>
 

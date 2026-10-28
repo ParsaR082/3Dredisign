@@ -12,6 +12,7 @@ import {
   X,
   Loader2,
 } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface ServicesTabProps {
   services: any[];
@@ -36,6 +37,7 @@ export default function ServicesTab({ services, onRefresh }: ServicesTabProps) {
     difficulty: 'تخصصی',
     is_popular: false,
     is_featured: false,
+    image: '',
   });
 
   const openCreateModal = () => {
@@ -51,6 +53,7 @@ export default function ServicesTab({ services, onRefresh }: ServicesTabProps) {
       difficulty: 'تخصصی',
       is_popular: false,
       is_featured: false,
+      image: '',
     });
     setError(null);
     setModalOpen(true);
@@ -69,6 +72,7 @@ export default function ServicesTab({ services, onRefresh }: ServicesTabProps) {
       difficulty: service.difficulty || 'تخصصی',
       is_popular: service.is_popular,
       is_featured: service.is_featured,
+      image: service.image || '',
     });
     setError(null);
     setModalOpen(true);
@@ -308,6 +312,16 @@ export default function ServicesTab({ services, onRefresh }: ServicesTabProps) {
                     className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500"
                   />
                 </div>
+              </div>
+
+              <div>
+                <ImageUpload
+                  label="تصویر کاور و بنر خدمت"
+                  value={formData.image}
+                  onChange={(url) => setFormData({ ...formData, image: url })}
+                  folder="services"
+                  hint="تصویر باکیفیت خدمت برای هدر صفحه اختصاصی و کارت خدمات"
+                />
               </div>
 
               <div className="space-y-1.5">

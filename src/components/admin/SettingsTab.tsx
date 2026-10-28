@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Settings, Save, CheckCircle2, Loader2, MapPin, Phone, Globe, Share2, Sparkles } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface SettingsTabProps {
   initialSettings: any;
@@ -252,6 +253,16 @@ export default function SettingsTab({ initialSettings, initialLanding, onRefresh
                   value={settings.meta_description_default || ''}
                   onChange={(e) => setSettings({ ...settings, meta_description_default: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500 resize-none leading-relaxed"
+                />
+              </div>
+
+              <div>
+                <ImageUpload
+                  label="تصویر شاخص شبکه‌های اجتماعی (OG Image)"
+                  value={settings.default_og_image || ''}
+                  onChange={(url) => setSettings({ ...settings, default_og_image: url })}
+                  folder="seo"
+                  hint="تصویر پیشنهادی ۱۲۰۰x۶۳۰ برای نمایش هنگام اشتراک‌گذاری لینک در شبکه‌های اجتماعی"
                 />
               </div>
             </div>

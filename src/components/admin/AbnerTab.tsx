@@ -12,6 +12,7 @@ import {
   X,
   Layers,
 } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface AbnerTabProps {
   products: any[];
@@ -44,6 +45,7 @@ export default function AbnerTab({
     resolution: '4K UHD',
     body_material: 'آلومینیوم دایکست ضد زنگ',
     body_color: 'مشکی مات الکترواستاتیک',
+    image: '',
     order: 1,
   });
 
@@ -59,6 +61,7 @@ export default function AbnerTab({
       resolution: 'Full HD / 4K',
       body_material: 'آلومینیوم صنعتی مقاوم',
       body_color: 'مشکی صنعتی',
+      image: '',
       order: 1,
     });
     setError(null);
@@ -420,14 +423,25 @@ export default function AbnerTab({
               )}
 
               {activeSubTab === 'product' && (
-                <div>
-                  <label className="block text-gray-300 mb-1">توضیحات کوتاه محصول</label>
-                  <textarea
-                    rows={2}
-                    value={formData.short_description}
-                    onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
-                    className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none"
-                  />
+                <div className="space-y-4">
+                  <div>
+                    <ImageUpload
+                      label="تصویر محصول"
+                      value={formData.image || ''}
+                      onChange={(url) => setFormData({ ...formData, image: url })}
+                      folder="abner"
+                      hint="تصویر باکیفیت محصول آبنر یا استند تبلیغاتی"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1">توضیحات کوتاه محصول</label>
+                    <textarea
+                      rows={2}
+                      value={formData.short_description}
+                      onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
+                      className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none"
+                    />
+                  </div>
                 </div>
               )}
 
