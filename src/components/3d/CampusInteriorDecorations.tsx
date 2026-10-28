@@ -15,13 +15,36 @@ interface AutoPropProps {
   castShadow?: boolean;
 }
 
+class SafePropBoundary extends React.Component<
+  { file: string; children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { file: string; children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(err: any) {
+    console.warn(`[CampusDecorations] Failed to load 3D prop "${this.props.file}":`, err?.message || err);
+  }
+
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
+
 /**
  * ── RESILIENT AUTO-SCALED 3D PROP COMPONENT ──
  * این کامپوننت با محاسبه دقیق Bounding Box هر مدل GLB، اندازه آن را به مقیاس واقعی (متر)
  * تبدیل کرده و کف مدل را دقیقاً روی زمین (Y=0) یا مرکز دیوار قرار می‌دهد.
  * همچنین پشتیبانی از targetMaxDim تضمین می‌کند وسایلی مثل اسکیت‌برد و تابلوها ابعاد غیرمنطقی نگیرند.
  */
-function AutoProp({
+function AutoPropInner({
   file,
   position,
   rotation = [0, 0, 0],
@@ -88,6 +111,16 @@ function AutoProp({
   );
 }
 
+function AutoProp(props: AutoPropProps) {
+  return (
+    <SafePropBoundary file={props.file}>
+      <React.Suspense fallback={null}>
+        <AutoPropInner {...props} />
+      </React.Suspense>
+    </SafePropBoundary>
+  );
+}
+
 /**
  * ── 1. ZONE 0: ENTRANCE LOBBY & RECEPTION CHECKPOINT (Z = 4 to -4) ──
  * ورودی ساختمان: ساعت دیواری روی درگاه، تقویم دیواری روی ستون، دستگاه کپی، سطل تفکیک، گیاهان ورودی
@@ -129,7 +162,7 @@ function EntranceAndZone0Decorations() {
 
       {/* چوب‌لباسی و رخت‌آویز ایستاده پرسنل */}
       <AutoProp
-        file="Coat Rack.glb"
+        file="Coat rack.glb"
         position={[3.8, 0, -1.6]}
         targetHeight={1.85}
       />
