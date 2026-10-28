@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import CampusCanvas from '@/components/3d/CampusCanvas';
 import SpatialHUD from '@/components/3d/SpatialHUD';
+import ExperienceLoader from '@/components/3d/ExperienceLoader';
 import {
   PORTFOLIO_TVS_CONFIG,
   DIVE_TARGETS_CONFIG,
@@ -97,6 +98,11 @@ export default function HomeView({
     initialTarget ? 1 : 0
   );
   const isTransitioningRef = useRef(Boolean(initialTarget));
+
+  // ── 3D EXPERIENCE LOADING STATE ──
+  const [isExperienceLoaded, setIsExperienceLoaded] = useState(Boolean(initialTarget));
+  const isExperienceLoadedRef = useRef(Boolean(initialTarget));
+  isExperienceLoadedRef.current = isExperienceLoaded;
 
   // ── REVERSE DIVE: When returning, fade in from black onto laptop screen, then pull back to normal view ──
   useEffect(() => {
@@ -202,8 +208,8 @@ export default function HomeView({
   // Mouse Wheel listener: Prevents standard window scroll down, drives 3D spatial progress
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      // Lock input during camera dive transition
-      if (isTransitioningRef.current) {
+      // Lock input during camera dive transition or initial asset compilation
+      if (isTransitioningRef.current || !isExperienceLoadedRef.current) {
         e.preventDefault();
         return;
       }
@@ -242,7 +248,7 @@ export default function HomeView({
       if (e.touches[0]) startY = e.touches[0].clientY;
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (isTransitioningRef.current) return;
+      if (isTransitioningRef.current || !isExperienceLoadedRef.current) return;
       if (!e.touches[0]) return;
       const target = e.target as HTMLElement | null;
       if (target?.closest('.allow-card-scroll')) return;
@@ -412,6 +418,12 @@ export default function HomeView({
           opacity: transitionOverlayOpacity,
           backdropFilter: transitionOverlayOpacity > 0 ? 'blur(6px)' : 'none',
         }}
+      />
+
+      {/* ── 3D ASSET & SHADER COMPILATION LOADER ── */}
+      <ExperienceLoader
+        onLoaded={() => setIsExperienceLoaded(true)}
+        skipIfReturning={true}
       />
 
       {/* ── PERSISTENT 3D DIGITAL ARCHITECTURE BACKGROUND ── */}

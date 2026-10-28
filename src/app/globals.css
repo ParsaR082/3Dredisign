@@ -214,3 +214,31 @@ textarea:focus-visible,
     padding-top: 0.5rem !important;
   }
 }
+
+/* 3D Experience Loader Keyframes */
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes reverseSpinSlow {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 14s linear infinite;
+}
+
+.animate-spin-reverse-slow {
+  animation: reverseSpinSlow 10s linear infinite;
+}
+
