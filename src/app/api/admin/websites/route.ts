@@ -58,6 +58,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
+      type = 'website',
+      name,
       title,
       slug,
       subtitle = '',
@@ -75,11 +77,38 @@ export async function POST(request: Request) {
       category_id,
     } = body;
 
+    const now = new Date();
+
+    if (type === 'category') {
+      const catName = name || title;
+      if (!catName) {
+        return NextResponse.json({ error: 'نام دسته‌بندی الزامی است.' }, { status: 400 });
+      }
+      const catSlug = (slug || catName).trim().toLowerCase().replace(/\s+/g, '-');
+      const newCat = await prisma.websitesWebsitecategory.create({
+        data: {
+          name: catName,
+          slug: catSlug,
+          description: excerpt || subtitle || '',
+          order: Number(order) || 1,
+          is_active: true,
+        },
+      });
+      return NextResponse.json({ success: true, category: newCat });
+    }
+
     if (!title || !slug) {
       return NextResponse.json({ error: 'عنوان و اسلاگ الزامی هستند.' }, { status: 400 });
     }
 
-    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    // Ensure category exists if category_id is provided or create fallback if table is empty
+    let finalCategoryId: number | null = category_id ? Number(category_id) : null;
+    if (finalCategoryId) {
+      const exists = await prisma.websitesWebsitecategory.findUnique({ where: { id: finalCategoryId } });
+      if (!exists) {
+        finalCategoryId = null;
+      }
+    }
 
     const newWebsite = await prisma.websitesWebsite.create({
       data: {
@@ -107,7 +136,7 @@ export async function POST(request: Request) {
         meta_description: excerpt.slice(0, 300),
         canonical_url: `https://urumsima.ir/websites/${slug}/`,
         meta_robots: 'index, follow',
-        category_id: category_id ? Number(category_id) : null,
+        category_id: finalCategoryId,
       },
     });
 
@@ -149,7 +178,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'شناسه الزامی است.' }, { status: 400 });
     }
 
-    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const now = new Date();
 
     const updated = await prisma.websitesWebsite.update({
       where: { id: Number(id) },
@@ -189,9 +218,17 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const type = searchParams.get('type') || 'website';
 
     if (!id) {
       return NextResponse.json({ error: 'شناسه الزامی است.' }, { status: 400 });
+    }
+
+    if (type === 'category') {
+      await prisma.websitesWebsitecategory.delete({
+        where: { id: Number(id) },
+      });
+      return NextResponse.json({ success: true, message: 'دسته‌بندی با موفقیت حذف شد.' });
     }
 
     await prisma.websitesWebsite.delete({

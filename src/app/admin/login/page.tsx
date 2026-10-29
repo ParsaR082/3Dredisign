@@ -46,14 +46,14 @@ export default function AdminLoginPage() {
 
       <div className="w-full max-w-md relative z-10">
         {/* Card */}
-        <div className="glass-panel-elevated rounded-3xl p-8 sm:p-10 border border-white/10 shadow-2xl backdrop-blur-2xl space-y-8">
+        <div className="glass-panel-elevated rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 border border-white/10 shadow-2xl backdrop-blur-2xl space-y-6 sm:space-y-8">
           {/* Header */}
-          <div className="text-center space-y-3">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 mx-auto flex items-center justify-center shadow-lg shadow-brand-500/25 border border-white/20">
-              <ShieldCheck className="w-9 h-9 text-white" />
+          <div className="text-center space-y-2.5 sm:space-y-3">
+            <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-brand-400 mx-auto flex items-center justify-center shadow-lg shadow-brand-500/25 border border-white/20">
+              <ShieldCheck className="w-8 h-8 sm:w-9 sm:h-9 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white">ورود به پنل مدیریت اروم سیما</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-white">ورود به پنل مدیریت اروم سیما</h1>
               <p className="text-gray-400 text-xs mt-1">مدیریت محتوا، خدمات، پروژه‌ها و پیام‌های تماس</p>
             </div>
           </div>

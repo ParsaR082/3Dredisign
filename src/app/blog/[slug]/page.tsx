@@ -2,21 +2,30 @@ import React from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Calendar, Clock, User, ArrowLeft, Sparkles } from 'lucide-react';
-import { getBlogData, getBlogPostBySlug } from '@/lib/data-loaders';
+import { getLiveBlogData, getLiveBlogPostBySlug } from '@/lib/db';
 import { generatePageMetadata } from '@/lib/seo';
+import {
+  MotionDiv,
+  StaggerContainer,
+  StaggerItem,
+  InteractiveCard,
+  MotionBadge,
+} from '@/components/ui/motion';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
-  const { articles } = getBlogData();
+  const { articles } = await getLiveBlogData();
   return articles.map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getLiveBlogPostBySlug(slug);
   if (!post) return {};
 
   return generatePageMetadata({
@@ -29,84 +38,96 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getLiveBlogPostBySlug(slug);
   if (!post) notFound();
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-      <Link
-        href="/blog/"
-        className="inline-flex items-center gap-2 text-xs font-bold text-brand-400 hover:text-brand-300 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4 rotate-180" />
-        <span>بازگشت به فهرست مقالات</span>
-      </Link>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-12">
+      <MotionDiv variant="fade-up">
+        <Link
+          href="/blog/"
+          className="inline-flex items-center gap-2 text-xs font-bold text-brand-400 hover:text-brand-300 transition-colors group"
+        >
+          <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
+          <span>بازگشت به فهرست مقالات</span>
+        </Link>
+      </MotionDiv>
 
-      <div className="space-y-4">
-        <span className="text-xs font-bold text-brand-400 bg-brand-500/10 px-3 py-1 rounded-full border border-brand-500/20">
+      <MotionDiv variant="fade-up" delay={0.05} className="space-y-3 sm:space-y-4">
+        <MotionBadge className="inline-block text-xs font-bold text-brand-400 bg-brand-500/10 px-3 py-1 rounded-full border border-brand-500/20">
           {post.category}
-        </span>
+        </MotionBadge>
 
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight">
           {post.title}
         </h1>
 
-        <div className="flex flex-wrap items-center gap-6 text-xs text-gray-400 pt-2 border-b border-white/10 pb-6">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs text-gray-400 pt-2 border-b border-white/10 pb-4 sm:pb-6">
           <div className="flex items-center gap-1.5">
-            <User className="w-4 h-4 text-brand-400" />
+            <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-400" />
             <span>نویسنده: {post.author}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Calendar className="w-4 h-4 text-brand-400" />
+            <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-400" />
             <span>تاریخ انتشار: {post.published_at}</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Clock className="w-4 h-4 text-brand-400" />
+            <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400" />
             <span>زمان مطالعه: {post.reading_time}</span>
           </div>
         </div>
-      </div>
+      </MotionDiv>
 
       {/* Cover Image */}
-      <div className="rounded-3xl overflow-hidden border border-white/10">
-        <img src={post.cover_image} alt={post.title} className="w-full h-auto object-cover max-h-[480px]" />
-      </div>
+      <MotionDiv variant="scale-up" delay={0.1} className="rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+        <img
+          src={post.cover_image}
+          alt={post.title}
+          className="w-full h-auto object-cover max-h-[480px]"
+        />
+      </MotionDiv>
 
       {/* Article Content */}
-      <div className="prose prose-invert max-w-none text-gray-300 text-sm sm:text-base leading-relaxed space-y-6">
-        <p className="font-semibold text-white text-lg leading-relaxed">
+      <MotionDiv variant="fade-up" delay={0.15} className="prose prose-invert max-w-none text-gray-300 text-sm sm:text-base leading-relaxed space-y-4 sm:space-y-6">
+        <p className="font-semibold text-white text-base sm:text-lg leading-relaxed">
           {post.excerpt}
         </p>
-        <div className="pt-4 border-t border-white/10 space-y-4">
+        <div className="pt-4 border-t border-white/10 space-y-4 text-justify">
           <p>{post.content}</p>
         </div>
-      </div>
+      </MotionDiv>
 
       {/* Tags */}
-      <div className="pt-6 border-t border-white/10 flex flex-wrap gap-2">
-        {post.tags.map((tag, idx) => (
-          <span key={idx} className="text-xs bg-white/5 border border-white/10 px-3 py-1 rounded-lg text-gray-300">
-            #{tag}
-          </span>
-        ))}
-      </div>
+      {post.tags && post.tags.length > 0 && (
+        <StaggerContainer className="pt-4 sm:pt-6 border-t border-white/10 flex flex-wrap gap-1.5 sm:gap-2">
+          {post.tags.map((tag, idx) => (
+            <StaggerItem key={idx}>
+              <span className="text-[11px] sm:text-xs bg-white/5 border border-white/10 px-2.5 sm:px-3 py-1 rounded-lg text-gray-300 hover:text-white hover:border-brand-500/30 transition-colors cursor-default">
+                #{tag}
+              </span>
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
+      )}
 
       {/* Bottom CTA */}
-      <div className="glass-panel-brand rounded-2xl p-8 border border-brand-500/30 text-center space-y-3">
-        <h3 className="text-lg font-bold text-white">برای اجرای پروژه‌ای در این حوزه آماده‌اید؟</h3>
-        <p className="text-xs sm:text-sm text-gray-200">
-          با مهندسان و مشاوران ارشد اروم‌سیما تماس بگیرید و نقشه راه اختصاصی برند خود را دریافت کنید.
-        </p>
-        <div className="pt-2">
-          <Link
-            href="/contact-us/"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white text-dark-base font-bold text-xs hover:bg-gray-100 transition-all"
-          >
-            <span>درخواست مشاوره رایگان</span>
-            <ArrowLeft className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      </div>
+      <MotionDiv variant="scale-up">
+        <InteractiveCard className="glass-panel-brand rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-brand-500/30 text-center space-y-3 sm:space-y-4 shadow-2xl">
+          <h3 className="text-lg sm:text-xl font-bold text-white">برای اجرای پروژه‌ای در این حوزه آماده‌اید؟</h3>
+          <p className="text-xs sm:text-sm text-gray-200 max-w-xl mx-auto leading-relaxed">
+            با مهندسان و مشاوران ارشد اروم‌سیما تماس بگیرید و نقشه راه اختصاصی برند خود را دریافت کنید.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/contact-us/"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-7 py-2.5 sm:py-3 rounded-xl bg-white text-dark-base font-bold text-xs hover:bg-gray-100 transition-all hover:scale-105 active:scale-95 shadow-xl"
+            >
+              <span>درخواست مشاوره رایگان</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </InteractiveCard>
+      </MotionDiv>
     </div>
   );
 }

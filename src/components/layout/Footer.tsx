@@ -3,7 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MapPin, Phone, Clock, ArrowUpRight, Send, Instagram, Share2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { MapPin, Phone, Clock, ArrowUpRight, Send, Instagram } from 'lucide-react';
 import type { SiteSettings, Service } from '@/types/content';
 
 interface FooterProps {
@@ -21,72 +22,81 @@ export default function Footer({ settings, services }: FooterProps) {
   }
 
   return (
-    <footer className="bg-dark-base border-t border-white/10 text-gray-400 pt-16 pb-12 relative overflow-hidden">
+    <footer className="bg-dark-base border-t border-white/10 text-gray-400 pt-10 pb-8 sm:pt-16 sm:pb-12 relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-brand-600/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 pb-10 sm:pb-12 border-b border-white/10">
           {/* Col 1 & 2: About & Brand */}
           <div className="lg:col-span-2 space-y-4">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-600/30">
+            <Link href="/" className="flex items-center gap-3 group">
+              <motion.div
+                whileHover={{ rotate: 10, scale: 1.08 }}
+                className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-600/30"
+              >
                 <span className="text-white font-black text-xl">۳D</span>
-              </div>
+              </motion.div>
               <div>
-                <span className="text-xl font-black text-white">{settings.site_name}</span>
+                <span className="text-xl font-black text-white group-hover:text-brand-300 transition-colors">{settings.site_name}</span>
                 <span className="block text-xs text-gray-400 font-mono tracking-widest">{settings.site_slogan}</span>
               </div>
             </Link>
 
-            <p className="text-sm leading-relaxed text-gray-400 pr-2">
+            <p className="text-xs sm:text-sm leading-relaxed text-gray-400 pr-1 sm:pr-2">
               {settings.footer_about_text}
             </p>
 
             {/* Social Links */}
             <div className="flex items-center gap-3 pt-2">
-              <a
+              <motion.a
+                whileHover={{ scale: 1.1, y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 href={settings.instagram_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-xl bg-white/5 hover:bg-brand-600/20 hover:text-brand-400 text-gray-300 flex items-center justify-center transition-all border border-white/5"
+                className="w-10 h-10 rounded-xl bg-white/5 hover:bg-brand-600/20 hover:text-brand-400 text-gray-300 flex items-center justify-center transition-colors border border-white/5 shadow-sm"
                 aria-label="اینستاگرام اروم سیما"
               >
                 <Instagram className="w-5 h-5" />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.1, y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 href={settings.telegram_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-xl bg-white/5 hover:bg-teal-600/20 hover:text-teal-400 text-gray-300 flex items-center justify-center transition-all border border-white/5"
+                className="w-10 h-10 rounded-xl bg-white/5 hover:bg-teal-600/20 hover:text-teal-400 text-gray-300 flex items-center justify-center transition-colors border border-white/5 shadow-sm"
                 aria-label="تلگرام اروم سیما"
               >
                 <Send className="w-5 h-5" />
-              </a>
-              <a
+              </motion.a>
+              <motion.a
+                whileHover={{ scale: 1.1, y: -2 }}
+                whileTap={{ scale: 0.95 }}
                 href={settings.rubika_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 rounded-xl bg-white/5 hover:bg-amber-600/20 hover:text-amber-400 text-gray-300 flex items-center justify-center transition-all border border-white/5 text-xs font-bold"
+                className="w-10 h-10 rounded-xl bg-white/5 hover:bg-amber-600/20 hover:text-amber-400 text-gray-300 flex items-center justify-center transition-colors border border-white/5 text-xs font-bold shadow-sm"
                 aria-label="روبیکا اروم سیما"
               >
                 روبیکا
-              </a>
+              </motion.a>
             </div>
           </div>
 
           {/* Col 3: Services */}
           <div className="space-y-3">
             <h4 className="text-white font-bold text-sm tracking-wide">خدمات استراتژیک</h4>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2 text-xs sm:text-sm">
               {services.map((s) => (
                 <li key={s.id}>
                   <Link
                     href={s.dedicated_url || `/services/${s.slug}/`}
-                    className="hover:text-brand-400 transition-colors flex items-center gap-1 group"
+                    className="hover:text-brand-400 transition-colors flex items-center gap-1 group py-0.5"
                   >
                     <span>{s.title}</span>
-                    <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-brand-400" />
                   </Link>
                 </li>
               ))}
@@ -96,17 +106,17 @@ export default function Footer({ settings, services }: FooterProps) {
           {/* Col 4: Quick Links */}
           <div className="space-y-3">
             <h4 className="text-white font-bold text-sm tracking-wide">دسترسی سریع</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/portfolio/" className="hover:text-white transition-colors">نمونه‌کارهای شاخص</Link></li>
-              <li><Link href="/websites/" className="hover:text-white transition-colors">وبسایت‌های نمونه</Link></li>
-              <li><Link href="/backstage/" className="hover:text-white transition-colors">پشت‌صحنه فیلمبرداری</Link></li>
-              <li><Link href="/pricing/" className="hover:text-white transition-colors">تعرفه‌ها و پلن‌های رشد</Link></li>
-              <li><Link href="/abner/" className="hover:text-white transition-colors">نمایندگی تلویزیون شهری ابنر</Link></li>
-              <li><Link href="/tools/seo-checklist/" className="hover:text-white transition-colors">چک‌لیست سئو رایگان</Link></li>
-              <li><Link href="/tools/health-check/" className="hover:text-white transition-colors">تست سلامت دیجیتال</Link></li>
-              <li><Link href="/about-us/" className="hover:text-white transition-colors">درباره ما</Link></li>
-              <li><Link href="/blog/" className="hover:text-white transition-colors">مجله تخصصی فناوری و سئو</Link></li>
-              <li><Link href="/contact-us/" className="hover:text-white transition-colors">تماس و نقشه دفتر</Link></li>
+            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 text-xs sm:text-sm">
+              <li><Link href="/portfolio/" className="hover:text-brand-300 transition-colors py-0.5 block">نمونه‌کارها</Link></li>
+              <li><Link href="/websites/" className="hover:text-brand-300 transition-colors py-0.5 block">وبسایت‌های نمونه</Link></li>
+              <li><Link href="/backstage/" className="hover:text-brand-300 transition-colors py-0.5 block">پشت‌صحنه</Link></li>
+              <li><Link href="/pricing/" className="hover:text-brand-300 transition-colors py-0.5 block">تعرفه‌ها</Link></li>
+              <li><Link href="/abner/" className="hover:text-brand-300 transition-colors py-0.5 block">نمایندگی ابنر</Link></li>
+              <li><Link href="/tools/seo-checklist/" className="hover:text-brand-300 transition-colors py-0.5 block">چک‌لیست سئو</Link></li>
+              <li><Link href="/tools/health-check/" className="hover:text-brand-300 transition-colors py-0.5 block">تست سلامت</Link></li>
+              <li><Link href="/about-us/" className="hover:text-brand-300 transition-colors py-0.5 block">درباره ما</Link></li>
+              <li><Link href="/blog/" className="hover:text-brand-300 transition-colors py-0.5 block">وبلاگ</Link></li>
+              <li><Link href="/contact-us/" className="hover:text-brand-300 transition-colors py-0.5 block">تماس با ما</Link></li>
             </ul>
           </div>
 
@@ -120,7 +130,7 @@ export default function Footer({ settings, services }: FooterProps) {
               </div>
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-brand-400 shrink-0" />
-                <a href={`tel:${settings.phone_e164}`} className="hover:text-white font-mono dir-ltr">
+                <a href={`tel:${settings.phone_e164}`} className="hover:text-brand-300 font-mono dir-ltr font-bold text-xs sm:text-sm transition-colors">
                   {settings.phone_display}
                 </a>
               </div>
@@ -133,9 +143,9 @@ export default function Footer({ settings, services }: FooterProps) {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-4">
+        <div className="pt-6 sm:pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-400 gap-3 text-center sm:text-right">
           <p>{settings.footer_copyright_text}</p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[11px] sm:text-xs">
             <Link href="/privacy-policy/" className="hover:text-brand-300 transition-colors">
               حریم خصوصی و شرایط
             </Link>

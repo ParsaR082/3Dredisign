@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle2,
   Printer,
@@ -14,6 +15,15 @@ import {
   Search,
   RotateCcw,
 } from 'lucide-react';
+import {
+  MotionDiv,
+  StaggerContainer,
+  StaggerItem,
+  InteractiveCard,
+  MotionBadge,
+  transitionSpring,
+  transitionSmooth,
+} from '@/components/ui/motion';
 
 interface ChecklistItem {
   id: string;
@@ -108,138 +118,156 @@ export default function SeoChecklistView() {
   const progressPercent = Math.round((completedCount / totalItems) * 100);
 
   return (
-    <div className="min-h-screen py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-12">
+    <div className="min-h-screen py-8 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-8 sm:space-y-12">
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-xs text-gray-400 print:hidden">
+      <MotionDiv variant="fade-up" className="flex items-center gap-2 text-xs text-gray-400 print:hidden">
         <Link href="/" className="hover:text-brand-400 transition-colors">خانه</Link>
         <ChevronRight className="w-3.5 h-3.5 text-gray-600 rotate-180" />
         <span className="text-gray-200">چک‌لیست سئو سایت</span>
-      </nav>
+      </MotionDiv>
 
       {/* Hero Header */}
-      <div className="relative rounded-3xl p-8 sm:p-12 overflow-hidden border border-white/10 bg-gradient-to-br from-dark-surface/90 via-dark-card/90 to-brand-950/30 backdrop-blur-xl shadow-2xl">
-        <div className="relative z-10 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-semibold">
-              <Search className="w-4 h-4 text-brand-400" />
+      <MotionDiv
+        variant="scale-up"
+        className="relative rounded-2xl sm:rounded-3xl p-5 sm:p-12 overflow-hidden border border-white/10 bg-gradient-to-br from-dark-surface/90 via-dark-card/90 to-brand-950/30 backdrop-blur-xl shadow-2xl"
+      >
+        <div className="relative z-10 space-y-3 sm:space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4">
+            <MotionBadge className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-semibold cursor-default">
+              <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-400" />
               <span>ابزار تخصصی و رایگان اروم‌سیما</span>
-            </div>
+            </MotionBadge>
             <div className="flex items-center gap-2 print:hidden">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => window.print()}
-                className="px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-bold text-gray-200 flex items-center gap-1.5 transition-all"
+                className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-bold text-gray-200 flex items-center gap-1.5 transition-all cursor-pointer"
               >
                 <Printer className="w-3.5 h-3.5 text-brand-400" />
-                <span>چاپ / ذخیره PDF</span>
-              </button>
+                <span>چاپ / PDF</span>
+              </motion.button>
               {completedCount > 0 && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={handleReset}
-                  className="px-3 py-2 rounded-xl bg-white/[0.04] hover:bg-red-500/10 border border-white/10 text-xs text-gray-400 hover:text-red-400 flex items-center gap-1 transition-all"
+                  className="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-white/[0.04] hover:bg-red-500/10 border border-white/10 text-xs text-gray-400 hover:text-red-400 flex items-center gap-1 transition-all cursor-pointer"
                   title="بازنشانی موارد"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                </button>
+                </motion.button>
               )}
             </div>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-white leading-tight">
+          <h1 className="text-2xl sm:text-5xl font-black text-white leading-tight">
             چک‌لیست عملی <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-teal-400">سئو و بهینه‌سازی سایت</span>
           </h1>
-          <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-3xl">
+          <p className="text-gray-300 text-xs sm:text-base leading-relaxed max-w-3xl">
             این فهرست استاندارد را گام‌به‌گام در سایت خود اجرا کنید تا خطاهای فنی برطرف شده و رتبه‌بندی شما در نتایج جستجوی گوگل جهش چشم‌گیری داشته باشد.
           </p>
 
           {/* Progress Bar */}
-          <div className="pt-4 space-y-2 print:hidden">
+          <div className="pt-3 sm:pt-4 space-y-1.5 sm:space-y-2 print:hidden">
             <div className="flex items-center justify-between text-xs font-bold">
               <span className="text-gray-300">میزان پیشرفت شما:</span>
               <span className="text-brand-400 font-mono">{completedCount} از {totalItems} مورد ({progressPercent}٪)</span>
             </div>
-            <div className="w-full h-3 rounded-full bg-white/5 overflow-hidden border border-white/10">
-              <div
-                className="h-full bg-gradient-to-r from-brand-500 to-teal-400 rounded-full transition-all duration-500 shadow-lg shadow-brand-500/30"
-                style={{ width: `${progressPercent}%` }}
+            <div className="w-full h-2.5 sm:h-3 rounded-full bg-white/5 overflow-hidden border border-white/10">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${progressPercent}%` }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="h-full bg-gradient-to-r from-brand-500 to-teal-400 rounded-full shadow-lg shadow-brand-500/30"
               />
             </div>
           </div>
         </div>
-      </div>
+      </MotionDiv>
 
       {/* Sections & Items */}
-      <div className="space-y-8">
+      <StaggerContainer className="space-y-6 sm:space-y-8">
         {CHECKLIST_DATA.map((section) => {
           const Icon = section.icon;
           return (
-            <div
-              key={section.id}
-              className="rounded-3xl p-6 sm:p-8 bg-dark-card/70 border border-white/5 space-y-6 shadow-xl"
-            >
-              <div className="flex items-center gap-3 pb-4 border-b border-white/5">
-                <div className="w-10 h-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
-                  <Icon className="w-5 h-5" />
+            <StaggerItem key={section.id}>
+              <InteractiveCard className="rounded-2xl sm:rounded-3xl p-4 sm:p-8 bg-dark-card/70 border border-white/5 space-y-4 sm:space-y-6 shadow-xl">
+                <div className="flex items-center gap-3 pb-3 sm:pb-4 border-b border-white/5">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </div>
+                  <h2 className="text-base sm:text-xl font-bold text-white">{section.title}</h2>
                 </div>
-                <h2 className="text-xl font-bold text-white">{section.title}</h2>
-              </div>
 
-              <div className="space-y-3">
-                {section.items.map((item) => {
-                  const isChecked = Boolean(checkedItems[item.id]);
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => toggleItem(item.id)}
-                      className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-4 ${
-                        isChecked
-                          ? 'bg-brand-950/20 border-brand-500/30 text-gray-300'
-                          : 'bg-white/[0.02] border-white/5 hover:border-white/10 hover:bg-white/[0.04]'
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        aria-label={item.title}
-                        className={`w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
+                <div className="space-y-2.5 sm:space-y-3">
+                  {section.items.map((item) => {
+                    const isChecked = Boolean(checkedItems[item.id]);
+                    return (
+                      <motion.div
+                        key={item.id}
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        onClick={() => toggleItem(item.id)}
+                        className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl border transition-all cursor-pointer flex items-start gap-3 sm:gap-4 ${
                           isChecked
-                            ? 'bg-brand-500 border-brand-400 text-white'
-                            : 'border-white/20 bg-dark-base'
+                            ? 'bg-brand-950/20 border-brand-500/30 text-gray-300'
+                            : 'bg-white/[0.02] border-white/5 hover:border-white/10 hover:bg-white/[0.04]'
                         }`}
                       >
-                        {isChecked && <CheckCircle2 className="w-4 h-4" />}
-                      </button>
-
-                      <div className="space-y-1">
-                        <h3
-                          className={`text-sm font-bold transition-colors ${
-                            isChecked ? 'line-through text-gray-400' : 'text-white'
+                        <div
+                          className={`w-5 h-5 sm:w-6 sm:h-6 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                            isChecked
+                              ? 'bg-brand-500 border-brand-400 text-white'
+                              : 'border-white/20 bg-dark-base'
                           }`}
                         >
-                          {item.title}
-                        </h3>
-                        <p className="text-xs text-gray-400 leading-relaxed">{item.desc}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+                          {isChecked && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={transitionSpring}
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                            </motion.div>
+                          )}
+                        </div>
+
+                        <div className="space-y-0.5 sm:space-y-1">
+                          <h3
+                            className={`text-xs sm:text-sm font-bold transition-colors ${
+                              isChecked ? 'line-through text-gray-400' : 'text-white'
+                            }`}
+                          >
+                            {item.title}
+                          </h3>
+                          <p className="text-[11px] sm:text-xs text-gray-400 leading-relaxed">{item.desc}</p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </InteractiveCard>
+            </StaggerItem>
           );
         })}
-      </div>
+      </StaggerContainer>
 
       {/* CTA Bottom Banner */}
-      <div className="rounded-3xl p-8 bg-gradient-to-r from-brand-950/40 via-dark-card to-dark-surface border border-brand-500/20 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl print:hidden">
-        <div className="space-y-2 text-center sm:text-right">
-          <h3 className="text-xl font-black text-white">نیاز به اجرای تخصصی سئو توسط مهندسین اروم‌سیما دارید؟</h3>
-          <p className="text-gray-300 text-xs sm:text-sm">آنالیز فنی رایگان سایت شما و تدوین استراتژی رتبه ۱ گوگل در ارومیه.</p>
-        </div>
-        <Link
-          href="/contact-us/"
-          className="shrink-0 px-7 py-3 rounded-2xl bg-gradient-to-r from-brand-600 to-teal-500 text-white font-bold text-xs sm:text-sm shadow-xl shadow-brand-500/20 hover:scale-[1.02] transition-transform"
-        >
-          درخواست آنالیز و مشاوره سئو
-        </Link>
-      </div>
+      <MotionDiv variant="scale-up" className="print:hidden">
+        <InteractiveCard className="rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-gradient-to-r from-brand-950/40 via-dark-card to-dark-surface border border-brand-500/20 flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-6 shadow-2xl">
+          <div className="space-y-1.5 sm:space-y-2 text-center sm:text-right">
+            <h3 className="text-lg sm:text-xl font-black text-white">نیاز به اجرای تخصصی سئو توسط مهندسین اروم‌سیما دارید؟</h3>
+            <p className="text-gray-300 text-xs sm:text-sm">آنالیز فنی رایگان سایت شما و تدوین استراتژی رتبه ۱ گوگل در ارومیه.</p>
+          </div>
+          <Link
+            href="/contact-us/"
+            className="w-full sm:w-auto text-center shrink-0 px-6 sm:px-7 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-brand-600 to-teal-500 text-white font-bold text-xs sm:text-sm shadow-xl shadow-brand-500/20 hover:scale-105 active:scale-95 transition-all"
+          >
+            درخواست آنالیز و مشاوره سئو
+          </Link>
+        </InteractiveCard>
+      </MotionDiv>
     </div>
   );
 }

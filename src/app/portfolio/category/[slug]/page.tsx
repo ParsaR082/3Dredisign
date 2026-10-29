@@ -30,6 +30,8 @@ interface CategoryPageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
   return Object.keys(CATEGORY_MAP).map((slug) => ({
     slug,

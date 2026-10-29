@@ -129,15 +129,15 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-md shadow-brand-500/20">
-              <ShieldCheck className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-md shadow-brand-500/20">
+              <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             </div>
-            <div>
-              <span className="font-black text-sm text-white block">پنل مدیریت اروم سیما</span>
-              <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live Database Active (81 Models)
+            <div className="min-w-0">
+              <span className="font-black text-xs sm:text-sm text-white block truncate">پنل مدیریت اروم سیما</span>
+              <span className="text-[9px] sm:text-[10px] text-emerald-400 flex items-center gap-1 font-mono truncate">
+                <span className="w-1.5 h-1.5 shrink-0 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="hidden xs:inline">Live Database Active</span> (81 Models)
               </span>
             </div>
           </div>
@@ -219,7 +219,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
             onClick={() => setMobileMenuOpen(false)}
           >
             <div
-              className="w-72 bg-dark-base border-l border-white/10 p-5 space-y-4 h-full overflow-y-auto"
+              className="w-72 max-w-[85vw] bg-dark-base border-r md:border-l border-white/10 p-5 space-y-4 h-full overflow-y-auto overscroll-contain shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between pb-3 border-b border-white/10">

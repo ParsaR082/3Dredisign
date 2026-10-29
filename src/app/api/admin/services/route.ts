@@ -9,25 +9,31 @@ export async function GET() {
   }
 
   try {
-    const services = await prisma.serviceService.findMany({
-      orderBy: { order: 'asc' },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        short_description: true,
-        description: true,
-        icon: true,
-        price_start: true,
-        duration: true,
-        difficulty: true,
-        is_popular: true,
-        is_featured: true,
-        is_active: true,
-        order: true,
-      },
-    });
-    return NextResponse.json({ success: true, services });
+    const [services, categories] = await Promise.all([
+      prisma.serviceService.findMany({
+        orderBy: { order: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          short_description: true,
+          description: true,
+          icon: true,
+          price_start: true,
+          duration: true,
+          difficulty: true,
+          is_popular: true,
+          is_featured: true,
+          is_active: true,
+          order: true,
+          category_id: true,
+        },
+      }),
+      prisma.serviceServicecategory.findMany({
+        orderBy: { order: 'asc' },
+      }),
+    ]);
+    return NextResponse.json({ success: true, services, categories });
   } catch (error) {
     console.error('Error fetching services:', error);
     return NextResponse.json({ error: 'خطا در دریافت خدمات' }, { status: 500 });
@@ -43,6 +49,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
+      type = 'service', // 'service' | 'category'
+      name,
       title,
       slug,
       short_description = '',
@@ -53,13 +61,48 @@ export async function POST(request: Request) {
       difficulty = 'تخصصی',
       is_popular = false,
       is_featured = false,
+      order = 1,
+      category_id,
     } = body;
 
+    // 1. Create Category
+    if (type === 'category') {
+      const catName = name || title;
+      if (!catName) {
+        return NextResponse.json({ error: 'نام دسته‌بندی الزامی است.' }, { status: 400 });
+      }
+      const catSlug = (slug || catName).trim().toLowerCase().replace(/\s+/g, '-');
+      const newCategory = await prisma.serviceServicecategory.create({
+        data: {
+          name: catName,
+          slug: catSlug,
+          icon: icon || '⚡',
+          description: description || `دسته‌بندی خدمات ${catName}`,
+          order: Number(order) || 1,
+          is_active: true,
+        },
+      });
+      return NextResponse.json({ success: true, category: newCategory });
+    }
+
+    // 2. Create Service
     if (!title || !slug) {
       return NextResponse.json({ error: 'عنوان و اسلاگ الزامی هستند.' }, { status: 400 });
     }
 
-    const cat = await prisma.serviceServicecategory.findFirst();
+    let cat = await prisma.serviceServicecategory.findFirst();
+    if (!cat) {
+      cat = await prisma.serviceServicecategory.create({
+        data: {
+          name: 'طراحی وب و توسعه نرم‌افزار',
+          slug: 'web-development',
+          icon: '💻',
+          description: 'خدمات تخصصی طراحی، پیاده‌سازی و نگهداری پرتال‌های تحت وب',
+          order: 1,
+          is_active: true,
+        },
+      });
+    }
 
     const newService = await prisma.serviceService.create({
       data: {
@@ -74,10 +117,10 @@ export async function POST(request: Request) {
         is_popular: Boolean(is_popular),
         is_featured: Boolean(is_featured),
         is_active: true,
-        order: 1,
-        created_at: new Date().toISOString().replace('T', ' ').slice(0, 19),
-        updated_at: new Date().toISOString().replace('T', ' ').slice(0, 19),
-        category_id: cat?.id || 1,
+        order: Number(order) || 1,
+        created_at: new Date(),
+        updated_at: new Date(),
+        category_id: category_id ? Number(category_id) : cat.id,
         breadcrumb_label: title,
         bts_poster: null,
         bts_title: '',
@@ -136,7 +179,7 @@ export async function PUT(request: Request) {
         ...(duration !== undefined && { duration }),
         ...(is_popular !== undefined && { is_popular: Boolean(is_popular) }),
         ...(is_featured !== undefined && { is_featured: Boolean(is_featured) }),
-        updated_at: new Date().toISOString().replace('T', ' ').slice(0, 19),
+        updated_at: new Date(),
       },
     });
 

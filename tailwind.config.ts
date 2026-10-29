@@ -27,6 +27,7 @@ export default {
         },
         dark: {
           base: "#0B0F17",
+          surface: "#111827",
           card: "#111827",
           elevated: "#1a2234",
           border: "#1F2937",

@@ -1,8 +1,20 @@
 import { prisma } from './prisma';
-import type { SiteSettings, Service, Project, StatItem, ProjectKPI } from '@/types/content';
+import type {
+  SiteSettings,
+  Service,
+  Project,
+  StatItem,
+  ProjectKPI,
+  ProjectTimelineStep,
+  ProjectROI,
+  ProjectVideo,
+  ProjectImage,
+  BlogPost,
+} from '@/types/content';
 import siteSettingsFallback from '@/content/site-settings.json';
 import servicesFallback from '@/content/services.json';
 import projectsFallback from '@/content/projects.json';
+import blogFallback from '@/content/blog.json';
 
 export function resolveMediaUrl(path: string | null | undefined): string {
   if (!path) return '';
@@ -161,6 +173,34 @@ export async function getLiveServices(): Promise<Service[]> {
 }
 
 /**
+ * Fetch a single Service by slug or id, with fallback
+ */
+export async function getLiveServiceBySlug(slug: string): Promise<Service | null> {
+  const all = await getLiveServices();
+  const decoded = decodeURIComponent(slug).toLowerCase().trim();
+
+  // 1. Match from live services
+  const found = all.find(
+    (s) =>
+      s.slug.toLowerCase().trim() === decoded ||
+      encodeURIComponent(s.slug).toLowerCase() === decoded ||
+      s.id.toLowerCase() === decoded ||
+      (s.dedicated_url && s.dedicated_url.replace(/^\/|\/$/g, '').toLowerCase() === decoded)
+  );
+  if (found) return found;
+
+  // 2. Fallback to servicesFallback
+  const fallbackFound = (servicesFallback as Service[]).find(
+    (s) =>
+      s.slug.toLowerCase().trim() === decoded ||
+      encodeURIComponent(s.slug).toLowerCase() === decoded ||
+      s.id.toLowerCase() === decoded ||
+      (s.dedicated_url && s.dedicated_url.replace(/^\/|\/$/g, '').toLowerCase() === decoded)
+  );
+  return fallbackFound || null;
+}
+
+/**
  * Fetch live Projects from database with gallery images, with fallback
  */
 export async function getLiveProjects(): Promise<Project[]> {
@@ -172,52 +212,204 @@ export async function getLiveProjects(): Promise<Project[]> {
 
     if (!rows || rows.length === 0) return projectsFallback as Project[];
 
+    const [
+      categories,
+      industries,
+      projectTechs,
+      technologies,
+      additionalCats,
+      videos,
+      images,
+    ] = await Promise.all([
+      prisma.portfolioProjectcategory.findMany().catch(() => []),
+      prisma.portfolioIndustry.findMany().catch(() => []),
+      prisma.portfolioProjectTechnologies.findMany().catch(() => []),
+      prisma.portfolioTechnology.findMany().catch(() => []),
+      prisma.portfolioProjectAdditionalCategories.findMany().catch(() => []),
+      prisma.portfolioProjectvideo.findMany({ orderBy: { order: 'asc' } }).catch(() => []),
+      prisma.portfolioProjectimage.findMany({ orderBy: { order: 'asc' } }).catch(() => []),
+    ]);
+
+    const catMap = new Map(categories.map((c) => [c.id, c]));
+    const indMap = new Map(industries.map((i) => [i.id, i.name]));
+    const techMap = new Map(technologies.map((t) => [t.id, t.name]));
+
+    const projectTechMap = new Map<number, string[]>();
+    for (const pt of projectTechs) {
+      const techName = techMap.get(pt.technology_id);
+      if (techName) {
+        const existing = projectTechMap.get(pt.project_id) || [];
+        existing.push(techName);
+        projectTechMap.set(pt.project_id, existing);
+      }
+    }
+
+    const projectAddCatsMap = new Map<number, string[]>();
+    for (const ac of additionalCats) {
+      const catObj = catMap.get(ac.projectcategory_id);
+      if (catObj) {
+        const existing = projectAddCatsMap.get(ac.project_id) || [];
+        existing.push(catObj.name);
+        projectAddCatsMap.set(ac.project_id, existing);
+      }
+    }
+
+    const projectVideosMap = new Map<number, ProjectVideo[]>();
+    for (const v of videos) {
+      const existing = projectVideosMap.get(v.project_id) || [];
+      existing.push({
+        id: v.id,
+        title: v.title,
+        video_file: resolveMediaUrl(v.video_file) || null,
+        optimized_file: resolveMediaUrl(v.optimized_file) || null,
+        embed_url: v.embed_url || null,
+        thumbnail: resolveMediaUrl(v.thumbnail) || null,
+        orientation: v.orientation || 'Landscape',
+        width: v.width || null,
+        height: v.height || null,
+        order: v.order,
+      });
+      projectVideosMap.set(v.project_id, existing);
+    }
+
+    const projectImagesMap = new Map<number, ProjectImage[]>();
+    for (const img of images) {
+      const existing = projectImagesMap.get(img.project_id) || [];
+      existing.push({
+        id: img.id,
+        image: resolveMediaUrl(img.image),
+        caption: img.caption || '',
+        orientation: img.orientation || 'Landscape',
+        width: img.width || null,
+        height: img.height || null,
+        order: img.order,
+      });
+      projectImagesMap.set(img.project_id, existing);
+    }
+
     return rows.map((p) => {
       let parsedKpis: ProjectKPI[] = [];
       if (p.kpi_data) {
         try {
           const raw = JSON.parse(p.kpi_data);
           if (Array.isArray(raw)) {
-            parsedKpis = raw.map((item) => ({
-              label: item.label || item.title || '',
-              value: item.value || '',
-              detail: item.detail || '',
-            }));
+            parsedKpis = raw
+              .map((item) => ({
+                label: item.label || item.title || '',
+                value: item.value || '',
+                detail: item.detail || '',
+              }))
+              .filter((k) => k.label || k.value);
           }
         } catch (_) {}
       }
 
+      let parsedTimeline: ProjectTimelineStep[] = [];
+      if (p.timeline_steps) {
+        try {
+          const raw = JSON.parse(p.timeline_steps);
+          if (Array.isArray(raw)) {
+            parsedTimeline = raw
+              .map((item) => ({
+                date: item.date || '',
+                title: item.title || '',
+                description: item.description || '',
+              }))
+              .filter((step) => step.title || step.description);
+          }
+        } catch (_) {}
+      }
+
+      const hasRoi = p.roi_cost != null || p.roi_revenue != null || p.roi_percentage != null;
+      const roiData: ProjectROI | undefined = hasRoi
+        ? {
+            cost: p.roi_cost ?? undefined,
+            revenue: p.roi_revenue ?? undefined,
+            percentage: p.roi_percentage ?? undefined,
+          }
+        : undefined;
+
+      const cat = catMap.get(p.category_id);
+      const industryName = indMap.get(p.industry_id) || 'تکنولوژی و کسب‌وکار';
+      const techs = projectTechMap.get(p.id) || [];
+      const addCats = projectAddCatsMap.get(p.id) || [];
+      const pVideos = projectVideosMap.get(p.id) || [];
+      const pGallery = projectImagesMap.get(p.id) || [];
+
+      const desktopMockup = resolveMediaUrl(p.desktop_mockup);
+      const mobileMockup = resolveMediaUrl(p.mobile_mockup);
+      const tabletMockup = resolveMediaUrl(p.tablet_mockup);
+
       return {
         id: String(p.id),
         title: p.title,
-        subtitle: p.subtitle || undefined,
+        subtitle: p.subtitle?.trim() || undefined,
         slug: p.slug,
-        category: 'طراحی و توسعه',
-        category_slug: 'web',
-        industry: 'تکنولوژی و کسب‌وکار',
-        technologies: ['Next.js', 'React', 'TailwindCSS'],
-        description: p.description,
-        detailed_description: p.detailed_description || p.description,
-        challenge: p.challenge || undefined,
+        category: cat?.name || 'طراحی و توسعه',
+        category_slug: cat?.slug || 'web',
+        additional_categories: addCats.length > 0 ? addCats : undefined,
+        industry: industryName,
+        technologies: techs,
+        description: p.description?.trim() || '',
+        detailed_description: p.detailed_description?.trim() || p.description?.trim() || '',
+        challenge: p.challenge?.trim() || undefined,
         featured: p.featured,
-        project_date: p.project_date,
-        website_url: p.website_url || undefined,
-        thumbnail_image: resolveMediaUrl(p.thumbnail_image),
+        recent: p.recent,
+        popular: p.popular,
+        project_date: p.project_date?.trim() || '',
+        website_url: p.website_url?.trim() || undefined,
+        pdf_url: p.pdf_url?.trim() ? resolveMediaUrl(p.pdf_url) : undefined,
+        thumbnail_image: resolveMediaUrl(p.thumbnail_image) || '/images/urumsima3.jpg',
+        thumbnail_video_url: p.thumbnail_video_url ? resolveMediaUrl(p.thumbnail_video_url) : undefined,
         mockups: {
-          desktop: resolveMediaUrl(p.desktop_mockup),
-          mobile: resolveMediaUrl(p.mobile_mockup),
-          tablet: resolveMediaUrl(p.tablet_mockup),
+          desktop: desktopMockup || undefined,
+          mobile: mobileMockup || undefined,
+          tablet: tabletMockup || undefined,
         },
         kpis: parsedKpis,
-        location_zone: p.location_zone || undefined,
+        timeline_steps: parsedTimeline.length > 0 ? parsedTimeline : undefined,
+        roi: roiData,
+        videos: pVideos.length > 0 ? pVideos : undefined,
+        gallery: pGallery.length > 0 ? pGallery : undefined,
+        location_zone: p.location_zone?.trim() || undefined,
         latitude: p.latitude ? Number(p.latitude) : undefined,
         longitude: p.longitude ? Number(p.longitude) : undefined,
+        show_on_map: p.show_on_map,
+        meta_title: p.meta_title?.trim() || undefined,
+        meta_description: p.meta_description?.trim() || undefined,
+        canonical_url: p.canonical_url?.trim() || undefined,
       };
     });
   } catch (error) {
     console.warn('DB Projects query failed, using static fallback:', error);
     return projectsFallback as Project[];
   }
+}
+
+/**
+ * Fetch a single Project by slug, id, or decoded slug, with fallback
+ */
+export async function getLiveProjectBySlug(slug: string): Promise<Project | null> {
+  const all = await getLiveProjects();
+  const decoded = decodeURIComponent(slug).toLowerCase().trim();
+
+  // 1. Try matching database projects
+  const found = all.find(
+    (p) =>
+      p.slug.toLowerCase().trim() === decoded ||
+      encodeURIComponent(p.slug).toLowerCase() === decoded ||
+      p.id.toLowerCase() === decoded
+  );
+  if (found) return found;
+
+  // 2. Fallback to projectsFallback
+  const fallbackFound = (projectsFallback as Project[]).find(
+    (p) =>
+      p.slug.toLowerCase().trim() === decoded ||
+      encodeURIComponent(p.slug).toLowerCase() === decoded ||
+      p.id.toLowerCase() === decoded
+  );
+  return fallbackFound || null;
 }
 
 /**
@@ -551,7 +743,7 @@ export async function getLiveBackstageItems(): Promise<BackstageItem[]> {
       status: b.status,
       is_featured: b.is_featured,
       order: b.order,
-      published_at: b.published_at,
+      published_at: b.published_at ? (b.published_at instanceof Date ? b.published_at.toISOString().split('T')[0] : String(b.published_at)) : null,
     }));
   } catch (error) {
     console.warn('DB Backstage query failed, using fallback:', error);
@@ -567,6 +759,102 @@ export async function getLiveBackstageBySlug(slug: string): Promise<BackstageIte
       (b) =>
         b.slug.toLowerCase().trim() === decoded ||
         encodeURIComponent(b.slug).toLowerCase() === decoded
+    ) || null
+  );
+}
+
+// ── Blog Data & Posts ────────────────────────────────────────
+
+export async function getLiveBlogData(): Promise<{
+  settings: { title: string; subtitle: string; meta_title: string; meta_description: string };
+  articles: BlogPost[];
+}> {
+  try {
+    const [settingsRow, rows, categories, authors, postTags, allTags] = await Promise.all([
+      prisma.blogBlogsettings.findFirst().catch(() => null),
+      prisma.blogPost.findMany({
+        where: { status: 'published' },
+        orderBy: { created_at: 'desc' },
+      }).catch(() => []),
+      prisma.blogBlogcategory.findMany().catch(() => []),
+      prisma.blogBlogauthor.findMany().catch(() => []),
+      prisma.blogPostTags.findMany().catch(() => []),
+      prisma.blogBlogtag.findMany().catch(() => []),
+    ]);
+
+    const catMap = new Map(categories.map((c) => [c.id, c.name]));
+    const authorMap = new Map(authors.map((a) => [a.id, a.name]));
+    const tagMap = new Map(allTags.map((t) => [t.id, t.name]));
+
+    const postTagMap = new Map<number, string[]>();
+    for (const pt of postTags) {
+      const tagName = tagMap.get(pt.blogtag_id);
+      if (tagName) {
+        const existing = postTagMap.get(pt.post_id) || [];
+        existing.push(tagName);
+        postTagMap.set(pt.post_id, existing);
+      }
+    }
+
+    const liveArticles: BlogPost[] = rows.map((b) => {
+      const catName = (b.category_id && catMap.get(b.category_id)) || 'فناوری و کسب‌وکار دیجیتال';
+      const authorName = (b.author_id && authorMap.get(b.author_id)) || 'تیم تحریریه اروم سیما';
+      const tags = postTagMap.get(b.id) || ['اروم سیما', 'دیجیتال مارکتینگ'];
+      const publishedStr = b.published_at
+        ? (b.published_at instanceof Date ? b.published_at.toISOString().split('T')[0] : String(b.published_at))
+        : '۱۴۰۳/۰۹/۰۱';
+
+      return {
+        id: String(b.id),
+        title: b.title,
+        slug: b.slug,
+        excerpt: b.excerpt,
+        content: b.body || b.body_html || b.excerpt,
+        author: authorName,
+        category: catName,
+        published_at: publishedStr,
+        reading_time: `${b.read_time || 5} دقیقه`,
+        cover_image: resolveMediaUrl(b.cover_image) || '/images/urumsima3.jpg',
+        tags,
+      };
+    });
+
+    const fallbackArticles = ((blogFallback as any).articles || []) as BlogPost[];
+    const liveSlugs = new Set(liveArticles.map((a) => a.slug.toLowerCase()));
+    const combined = [
+      ...liveArticles,
+      ...fallbackArticles.filter((fa) => !liveSlugs.has(fa.slug.toLowerCase())),
+    ];
+
+    const settings = settingsRow
+      ? {
+          title: settingsRow.list_title || blogFallback.settings.title,
+          subtitle: settingsRow.list_subtitle || blogFallback.settings.subtitle,
+          meta_title: settingsRow.meta_title || blogFallback.settings.meta_title,
+          meta_description: settingsRow.meta_description || blogFallback.settings.meta_description,
+        }
+      : blogFallback.settings;
+
+    return {
+      settings,
+      articles: combined.length > 0 ? combined : fallbackArticles,
+    };
+  } catch (error) {
+    console.warn('DB Blog query failed, using static fallback:', error);
+    return blogFallback as any;
+  }
+}
+
+export async function getLiveBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  const { articles } = await getLiveBlogData();
+  const decoded = decodeURIComponent(slug).toLowerCase().trim();
+
+  return (
+    articles.find(
+      (a) =>
+        a.slug.toLowerCase().trim() === decoded ||
+        encodeURIComponent(a.slug).toLowerCase() === decoded ||
+        a.id.toLowerCase() === decoded
     ) || null
   );
 }

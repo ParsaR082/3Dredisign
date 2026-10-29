@@ -66,26 +66,98 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
+      type = 'post', // 'post' | 'category' | 'author'
       title,
+      name,
       slug,
       excerpt = '',
       body: content = '',
+      description = '',
+      role = '',
+      bio = '',
+      avatar = null,
       category_id,
       author_id,
       cover_image = null,
       reading_time_minutes = 5,
       is_published = true,
       is_featured = false,
+      order = 1,
     } = body;
 
+    // 1. Create Blog Category
+    if (type === 'category') {
+      const catName = name || title;
+      if (!catName) {
+        return NextResponse.json({ error: 'نام دسته‌بندی الزامی است.' }, { status: 400 });
+      }
+      const catSlug = (slug || catName).trim().toLowerCase().replace(/\s+/g, '-');
+      const newCategory = await prisma.blogBlogcategory.create({
+        data: {
+          name: catName,
+          slug: catSlug,
+          description: description || `مقالات مرتبط با ${catName}`,
+          is_active: true,
+          order: Number(order) || 1,
+        },
+      });
+      return NextResponse.json({ success: true, category: newCategory });
+    }
+
+    // 2. Create Blog Author
+    if (type === 'author') {
+      const authorName = name || title;
+      if (!authorName) {
+        return NextResponse.json({ error: 'نام نویسنده الزامی است.' }, { status: 400 });
+      }
+      const authorSlug = (slug || authorName).trim().toLowerCase().replace(/\s+/g, '-');
+      const newAuthor = await prisma.blogBlogauthor.create({
+        data: {
+          name: authorName,
+          slug: authorSlug,
+          role: role || 'نویسنده و پژوهشگر اروم سیما',
+          bio: bio || `نویسنده تخصصی در اروم سیما`,
+          avatar,
+          is_active: true,
+        },
+      });
+      return NextResponse.json({ success: true, author: newAuthor });
+    }
+
+    // 3. Create Blog Post
     if (!title || !slug) {
       return NextResponse.json({ error: 'عنوان و اسلاگ الزامی هستند.' }, { status: 400 });
     }
 
-    const defaultCategory = await prisma.blogBlogcategory.findFirst();
-    const defaultAuthor = await prisma.blogBlogauthor.findFirst();
+    // Ensure valid category exists
+    let defaultCategory = await prisma.blogBlogcategory.findFirst();
+    if (!defaultCategory) {
+      defaultCategory = await prisma.blogBlogcategory.create({
+        data: {
+          name: 'عمومی و دیجیتال مارکتینگ',
+          slug: 'digital-marketing',
+          description: 'مقالات جامع دیجیتال مارکتینگ و توسعه وب',
+          is_active: true,
+          order: 1,
+        },
+      });
+    }
 
-    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    // Ensure valid author exists
+    let defaultAuthor = await prisma.blogBlogauthor.findFirst();
+    if (!defaultAuthor) {
+      defaultAuthor = await prisma.blogBlogauthor.create({
+        data: {
+          name: 'تحریریه اروم سیما',
+          slug: 'urumsima-team',
+          role: 'تیم محتوا و تحقیق و توسعه',
+          bio: 'تیم تخصصی تولید محتوا، تحلیل بازار و مارکتینگ اروم سیما',
+          is_active: true,
+        },
+      });
+    }
+
+    const now = new Date();
 
     const newPost = await prisma.blogPost.create({
       data: {
@@ -93,8 +165,8 @@ export async function POST(request: Request) {
         slug: slug.trim().toLowerCase().replace(/\s+/g, '-'),
         excerpt,
         body: content || excerpt,
-        category_id: category_id ? Number(category_id) : (defaultCategory?.id || 1),
-        author_id: author_id ? Number(author_id) : (defaultAuthor?.id || 1),
+        category_id: category_id ? Number(category_id) : defaultCategory.id,
+        author_id: author_id ? Number(author_id) : defaultAuthor.id,
         cover_image,
         read_time: Number(reading_time_minutes) || 5,
         view_count: 0,
@@ -150,7 +222,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'شناسه الزامی است.' }, { status: 400 });
     }
 
-    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const now = new Date();
 
     const updated = await prisma.blogPost.update({
       where: { id: Number(id) },
@@ -185,9 +257,24 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const type = searchParams.get('type') || 'post';
 
     if (!id) {
       return NextResponse.json({ error: 'شناسه الزامی است.' }, { status: 400 });
+    }
+
+    if (type === 'category') {
+      await prisma.blogBlogcategory.delete({
+        where: { id: Number(id) },
+      });
+      return NextResponse.json({ success: true, message: 'دسته‌بندی با موفقیت حذف شد.' });
+    }
+
+    if (type === 'author') {
+      await prisma.blogBlogauthor.delete({
+        where: { id: Number(id) },
+      });
+      return NextResponse.json({ success: true, message: 'نویسنده با موفقیت حذف شد.' });
     }
 
     await prisma.blogPost.delete({
@@ -196,7 +283,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true, message: 'مقاله با موفقیت حذف شد.' });
   } catch (error: any) {
-    console.error('Error deleting blog post:', error);
-    return NextResponse.json({ error: error.message || 'خطا در حذف مقاله' }, { status: 500 });
+    console.error('Error deleting blog item:', error);
+    return NextResponse.json({ error: error.message || 'خطا در حذف آیتم وبلاگ' }, { status: 500 });
   }
 }

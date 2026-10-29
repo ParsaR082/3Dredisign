@@ -1,6 +1,11 @@
 import type { MetadataRoute } from 'next';
-import { getServices, getProjects, getBlogData } from '@/lib/data-loaders';
-import { getLiveWebsites, getLiveBackstageItems } from '@/lib/db';
+import {
+  getLiveServices,
+  getLiveProjects,
+  getLiveBlogData,
+  getLiveWebsites,
+  getLiveBackstageItems,
+} from '@/lib/db';
 
 const BASE_URL = 'https://urumsima.ir';
 
@@ -51,7 +56,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Dedicated services
-  const services = getServices();
+  const services = await getLiveServices();
   const serviceRoutes: MetadataRoute.Sitemap = services.map((s) => ({
     url: `${BASE_URL}${s.dedicated_url || `/services/${s.slug}/`}`,
     lastModified: new Date(),
@@ -60,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Portfolio items
-  const projects = getProjects();
+  const projects = await getLiveProjects();
   const projectRoutes: MetadataRoute.Sitemap = projects.map((p) => ({
     url: `${BASE_URL}/portfolio/${p.slug}/`,
     lastModified: new Date(),
@@ -69,7 +74,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Blog posts
-  const blogData = getBlogData();
+  const blogData = await getLiveBlogData();
   const blogRoutes: MetadataRoute.Sitemap = blogData.articles.map((a) => ({
     url: `${BASE_URL}/blog/${a.slug}/`,
     lastModified: new Date(),

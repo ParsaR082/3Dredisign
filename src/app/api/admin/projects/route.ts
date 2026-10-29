@@ -9,10 +9,17 @@ export async function GET() {
   }
 
   try {
-    const projects = await prisma.portfolioProject.findMany({
-      orderBy: [{ featured: 'desc' }, { order: 'asc' }],
-    });
-    return NextResponse.json({ success: true, projects });
+    const [projects, categories, industries] = await Promise.all([
+      prisma.portfolioProject.findMany({
+        orderBy: [{ featured: 'desc' }, { order: 'asc' }],
+      }),
+      prisma.portfolioProjectcategory.findMany({
+        orderBy: { order: 'asc' },
+      }),
+      prisma.portfolioIndustry.findMany(),
+    ]);
+
+    return NextResponse.json({ success: true, projects, categories, industries });
   } catch (error) {
     console.error('Error fetching projects:', error);
     return NextResponse.json({ error: 'خطا در دریافت پروژه‌ها' }, { status: 500 });
@@ -28,6 +35,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
+      type = 'project',
+      name,
       title,
       slug,
       subtitle = '',
@@ -40,44 +49,156 @@ export async function POST(request: Request) {
       desktop_mockup = '',
       mobile_mockup = '',
       website_url = '',
+      category_id,
+      industry_id,
+      order = 1,
+      icon = 'folder',
     } = body;
+
+    if (type === 'category') {
+      const catName = name || title;
+      if (!catName) {
+        return NextResponse.json({ error: 'نام دسته‌بندی الزامی است.' }, { status: 400 });
+      }
+      const catSlug = (slug || catName).trim().toLowerCase().replace(/\s+/g, '-');
+      const newCategory = await prisma.portfolioProjectcategory.create({
+        data: {
+          name: catName,
+          slug: catSlug,
+          description: description || subtitle || catName,
+          icon: icon || 'folder',
+          order: Number(order) || 1,
+          is_active: true,
+          is_featured: Boolean(featured),
+          meta_title: catName,
+          meta_description: description.slice(0, 300),
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+      });
+      return NextResponse.json({ success: true, category: newCategory });
+    }
+
+    if (type === 'industry') {
+      const indName = name || title;
+      if (!indName) {
+        return NextResponse.json({ error: 'نام صنعت الزامی است.' }, { status: 400 });
+      }
+      const indSlug = (slug || indName).trim().toLowerCase().replace(/\s+/g, '-');
+      const newIndustry = await prisma.portfolioIndustry.create({
+        data: {
+          name: indName,
+          slug: indSlug,
+        },
+      });
+      return NextResponse.json({ success: true, industry: newIndustry });
+    }
 
     if (!title || !slug) {
       return NextResponse.json({ error: 'عنوان و اسلاگ الزامی هستند.' }, { status: 400 });
     }
 
-    // Default category and industry from existing database
-    const cat = await prisma.portfolioProjectcategory.findFirst();
-    const ind = await prisma.portfolioIndustry.findFirst();
+    // Default category and industry from existing database or create default fallback
+    let cat = category_id
+      ? await prisma.portfolioProjectcategory.findUnique({ where: { id: Number(category_id) } })
+      : await prisma.portfolioProjectcategory.findFirst();
+
+    if (!cat) {
+      cat = await prisma.portfolioProjectcategory.create({
+        data: {
+          name: 'پروژه‌های عمومی',
+          slug: 'general-projects',
+          description: 'دسته‌بندی عمومی پروژه‌ها',
+          icon: 'folder',
+          order: 1,
+          is_active: true,
+          is_featured: false,
+          meta_title: 'پروژه‌های عمومی',
+          meta_description: 'دسته‌بندی عمومی پروژه‌ها',
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+      });
+    }
+
+    let ind = industry_id
+      ? await prisma.portfolioIndustry.findUnique({ where: { id: Number(industry_id) } })
+      : await prisma.portfolioIndustry.findFirst();
+
+    if (!ind) {
+      ind = await prisma.portfolioIndustry.create({
+        data: {
+          name: 'عمومی و تجاری',
+          slug: 'general-commercial',
+        },
+      });
+    }
+
+    function serializeJson(val: any): string | null {
+      if (!val) return null;
+      if (typeof val === 'string') return val.trim() || null;
+      try {
+        return JSON.stringify(val);
+      } catch {
+        return null;
+      }
+    }
+
+    const {
+      challenge = '',
+      tablet_mockup = '',
+      pdf_url = '',
+      kpi_data = null,
+      timeline_steps = null,
+      roi_cost = null,
+      roi_revenue = null,
+      roi_percentage = null,
+      location_zone = 'مرکز شهر',
+      latitude = null,
+      longitude = null,
+      show_on_map = false,
+      meta_title = '',
+      meta_description = '',
+      is_active = true,
+      recent = true,
+    } = body;
 
     const newProject = await prisma.portfolioProject.create({
       data: {
         title,
         slug: slug.trim().toLowerCase().replace(/\s+/g, '-'),
-        subtitle,
-        description,
-        detailed_description: detailed_description || description,
-        challenge: '',
+        subtitle: subtitle || '',
+        description: description || '',
+        detailed_description: detailed_description || description || '',
+        challenge: challenge || '',
         featured: Boolean(featured),
-        recent: true,
+        recent: Boolean(recent),
         popular: Boolean(popular),
         project_date,
         thumbnail_image: thumbnail_image || 'portfolio/thumbnails/default.jpg',
         desktop_mockup: desktop_mockup || null,
         mobile_mockup: mobile_mockup || null,
-        tablet_mockup: null,
+        tablet_mockup: tablet_mockup || null,
         website_url: website_url || null,
-        order: 1,
-        is_active: true,
-        category_id: cat?.id || 1,
-        industry_id: ind?.id || 1,
-        location_zone: 'iran',
-        show_on_map: false,
+        pdf_url: pdf_url || null,
+        kpi_data: serializeJson(kpi_data),
+        timeline_steps: serializeJson(timeline_steps),
+        roi_cost: roi_cost != null && roi_cost !== '' ? Number(roi_cost) : null,
+        roi_revenue: roi_revenue != null && roi_revenue !== '' ? Number(roi_revenue) : null,
+        roi_percentage: roi_percentage != null && roi_percentage !== '' ? Number(roi_percentage) : null,
+        order: Number(order) || 1,
+        is_active: Boolean(is_active),
+        category_id: cat.id,
+        industry_id: ind.id,
+        location_zone: location_zone || 'مرکز شهر',
+        latitude: latitude != null && latitude !== '' ? Number(latitude) : null,
+        longitude: longitude != null && longitude !== '' ? Number(longitude) : null,
+        show_on_map: Boolean(show_on_map),
         featured_order: 1,
         canonical_url: `https://urumsima.ir/portfolio/${slug}/`,
-        meta_description: description.slice(0, 300),
+        meta_description: meta_description || description.slice(0, 300),
         meta_robots: 'index, follow',
-        meta_title: title,
+        meta_title: meta_title || title,
       },
     });
 
@@ -96,23 +217,90 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
-    const { id, title, slug, subtitle, description, featured, popular, project_date, thumbnail_image } = body;
+    const {
+      id,
+      title,
+      slug,
+      subtitle,
+      description,
+      detailed_description,
+      challenge,
+      featured,
+      recent,
+      popular,
+      project_date,
+      thumbnail_image,
+      desktop_mockup,
+      mobile_mockup,
+      tablet_mockup,
+      website_url,
+      pdf_url,
+      kpi_data,
+      timeline_steps,
+      roi_cost,
+      roi_revenue,
+      roi_percentage,
+      category_id,
+      industry_id,
+      location_zone,
+      latitude,
+      longitude,
+      show_on_map,
+      meta_title,
+      meta_description,
+      order,
+      is_active,
+    } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'شناسه پروژه الزامی است.' }, { status: 400 });
+    }
+
+    function serializeJson(val: any): string | null {
+      if (val === undefined) return undefined as any;
+      if (!val) return null;
+      if (typeof val === 'string') return val.trim() || null;
+      try {
+        return JSON.stringify(val);
+      } catch {
+        return null;
+      }
     }
 
     const updated = await prisma.portfolioProject.update({
       where: { id: Number(id) },
       data: {
         ...(title !== undefined && { title }),
-        ...(slug !== undefined && { slug }),
+        ...(slug !== undefined && { slug: slug.trim().toLowerCase().replace(/\s+/g, '-') }),
         ...(subtitle !== undefined && { subtitle }),
         ...(description !== undefined && { description }),
+        ...(detailed_description !== undefined && { detailed_description }),
+        ...(challenge !== undefined && { challenge }),
         ...(featured !== undefined && { featured: Boolean(featured) }),
+        ...(recent !== undefined && { recent: Boolean(recent) }),
         ...(popular !== undefined && { popular: Boolean(popular) }),
         ...(project_date !== undefined && { project_date }),
         ...(thumbnail_image !== undefined && { thumbnail_image }),
+        ...(desktop_mockup !== undefined && { desktop_mockup: desktop_mockup || null }),
+        ...(mobile_mockup !== undefined && { mobile_mockup: mobile_mockup || null }),
+        ...(tablet_mockup !== undefined && { tablet_mockup: tablet_mockup || null }),
+        ...(website_url !== undefined && { website_url: website_url || null }),
+        ...(pdf_url !== undefined && { pdf_url: pdf_url || null }),
+        ...(kpi_data !== undefined && { kpi_data: serializeJson(kpi_data) }),
+        ...(timeline_steps !== undefined && { timeline_steps: serializeJson(timeline_steps) }),
+        ...(roi_cost !== undefined && { roi_cost: roi_cost !== '' && roi_cost != null ? Number(roi_cost) : null }),
+        ...(roi_revenue !== undefined && { roi_revenue: roi_revenue !== '' && roi_revenue != null ? Number(roi_revenue) : null }),
+        ...(roi_percentage !== undefined && { roi_percentage: roi_percentage !== '' && roi_percentage != null ? Number(roi_percentage) : null }),
+        ...(category_id !== undefined && { category_id: Number(category_id) }),
+        ...(industry_id !== undefined && { industry_id: Number(industry_id) }),
+        ...(location_zone !== undefined && { location_zone }),
+        ...(latitude !== undefined && { latitude: latitude !== '' && latitude != null ? Number(latitude) : null }),
+        ...(longitude !== undefined && { longitude: longitude !== '' && longitude != null ? Number(longitude) : null }),
+        ...(show_on_map !== undefined && { show_on_map: Boolean(show_on_map) }),
+        ...(meta_title !== undefined && { meta_title }),
+        ...(meta_description !== undefined && { meta_description }),
+        ...(order !== undefined && { order: Number(order) }),
+        ...(is_active !== undefined && { is_active: Boolean(is_active) }),
       },
     });
 
@@ -132,9 +320,24 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const type = searchParams.get('type') || 'project';
 
     if (!id) {
       return NextResponse.json({ error: 'شناسه الزامی است.' }, { status: 400 });
+    }
+
+    if (type === 'category') {
+      await prisma.portfolioProjectcategory.delete({
+        where: { id: Number(id) },
+      });
+      return NextResponse.json({ success: true, message: 'دسته‌بندی با موفقیت حذف شد.' });
+    }
+
+    if (type === 'industry') {
+      await prisma.portfolioIndustry.delete({
+        where: { id: Number(id) },
+      });
+      return NextResponse.json({ success: true, message: 'صنعت با موفقیت حذف شد.' });
     }
 
     await prisma.portfolioProject.delete({

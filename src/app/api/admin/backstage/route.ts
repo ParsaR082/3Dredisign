@@ -54,6 +54,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const {
+      type = 'item',
+      name,
       title,
       slug,
       subtitle = '',
@@ -67,11 +69,35 @@ export async function POST(request: Request) {
       category_id,
     } = body;
 
+    if (type === 'category') {
+      const catName = name || title;
+      if (!catName) {
+        return NextResponse.json({ error: 'نام دسته‌بندی الزامی است.' }, { status: 400 });
+      }
+      const catSlug = (slug || catName).trim().toLowerCase().replace(/\s+/g, '-');
+      const newCategory = await prisma.backstageBackstagecategory.create({
+        data: {
+          name: catName,
+          slug: catSlug,
+          description: excerpt || subtitle || catName,
+          order: Number(order) || 1,
+          is_active: true,
+        },
+      });
+      return NextResponse.json({ success: true, category: newCategory });
+    }
+
     if (!title || !slug) {
       return NextResponse.json({ error: 'عنوان و اسلاگ الزامی هستند.' }, { status: 400 });
     }
 
-    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const now = new Date();
+
+    let finalCatId: number | null = category_id ? Number(category_id) : null;
+    if (finalCatId) {
+      const exists = await prisma.backstageBackstagecategory.findUnique({ where: { id: finalCatId } });
+      if (!exists) finalCatId = null;
+    }
 
     const newItem = await prisma.backstageBackstageitem.create({
       data: {
@@ -94,7 +120,7 @@ export async function POST(request: Request) {
         meta_description: excerpt.slice(0, 300),
         canonical_url: `https://urumsima.ir/backstage/${slug}/`,
         meta_robots: 'index, follow',
-        category_id: category_id ? Number(category_id) : null,
+        category_id: finalCatId,
       },
     });
 
@@ -132,7 +158,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'شناسه الزامی است.' }, { status: 400 });
     }
 
-    const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+    const now = new Date();
 
     const updated = await prisma.backstageBackstageitem.update({
       where: { id: Number(id) },
@@ -168,9 +194,17 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const type = searchParams.get('type') || 'item';
 
     if (!id) {
       return NextResponse.json({ error: 'شناسه الزامی است.' }, { status: 400 });
+    }
+
+    if (type === 'category') {
+      await prisma.backstageBackstagecategory.delete({
+        where: { id: Number(id) },
+      });
+      return NextResponse.json({ success: true, message: 'دسته‌بندی پشت صحنه با موفقیت حذف شد.' });
     }
 
     await prisma.backstageBackstageitem.delete({

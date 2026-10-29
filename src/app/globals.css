@@ -168,6 +168,30 @@ textarea:focus-visible,
   box-shadow: 0 0 12px rgba(16, 185, 129, 0.4) !important;
 }
 
+/* ── FORM CONTROLS DARK THEME & AUTOFILL FIX ── */
+input,
+textarea,
+select,
+option {
+  color-scheme: dark;
+}
+
+select option {
+  background-color: #111827;
+  color: #F3F4F6;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #F3F4F6 !important;
+  -webkit-box-shadow: 0 0 0px 1000px #111827 inset !important;
+  box-shadow: 0 0 0px 1000px #111827 inset !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
 /* ── SHORT LANDSCAPE AND CONSTRAINED HEIGHT ADAPTATION ── */
 @media (max-height: 540px) and (orientation: landscape) {
   #sector-hero {
@@ -240,5 +264,36 @@ textarea:focus-visible,
 
 .animate-spin-reverse-slow {
   animation: reverseSpinSlow 10s linear infinite;
+}
+
+/* Lenis smooth scroll recommended styles */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* Accessibility: Respect prefers-reduced-motion globally */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 

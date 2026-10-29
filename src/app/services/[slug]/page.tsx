@@ -1,21 +1,23 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import ServiceDetailView from '@/components/ui/ServiceDetailView';
-import { getServices, getServiceBySlug } from '@/lib/data-loaders';
+import { getLiveServices, getLiveServiceBySlug } from '@/lib/db';
 import { generatePageMetadata, generateServiceJsonLd, generateFaqJsonLd } from '@/lib/seo';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
-  const services = getServices();
+  const services = await getLiveServices();
   return services.map((s) => ({ slug: s.slug }));
 }
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const service = getServiceBySlug(slug);
+  const service = await getLiveServiceBySlug(slug);
   if (!service) return {};
 
   return generatePageMetadata({
@@ -27,7 +29,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function ServiceSlugPage({ params }: Props) {
   const { slug } = await params;
-  const service = getServiceBySlug(slug);
+  const service = await getLiveServiceBySlug(slug);
   if (!service) notFound();
 
   const serviceJsonLd = generateServiceJsonLd(service);

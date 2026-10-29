@@ -23,6 +23,10 @@ export const metadata: Metadata = {
   },
 };
 
+import { SmoothScroll } from '@/components/ui/SmoothScroll';
+import { CustomCursor } from '@/components/ui/CustomCursor';
+import { PageTransition } from '@/components/ui/PageTransition';
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -50,11 +54,17 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-dark-base text-gray-100 flex flex-col font-sans selection:bg-brand-600 selection:text-white antialiased">
-        <Navbar settings={settings} services={services} />
-        <main className="flex-grow pt-20">{children}</main>
-        <Footer settings={settings} services={services} />
-        <WhatsAppButton number={settings.whatsapp_number} />
+        <SmoothScroll>
+          <CustomCursor />
+          <Navbar settings={settings} services={services} />
+          <main className="flex-grow pt-20">
+            <PageTransition>{children}</PageTransition>
+          </main>
+          <Footer settings={settings} services={services} />
+          <WhatsAppButton number={settings.whatsapp_number} />
+        </SmoothScroll>
       </body>
     </html>
   );
 }
+

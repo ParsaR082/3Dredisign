@@ -128,6 +128,41 @@ export interface ProjectKPI {
   detail?: string;
 }
 
+export interface ProjectTimelineStep {
+  date?: string;
+  title: string;
+  description: string;
+}
+
+export interface ProjectROI {
+  cost?: number;
+  revenue?: number;
+  percentage?: number;
+}
+
+export interface ProjectVideo {
+  id: number;
+  title: string;
+  video_file?: string | null;
+  optimized_file?: string | null;
+  embed_url?: string | null;
+  thumbnail?: string | null;
+  orientation?: string;
+  width?: number | null;
+  height?: number | null;
+  order: number;
+}
+
+export interface ProjectImage {
+  id: number;
+  image: string;
+  caption?: string;
+  orientation?: string;
+  width?: number | null;
+  height?: number | null;
+  order: number;
+}
+
 export interface ProjectMockups {
   desktop?: string;
   mobile?: string;
@@ -141,20 +176,33 @@ export interface Project {
   slug: string;
   category: string;
   category_slug: string;
+  additional_categories?: string[];
   industry: string;
   technologies: string[];
   description: string;
   detailed_description: string;
   challenge?: string;
   featured: boolean;
+  recent?: boolean;
+  popular?: boolean;
   project_date: string;
   website_url?: string;
+  pdf_url?: string;
   thumbnail_image: string;
+  thumbnail_video_url?: string | null;
   mockups?: ProjectMockups;
   kpis: ProjectKPI[];
+  timeline_steps?: ProjectTimelineStep[];
+  roi?: ProjectROI;
+  videos?: ProjectVideo[];
+  gallery?: ProjectImage[];
   location_zone?: string;
   latitude?: number;
   longitude?: number;
+  show_on_map?: boolean;
+  meta_title?: string;
+  meta_description?: string;
+  canonical_url?: string;
 }
 
 export interface PricingPlan {
