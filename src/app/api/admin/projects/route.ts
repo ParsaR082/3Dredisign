@@ -9,7 +9,7 @@ export async function GET() {
   }
 
   try {
-    const [projects, categories, industries] = await Promise.all([
+    const [projects, categories, industries, additionalCats] = await Promise.all([
       prisma.portfolioProject.findMany({
         orderBy: [{ featured: 'desc' }, { order: 'asc' }],
       }),
@@ -17,9 +17,27 @@ export async function GET() {
         orderBy: { order: 'asc' },
       }),
       prisma.portfolioIndustry.findMany(),
+      prisma.portfolioProjectAdditionalCategories.findMany(),
     ]);
 
-    return NextResponse.json({ success: true, projects, categories, industries });
+    const addCatMap = new Map<number, number[]>();
+    for (const ac of additionalCats) {
+      const list = addCatMap.get(ac.project_id) || [];
+      list.push(ac.projectcategory_id);
+      addCatMap.set(ac.project_id, list);
+    }
+
+    const projectsWithAddCats = projects.map((p) => ({
+      ...p,
+      additional_category_ids: addCatMap.get(p.id) || [],
+    }));
+
+    return NextResponse.json({
+      success: true,
+      projects: projectsWithAddCats,
+      categories,
+      industries,
+    });
   } catch (error) {
     console.error('Error fetching projects:', error);
     return NextResponse.json({ error: 'خطا در دریافت پروژه‌ها' }, { status: 500 });
@@ -53,10 +71,14 @@ export async function POST(request: Request) {
       industry_id,
       order = 1,
       icon = 'folder',
+      cover_image = null,
+      is_active = true,
+      is_featured = false,
+      additional_category_ids = [],
     } = body;
 
     if (type === 'category') {
-      const catName = name || title;
+      const catName = (name || title || '').trim();
       if (!catName) {
         return NextResponse.json({ error: 'نام دسته‌بندی الزامی است.' }, { status: 400 });
       }
@@ -65,13 +87,14 @@ export async function POST(request: Request) {
         data: {
           name: catName,
           slug: catSlug,
+          cover_image: cover_image || null,
           description: description || subtitle || catName,
           icon: icon || 'folder',
           order: Number(order) || 1,
-          is_active: true,
-          is_featured: Boolean(featured),
+          is_active: is_active !== undefined ? Boolean(is_active) : true,
+          is_featured: Boolean(is_featured || featured),
           meta_title: catName,
-          meta_description: description.slice(0, 300),
+          meta_description: (description || catName).slice(0, 300),
           created_at: new Date(),
           updated_at: new Date(),
         },
@@ -80,7 +103,7 @@ export async function POST(request: Request) {
     }
 
     if (type === 'industry') {
-      const indName = name || title;
+      const indName = (name || title || '').trim();
       if (!indName) {
         return NextResponse.json({ error: 'نام صنعت الزامی است.' }, { status: 400 });
       }
@@ -159,7 +182,6 @@ export async function POST(request: Request) {
       show_on_map = false,
       meta_title = '',
       meta_description = '',
-      is_active = true,
       recent = true,
     } = body;
 
@@ -202,6 +224,22 @@ export async function POST(request: Request) {
       },
     });
 
+    // Save multi-categories (additional categories)
+    if (Array.isArray(additional_category_ids) && additional_category_ids.length > 0) {
+      const validAddCatIds = additional_category_ids
+        .map(Number)
+        .filter((catId) => !isNaN(catId) && catId !== cat.id);
+
+      if (validAddCatIds.length > 0) {
+        await prisma.portfolioProjectAdditionalCategories.createMany({
+          data: validAddCatIds.map((catId) => ({
+            project_id: newProject.id,
+            projectcategory_id: catId,
+          })),
+        });
+      }
+    }
+
     return NextResponse.json({ success: true, project: newProject });
   } catch (error: any) {
     console.error('Error creating project:', error);
@@ -218,7 +256,9 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     const {
+      type = 'project',
       id,
+      name,
       title,
       slug,
       subtitle,
@@ -250,12 +290,60 @@ export async function PUT(request: Request) {
       meta_description,
       order,
       is_active,
+      is_featured,
+      cover_image,
+      icon,
+      additional_category_ids,
     } = body;
 
     if (!id) {
-      return NextResponse.json({ error: 'شناسه پروژه الزامی است.' }, { status: 400 });
+      return NextResponse.json({ error: 'شناسه الزامی است.' }, { status: 400 });
     }
 
+    // Category Update
+    if (type === 'category') {
+      const catName = name || title;
+      const catSlug = slug ? slug.trim().toLowerCase().replace(/\s+/g, '-') : undefined;
+
+      const updatedCategory = await prisma.portfolioProjectcategory.update({
+        where: { id: Number(id) },
+        data: {
+          ...(catName !== undefined && { name: catName.trim() }),
+          ...(catSlug !== undefined && { slug: catSlug }),
+          ...(cover_image !== undefined && { cover_image: cover_image || null }),
+          ...(description !== undefined && { description }),
+          ...(icon !== undefined && { icon }),
+          ...(order !== undefined && { order: Number(order) }),
+          ...(is_active !== undefined && { is_active: Boolean(is_active) }),
+          ...(is_featured !== undefined
+            ? { is_featured: Boolean(is_featured) }
+            : featured !== undefined
+            ? { is_featured: Boolean(featured) }
+            : {}),
+          ...(meta_title !== undefined && { meta_title }),
+          ...(meta_description !== undefined && { meta_description }),
+          updated_at: new Date(),
+        },
+      });
+      return NextResponse.json({ success: true, category: updatedCategory });
+    }
+
+    // Industry Update
+    if (type === 'industry') {
+      const indName = name || title;
+      const indSlug = slug ? slug.trim().toLowerCase().replace(/\s+/g, '-') : undefined;
+
+      const updatedIndustry = await prisma.portfolioIndustry.update({
+        where: { id: Number(id) },
+        data: {
+          ...(indName !== undefined && { name: indName.trim() }),
+          ...(indSlug !== undefined && { slug: indSlug }),
+        },
+      });
+      return NextResponse.json({ success: true, industry: updatedIndustry });
+    }
+
+    // Project Update
     function serializeJson(val: any): string | null {
       if (val === undefined) return undefined as any;
       if (!val) return null;
@@ -304,6 +392,27 @@ export async function PUT(request: Request) {
       },
     });
 
+    // Update multi-categories (additional categories)
+    if (additional_category_ids !== undefined && Array.isArray(additional_category_ids)) {
+      await prisma.portfolioProjectAdditionalCategories.deleteMany({
+        where: { project_id: Number(id) },
+      });
+
+      const currentPrimaryCatId = category_id !== undefined ? Number(category_id) : updated.category_id;
+      const validAddCatIds = additional_category_ids
+        .map(Number)
+        .filter((catId) => !isNaN(catId) && catId !== currentPrimaryCatId);
+
+      if (validAddCatIds.length > 0) {
+        await prisma.portfolioProjectAdditionalCategories.createMany({
+          data: validAddCatIds.map((catId) => ({
+            project_id: Number(id),
+            projectcategory_id: catId,
+          })),
+        });
+      }
+    }
+
     return NextResponse.json({ success: true, project: updated });
   } catch (error: any) {
     console.error('Error updating project:', error);
@@ -327,8 +436,34 @@ export async function DELETE(request: Request) {
     }
 
     if (type === 'category') {
+      const catId = Number(id);
+
+      // Clean up junction table first
+      await prisma.portfolioProjectAdditionalCategories.deleteMany({
+        where: { projectcategory_id: catId },
+      });
+
+      // Check if any project has this category as its primary category
+      const projectCount = await prisma.portfolioProject.count({
+        where: { category_id: catId },
+      });
+
+      if (projectCount > 0) {
+        // Find a fallback category
+        const fallbackCat = await prisma.portfolioProjectcategory.findFirst({
+          where: { id: { not: catId } },
+        });
+
+        if (fallbackCat) {
+          await prisma.portfolioProject.updateMany({
+            where: { category_id: catId },
+            data: { category_id: fallbackCat.id },
+          });
+        }
+      }
+
       await prisma.portfolioProjectcategory.delete({
-        where: { id: Number(id) },
+        where: { id: catId },
       });
       return NextResponse.json({ success: true, message: 'دسته‌بندی با موفقیت حذف شد.' });
     }
@@ -339,6 +474,11 @@ export async function DELETE(request: Request) {
       });
       return NextResponse.json({ success: true, message: 'صنعت با موفقیت حذف شد.' });
     }
+
+    // Clean up junction rows before project deletion
+    await prisma.portfolioProjectAdditionalCategories.deleteMany({
+      where: { project_id: Number(id) },
+    });
 
     await prisma.portfolioProject.delete({
       where: { id: Number(id) },

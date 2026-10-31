@@ -9,7 +9,7 @@ import { MeshGradient } from '@/components/ui/MeshGradient';
 import { TextScramble } from '@/components/ui/TextScramble';
 import { KineticTypography } from '@/components/ui/KineticTypography';
 import { TiltCard } from '@/components/ui/TiltCard';
-import { ServicesHub3D } from '@/components/3d/ServicesHub3D';
+import { IsometricCreativeUniverse3D } from '@/components/3d/IsometricCreativeUniverse3D';
 import { ProductConfigurator3D } from '@/components/3d/ProductConfigurator3D';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 
@@ -65,12 +65,9 @@ export function ServicesEnhancedView({ services }: ServicesEnhancedViewProps) {
             </div>
           </div>
 
-          {/* Meaningful 3D Holographic 5-Pillars Hub */}
-          <div className="lg:col-span-5 h-[380px] sm:h-[440px] lg:h-[480px] rounded-3xl border border-white/10 bg-dark-surface/40 backdrop-blur-xl overflow-hidden relative shadow-2xl flex flex-col justify-between">
-            <ServicesHub3D />
-            <div className="pointer-events-none absolute top-3 right-3 z-10 text-[10px] font-mono text-cyan-400 bg-cyan-950/60 backdrop-blur-sm px-2.5 py-1 rounded-full border border-cyan-500/20">
-              هاب هولوگرافیک ۵ بال خدماتی
-            </div>
+          {/* Isometric 3D Creative Universe */}
+          <div className="lg:col-span-5 h-[420px] sm:h-[480px] lg:h-[540px] relative w-full">
+            <IsometricCreativeUniverse3D />
           </div>
         </div>
 

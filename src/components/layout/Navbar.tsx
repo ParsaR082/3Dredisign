@@ -179,7 +179,7 @@ export default function Navbar({ settings, services }: NavbarProps) {
             <MagneticButton distance={0.35}>
               <Link
                 href="/contact-us/"
-                className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-emerald-600/30 flex items-center gap-1.5 transition-all block"
+                className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-emerald-600/30 flex items-center gap-1.5 transition-all"
               >
                 <span className="flex items-center gap-1.5">
                   <span>شروع پروژه</span>

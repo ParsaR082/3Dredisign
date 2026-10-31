@@ -3,6 +3,7 @@ import type {
   SiteSettings,
   Service,
   Project,
+  ProjectCategory,
   StatItem,
   ProjectKPI,
   ProjectTimelineStep,
@@ -245,12 +246,17 @@ export async function getLiveProjects(): Promise<Project[]> {
     }
 
     const projectAddCatsMap = new Map<number, string[]>();
+    const projectAddCatSlugsMap = new Map<number, string[]>();
     for (const ac of additionalCats) {
       const catObj = catMap.get(ac.projectcategory_id);
       if (catObj) {
-        const existing = projectAddCatsMap.get(ac.project_id) || [];
-        existing.push(catObj.name);
-        projectAddCatsMap.set(ac.project_id, existing);
+        const existingNames = projectAddCatsMap.get(ac.project_id) || [];
+        existingNames.push(catObj.name);
+        projectAddCatsMap.set(ac.project_id, existingNames);
+
+        const existingSlugs = projectAddCatSlugsMap.get(ac.project_id) || [];
+        existingSlugs.push(catObj.slug);
+        projectAddCatSlugsMap.set(ac.project_id, existingSlugs);
       }
     }
 
@@ -333,6 +339,7 @@ export async function getLiveProjects(): Promise<Project[]> {
       const industryName = indMap.get(p.industry_id) || 'تکنولوژی و کسب‌وکار';
       const techs = projectTechMap.get(p.id) || [];
       const addCats = projectAddCatsMap.get(p.id) || [];
+      const addCatSlugs = projectAddCatSlugsMap.get(p.id) || [];
       const pVideos = projectVideosMap.get(p.id) || [];
       const pGallery = projectImagesMap.get(p.id) || [];
 
@@ -348,6 +355,7 @@ export async function getLiveProjects(): Promise<Project[]> {
         category: cat?.name || 'طراحی و توسعه',
         category_slug: cat?.slug || 'web',
         additional_categories: addCats.length > 0 ? addCats : undefined,
+        additional_category_slugs: addCatSlugs.length > 0 ? addCatSlugs : undefined,
         industry: industryName,
         technologies: techs,
         description: p.description?.trim() || '',
@@ -410,6 +418,33 @@ export async function getLiveProjectBySlug(slug: string): Promise<Project | null
       p.id.toLowerCase() === decoded
   );
   return fallbackFound || null;
+}
+
+/**
+ * Fetch live project categories from database
+ */
+export async function getLiveCategories(): Promise<ProjectCategory[]> {
+  try {
+    const rows = await prisma.portfolioProjectcategory.findMany({
+      where: { is_active: true },
+      orderBy: { order: 'asc' },
+    });
+    if (!rows || rows.length === 0) return [];
+    return rows.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      cover_image: resolveMediaUrl(c.cover_image) || null,
+      description: c.description,
+      icon: c.icon,
+      order: c.order,
+      is_active: c.is_active,
+      is_featured: c.is_featured,
+    }));
+  } catch (error) {
+    console.warn('DB Categories query failed:', error);
+    return [];
+  }
 }
 
 /**

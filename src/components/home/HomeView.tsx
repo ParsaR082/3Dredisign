@@ -44,15 +44,83 @@ interface HomeViewProps {
   settings: SiteSettings;
 }
 
+// Helper to resolve dive target whether it's a fixed service, contact-us, or dynamic portfolio TV
+export function resolveDiveTarget(
+  slug: string | null | undefined,
+  projects?: Project[]
+): DiveTargetConfig | null {
+  if (!slug) return null;
+
+  // 1. Direct match in DIVE_TARGETS_CONFIG
+  if (DIVE_TARGETS_CONFIG[slug]) {
+    return DIVE_TARGETS_CONFIG[slug];
+  }
+
+  // 2. Check if sessionStorage stored the underlying station config (e.g. from TV dive)
+  if (typeof window !== 'undefined') {
+    try {
+      const storedStation = sessionStorage.getItem('last_dive_station');
+      if (storedStation && DIVE_TARGETS_CONFIG[storedStation]) {
+        return {
+          ...DIVE_TARGETS_CONFIG[storedStation],
+          slug,
+          targetUrl: `/portfolio/${slug}/`,
+        };
+      }
+    } catch (_) {}
+  }
+
+  // 3. Check if slug matches a project TV in the 3D exhibition room
+  if (projects && projects.length > 0) {
+    const projectIdx = projects.findIndex((p) => p.slug === slug);
+    if (projectIdx !== -1) {
+      const tvIndex =
+        projectIdx < PORTFOLIO_TVS_CONFIG.length
+          ? projectIdx
+          : projectIdx % PORTFOLIO_TVS_CONFIG.length;
+      const defaultTv = PORTFOLIO_TVS_CONFIG[tvIndex];
+      const defaultDive = DIVE_TARGETS_CONFIG[defaultTv.slug];
+      if (defaultDive) {
+        return {
+          ...defaultDive,
+          slug,
+          targetUrl: `/portfolio/${slug}/`,
+        };
+      }
+    }
+  }
+
+  // 4. Fallback for any other portfolio project slug (if returning from /portfolio/... or containing returnFrom)
+  if (typeof window !== 'undefined') {
+    try {
+      const isPortfolioReturn =
+        window.location.search.includes('returnFrom=') ||
+        Boolean(sessionStorage.getItem('last_dive_target'));
+
+      if (isPortfolioReturn) {
+        const defaultTv = PORTFOLIO_TVS_CONFIG[0];
+        const defaultDive = DIVE_TARGETS_CONFIG[defaultTv.slug];
+        if (defaultDive) {
+          return {
+            ...defaultDive,
+            slug,
+            targetUrl: `/portfolio/${slug}/`,
+          };
+        }
+      }
+    } catch (_) {}
+  }
+
+  return null;
+}
+
 // Synchronously detect if user is returning from a detail page dive
-function getInitialDiveTarget(): DiveTargetConfig | null {
+function getInitialDiveTarget(projects?: Project[]): DiveTargetConfig | null {
   if (typeof window === 'undefined') return null;
   try {
     const urlParams = new URLSearchParams(window.location.search);
     const returnSlug = urlParams.get('returnFrom') || sessionStorage.getItem('last_dive_target');
-    if (returnSlug && DIVE_TARGETS_CONFIG[returnSlug]) {
-      return DIVE_TARGETS_CONFIG[returnSlug];
-    }
+    return resolveDiveTarget(returnSlug, projects);
   } catch (_) {}
   return null;
 }
@@ -66,7 +134,7 @@ export default function HomeView({
   const router = useRouter();
 
   // Check if returning from a service/project dive transition
-  const initialTarget = useMemo(() => getInitialDiveTarget(), []);
+  const initialTarget = useMemo(() => getInitialDiveTarget(projects), [projects]);
 
   // ── VIRTUAL SMOOTH SPATIAL SCROLL CONTROLLER ──
   const [targetProgress, setTargetProgress] = useState(
@@ -121,9 +189,11 @@ export default function HomeView({
         const returnSlug =
           urlParams.get('returnFrom') || sessionStorage.getItem('last_dive_target');
 
-        if (returnSlug && DIVE_TARGETS_CONFIG[returnSlug]) {
-          const targetConfig = DIVE_TARGETS_CONFIG[returnSlug];
+        const targetConfig = resolveDiveTarget(returnSlug, projects);
+
+        if (targetConfig) {
           sessionStorage.removeItem('last_dive_target');
+          sessionStorage.removeItem('last_dive_station');
 
           isTransitioningRef.current = true;
           setActiveDiveTarget(targetConfig);
@@ -150,6 +220,11 @@ export default function HomeView({
             setDivePhase('idle');
             setActiveDiveTarget(null);
             isTransitioningRef.current = false;
+            if (typeof window !== 'undefined' && window.location.search.includes('returnFrom')) {
+              try {
+                window.history.replaceState({}, '', '/');
+              } catch (_) {}
+            }
           }, 1680);
 
           return () => {
@@ -174,7 +249,7 @@ export default function HomeView({
     const onPageShow = () => handleReturnAnimation();
     window.addEventListener('pageshow', onPageShow);
     return () => window.removeEventListener('pageshow', onPageShow);
-  }, []);
+  }, [projects]);
 
   // Target progress ref for event handlers to avoid stale closures
   const targetProgressRef = useRef(initialTarget ? initialTarget.stagingProgress : 0);
@@ -397,6 +472,11 @@ export default function HomeView({
             slug: slug,
             targetUrl: `/portfolio/${slug}/`,
           };
+          if (typeof window !== 'undefined') {
+            try {
+              sessionStorage.setItem('last_dive_station', defaultTv.slug);
+            } catch (_) {}
+          }
         }
       }
     }

@@ -177,6 +177,7 @@ export interface Project {
   category: string;
   category_slug: string;
   additional_categories?: string[];
+  additional_category_slugs?: string[];
   industry: string;
   technologies: string[];
   description: string;
@@ -203,6 +204,18 @@ export interface Project {
   meta_title?: string;
   meta_description?: string;
   canonical_url?: string;
+}
+
+export interface ProjectCategory {
+  id: number;
+  name: string;
+  slug: string;
+  cover_image?: string | null;
+  description?: string;
+  icon?: string;
+  order?: number;
+  is_active?: boolean;
+  is_featured?: boolean;
 }
 
 export interface PricingPlan {

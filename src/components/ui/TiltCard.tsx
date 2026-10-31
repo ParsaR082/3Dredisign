@@ -60,10 +60,12 @@ export function TiltCard({
     mouseY.set(0);
   };
 
+  const isFullHeight = className.includes('h-full');
+
   return (
     <div
       style={{ perspective: `${perspective}px` }}
-      className="relative will-change-transform"
+      className={`relative will-change-transform ${isFullHeight ? 'h-full flex flex-col' : ''}`}
     >
       <motion.div
         ref={cardRef}
@@ -75,7 +77,7 @@ export function TiltCard({
           rotateY,
           transformStyle: 'preserve-3d',
         }}
-        className={`relative overflow-hidden transition-shadow duration-300 ${className}`}
+        className={`relative overflow-hidden transition-shadow duration-300 ${isFullHeight ? 'h-full flex flex-col flex-1' : ''} ${className}`}
         {...(props as any)}
       >
         {children}

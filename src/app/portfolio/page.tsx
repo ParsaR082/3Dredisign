@@ -1,6 +1,6 @@
 import React from 'react';
 import PortfolioView from '@/components/portfolio/PortfolioView';
-import { getLiveProjects } from '@/lib/db';
+import { getLiveProjects, getLiveCategories } from '@/lib/db';
 import { generatePageMetadata } from '@/lib/seo';
 
 export const metadata = generatePageMetadata({
@@ -10,6 +10,10 @@ export const metadata = generatePageMetadata({
 });
 
 export default async function PortfolioPage() {
-  const allProjects = await getLiveProjects();
-  return <PortfolioView allProjects={allProjects} />;
+  const [allProjects, categories] = await Promise.all([
+    getLiveProjects(),
+    getLiveCategories(),
+  ]);
+
+  return <PortfolioView allProjects={allProjects} initialCategories={categories} />;
 }

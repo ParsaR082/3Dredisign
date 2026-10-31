@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import PortfolioView from '@/components/portfolio/PortfolioView';
-import { getLiveProjects } from '@/lib/db';
+import { getLiveProjects, getLiveCategories } from '@/lib/db';
 import { generatePageMetadata } from '@/lib/seo';
 
 const CATEGORY_MAP: Record<string, { title: string; desc: string }> = {
@@ -33,17 +33,31 @@ interface CategoryPageProps {
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  return Object.keys(CATEGORY_MAP).map((slug) => ({
-    slug,
-  }));
+  const categories = await getLiveCategories();
+  const dbSlugs = categories.map((c) => ({ slug: c.slug }));
+  const mapSlugs = Object.keys(CATEGORY_MAP).map((slug) => ({ slug }));
+  const seen = new Set<string>();
+  const all: { slug: string }[] = [];
+  for (const item of [...dbSlugs, ...mapSlugs]) {
+    if (!seen.has(item.slug)) {
+      seen.add(item.slug);
+      all.push(item);
+    }
+  }
+  return all;
 }
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const cat = CATEGORY_MAP[slug] || {
-    title: 'دسته‌بندی نمونه‌کارها',
-    desc: 'آرشیو نمونه‌کارهای تخصصی اروم سیما در ارومیه.',
-  };
+  const categories = await getLiveCategories();
+  const matched = categories.find((c) => c.slug === slug);
+
+  const cat = matched
+    ? { title: matched.name, desc: matched.description || 'آرشیو نمونه‌کارهای تخصصی اروم سیما در ارومیه.' }
+    : CATEGORY_MAP[slug] || {
+        title: 'دسته‌بندی نمونه‌کارها',
+        desc: 'آرشیو نمونه‌کارهای تخصصی اروم سیما در ارومیه.',
+      };
 
   return generatePageMetadata({
     title: `${cat.title} | نمونه‌کارهای اروم سیما`,
@@ -54,15 +68,23 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 
 export default async function PortfolioCategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const allProjects = await getLiveProjects();
-  const cat = CATEGORY_MAP[slug] || {
-    title: 'نمونه‌کارها',
-    desc: '',
-  };
+  const [allProjects, categories] = await Promise.all([
+    getLiveProjects(),
+    getLiveCategories(),
+  ]);
+
+  const matched = categories.find((c) => c.slug === slug);
+  const cat = matched
+    ? { title: matched.name, desc: matched.description || '' }
+    : CATEGORY_MAP[slug] || {
+        title: 'نمونه‌کارها',
+        desc: '',
+      };
 
   return (
     <PortfolioView
       allProjects={allProjects}
+      initialCategories={categories}
       initialCategory={slug}
       categoryTitle={cat.title}
     />
