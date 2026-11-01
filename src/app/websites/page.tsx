@@ -17,6 +17,9 @@ export const metadata: Metadata = generatePageMetadata({
   path: '/websites/',
 });
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function WebsitesPage() {
   const websites = await getLiveWebsites();
 

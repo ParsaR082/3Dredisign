@@ -11,11 +11,14 @@ import type {
   ProjectVideo,
   ProjectImage,
   BlogPost,
+  PricingPlan,
+  PricingSettings,
 } from '@/types/content';
 import siteSettingsFallback from '@/content/site-settings.json';
 import servicesFallback from '@/content/services.json';
 import projectsFallback from '@/content/projects.json';
 import blogFallback from '@/content/blog.json';
+import pricingFallback from '@/content/pricing.json';
 
 export function resolveMediaUrl(path: string | null | undefined): string {
   if (!path) return '';
@@ -145,10 +148,30 @@ export async function getLiveServices(): Promise<Service[]> {
             .filter(Boolean)
         : [];
 
+      // Ensure dedicated_url is strictly an internal relative path (never https://urumsima.ir)
+      let cleanDedicatedUrl = `/services/${s.slug}/`;
+      const slugLower = (s.slug || '').toLowerCase();
+      if (slugLower === 'web-design' || slugLower === 'corporate-industrial-web-design') {
+        cleanDedicatedUrl = '/web-design-urmia/';
+      } else if (slugLower === 'content-production' || slugLower === 'instagram-content-creation-management') {
+        cleanDedicatedUrl = '/content-production-urmia/';
+      } else if (slugLower === 'video-teaser' || slugLower === 'industrial-commercial-video-production') {
+        cleanDedicatedUrl = '/video-teaser-urmia/';
+      } else if (slugLower === 'billboard' || slugLower === 'billboard-outdoor-advertising-design') {
+        cleanDedicatedUrl = '/billboard-urmia/';
+      } else if (s.canonical_url) {
+        try {
+          const pathOnly = s.canonical_url.replace(/^https?:\/\/[^\/]+/, '');
+          if (pathOnly && pathOnly.startsWith('/')) {
+            cleanDedicatedUrl = pathOnly;
+          }
+        } catch (_) {}
+      }
+
       return {
         id: String(s.id),
         slug: s.slug,
-        dedicated_url: s.canonical_url || `/${s.slug}/`,
+        dedicated_url: cleanDedicatedUrl,
         title: s.title,
         breadcrumb_label: s.breadcrumb_label || s.title,
         canonical_url: s.canonical_url || `/${s.slug}/`,
@@ -343,9 +366,34 @@ export async function getLiveProjects(): Promise<Project[]> {
       const pVideos = projectVideosMap.get(p.id) || [];
       const pGallery = projectImagesMap.get(p.id) || [];
 
-      const desktopMockup = resolveMediaUrl(p.desktop_mockup);
-      const mobileMockup = resolveMediaUrl(p.mobile_mockup);
-      const tabletMockup = resolveMediaUrl(p.tablet_mockup);
+      const cleanWebsiteUrl =
+        p.website_url?.trim() &&
+        p.website_url.trim() !== 'null' &&
+        p.website_url.trim() !== 'undefined'
+          ? p.website_url.trim()
+          : undefined;
+
+      const hasRealDesktop = Boolean(
+        p.desktop_mockup?.trim() &&
+        !p.desktop_mockup.includes('thumbnails/') &&
+        p.desktop_mockup.trim() !== 'null'
+      );
+      const hasRealMobile = Boolean(
+        p.mobile_mockup?.trim() &&
+        !p.mobile_mockup.includes('thumbnails/') &&
+        p.mobile_mockup.trim() !== 'null'
+      );
+      const hasRealTablet = Boolean(
+        p.tablet_mockup?.trim() &&
+        !p.tablet_mockup.includes('thumbnails/') &&
+        p.tablet_mockup.trim() !== 'null'
+      );
+
+      const desktopMockup = hasRealDesktop ? resolveMediaUrl(p.desktop_mockup) : undefined;
+      const mobileMockup = hasRealMobile ? resolveMediaUrl(p.mobile_mockup) : undefined;
+      const tabletMockup = hasRealTablet ? resolveMediaUrl(p.tablet_mockup) : undefined;
+
+      const hasAnyMockup = Boolean(desktopMockup || mobileMockup || tabletMockup);
 
       return {
         id: String(p.id),
@@ -365,15 +413,17 @@ export async function getLiveProjects(): Promise<Project[]> {
         recent: p.recent,
         popular: p.popular,
         project_date: p.project_date?.trim() || '',
-        website_url: p.website_url?.trim() || undefined,
-        pdf_url: p.pdf_url?.trim() ? resolveMediaUrl(p.pdf_url) : undefined,
+        website_url: cleanWebsiteUrl,
+        pdf_url: p.pdf_url?.trim() && p.pdf_url.trim() !== 'null' ? resolveMediaUrl(p.pdf_url) : undefined,
         thumbnail_image: resolveMediaUrl(p.thumbnail_image) || '/images/urumsima3.jpg',
         thumbnail_video_url: p.thumbnail_video_url ? resolveMediaUrl(p.thumbnail_video_url) : undefined,
-        mockups: {
-          desktop: desktopMockup || undefined,
-          mobile: mobileMockup || undefined,
-          tablet: tabletMockup || undefined,
-        },
+        mockups: hasAnyMockup
+          ? {
+              desktop: desktopMockup,
+              mobile: mobileMockup,
+              tablet: tabletMockup,
+            }
+          : undefined,
         kpis: parsedKpis,
         timeline_steps: parsedTimeline.length > 0 ? parsedTimeline : undefined,
         roi: roiData,
@@ -649,6 +699,62 @@ const fallbackWebsites: ShowcaseWebsite[] = [
       { title: 'بسته‌بندی هدیه لوکس', description: 'امکان انتخاب کارت تبریک و جعبه نفیس', icon_label: 'gift' },
     ],
   },
+  {
+    id: 6,
+    title: 'کافه رستری نئو (Neo Cafe)',
+    slug: 'neo-cafe',
+    subtitle: 'پلتفرم جامع کافه رستری، فروشگاه تخصصی قهوه و سفارش آنلاین',
+    excerpt: 'پلتفرم یکپارچه نئو کافه شامل معرفی برند، فروشگاه قهوه تازه رست، ابزارهای تخصصی باریستا، منوی سفارش آنلاین و سیستم رزرواسیون VIP.',
+    body: 'پلتفرم یکپارچه نئو کافه (Neo Cafe) با سبک طراحی سینمایی و دارک‌مود فاخر، تجربه‌ای منحصربه‌فرد برای شیفتگان قهوه و مشتریان وفادار خلق کرده است. این سامانه با تلفیق فروشگاه اینترنتی دانه‌های قهوه تک‌خاستگاه، منوی آنلاین بار گرم و سرد با جزئیات کاپینگ، و سیستم رزرواسیون میزها و رویدادهای اختصاصی، ارائه‌دهنده راه‌حلی نوین در صنعت کافه و رستری مدرن است.',
+    cover_image: '/media/websites/covers/neo-cafe.jpg',
+    live_url: 'https://neo-cafe.vercel.app/',
+    client_name: 'مجموعه کافه رستری نئو',
+    industry: 'کافه، رستوران و فروشگاهی',
+    year: 1403,
+    is_one_page: false,
+    accent_color: '#d97706',
+    tech_stack_csv: 'Next.js 15, Tailwind CSS, TypeScript, Framer Motion, Django REST',
+    pages_label: 'چند صفحه‌ای و فروشگاه تخصصی',
+    status: 'published',
+    is_featured: true,
+    order: 6,
+    category_name: 'کافه و رستوران',
+    features: [
+      { title: 'روایت سینمایی برند و هویت بصری دارک', description: 'طراحی اختصاصی با پالت رنگی گرم و افکت‌های مینیمال برای بازتاب حس اصالت قهوه اسپشالتی', icon_label: 'sparkles' },
+      { title: 'فروشگاه قهوه تازه رست و ابزارهای دم‌آوری', description: 'انتخاب درجه آسیاب، پروفایل رست دانه‌ها و سیستم خرید سریع با درگاه بانکی', icon_label: 'coffee' },
+      { title: 'منوی آنلاین تعاملی سرو در سالن و بیرون‌بر', description: 'لیست کامل نوشیدنی‌ها، ماکتل‌ها و دسرهای روز همراه با شاخص طعمی و کالری', icon_label: 'menu' },
+      { title: 'رزرواسیون آنلاین میز و پکیج‌های VIP', description: 'انتخاب موقعیت میز، ثبت مناسبت‌های خاص و رزرو زمان به همراه تایید پیامکی', icon_label: 'calendar' },
+      { title: 'سبد خرید تعاملی و پرفورمنس بهینه', description: 'استفاده از آخرین استاندارد Next.js 15 و انیمیشن‌های روان فریمور با لود زیر ۱ ثانیه', icon_label: 'zap' },
+    ],
+  },
+  {
+    id: 7,
+    title: 'داشبورد مدیریتی فین‌ماتریکس (FinMatrix)',
+    slug: 'digital-dashboard',
+    subtitle: 'پرتال سازمانی تسویه ارزی، مدیریت نقدینگی و خزانه‌داری بین‌المللی',
+    excerpt: 'داشبورد تحلیلی و معاملاتی فین‌ماتریکس با قابلیت مانیتورینگ زنده نقدینگی، عمق بازار اوردربوک، تسویه برون‌مرزی و پشتیبانی کامل از چینش دوطرفه RTL و LTR.',
+    body: 'سامانه و داشبورد مدیریتی فین‌ماتریکس (FinMatrix) با استفاده از به‌روزترین معماری مدرن وب در Next.js 16 و React 19 پیاده‌سازی شده است. این پلتفرم با ارائه چارت‌های بلادرنگ توازن نقدینگی، ماتریس رزرو ارزی چندگانه، ره‌گیری آنی دفتر کل تراکنش‌ها و ماژول ممیزی قانونی (Compliance Audit)، بستری در کلاس جهانی برای کنترل دارایی‌های مالی نهادی فراهم می‌آورد.',
+    cover_image: '/media/websites/covers/finmatrix-dashboard.jpg',
+    live_url: 'https://digital-dashboard-beta.vercel.app/',
+    client_name: 'هلدینگ فین‌تک فین‌ماتریکس',
+    industry: 'فین‌تک و داشبورد سازمانی',
+    year: 1403,
+    is_one_page: false,
+    accent_color: '#0ea5e9',
+    tech_stack_csv: 'Next.js 16, React 19, Tailwind CSS, NumberFlow, Framer Motion, TypeScript',
+    pages_label: 'داشبورد چندبخشی و سیستم معاملاتی',
+    status: 'published',
+    is_featured: true,
+    order: 7,
+    category_name: 'سامانه‌ها و داشبوردها',
+    features: [
+      { title: 'مانیتورینگ بلادرنگ و توازن نقدینگی چندارزی', description: 'چارت‌های زنده Liquidity Rebalancing با محاسبه هوشمند جریان نقدی و شاخص ریسک لحظه‌ای', icon_label: 'activity' },
+      { title: 'اوردربوک پیشرفته و مصورسازی عمق بازار', description: 'نمودار شمعی ژاپنی (Candlestick) تعاملی به همراه حجم معاملات Bid و Ask به صورت زنده', icon_label: 'bar-chart-3' },
+      { title: 'دفتر کل تسویه برون‌مرزی (Bilateral Settlement Ledger)', description: 'فهرست تراکنش‌های تسویه شده و در انتظار با تفکیک طرفین معامله و نرخ کارمزد', icon_label: 'layers' },
+      { title: 'معماری دوطرفه قرینه‌ای RTL و LTR', description: 'تغییر بدون تاخیر جهت رابط کاربری و بازچیدمان گریدها متناسب با زبان انگلیسی و فارسی', icon_label: 'globe' },
+      { title: 'سیستم ممیزی انطباق و امنیت سازمانی (Compliance Engine)', description: 'پایش خودکار سقف مجاز مبادلات مالی و صدور هشدارهای انحراف از پروتکل‌های امنیتی', icon_label: 'shield-check' },
+    ],
+  },
 ];
 
 export async function getLiveWebsites(): Promise<ShowcaseWebsite[]> {
@@ -892,5 +998,69 @@ export async function getLiveBlogPostBySlug(slug: string): Promise<BlogPost | nu
         a.id.toLowerCase() === decoded
     ) || null
   );
+}
+
+/**
+ * Fetch live Pricing Plans and Settings from database, with fallback to local JSON
+ */
+export async function getLivePricing(): Promise<{ settings: PricingSettings; plans: PricingPlan[] }> {
+  try {
+    const [dbPlans, dbFeatures, dbSettings] = await Promise.all([
+      prisma.pricingPricingplan.findMany({
+        orderBy: { order: 'asc' },
+      }),
+      prisma.pricingPricingfeature.findMany({
+        orderBy: { order: 'asc' },
+      }),
+      prisma.pricingPricingpagesettings.findFirst(),
+    ]);
+
+    const fallback = pricingFallback as { settings: PricingSettings; plans: PricingPlan[] };
+
+    const settings: PricingSettings = {
+      meta_title: dbSettings?.meta_title || fallback.settings.meta_title,
+      meta_description: dbSettings?.meta_description || fallback.settings.meta_description,
+      canonical_url: '/pricing/',
+      hero_badge: dbSettings?.hero_badge || fallback.settings.hero_badge,
+      hero_title: dbSettings?.hero_title || fallback.settings.hero_title,
+      hero_description: dbSettings?.hero_description || fallback.settings.hero_description,
+      stat_1_value: dbSettings?.stat_1_value || fallback.settings.stat_1_value,
+      stat_1_label: dbSettings?.stat_1_label || fallback.settings.stat_1_label,
+      stat_2_value: dbSettings?.stat_2_value || fallback.settings.stat_2_value,
+      stat_2_label: dbSettings?.stat_2_label || fallback.settings.stat_2_label,
+      stat_3_value: dbSettings?.stat_3_value || fallback.settings.stat_3_value,
+      stat_3_label: dbSettings?.stat_3_label || fallback.settings.stat_3_label,
+      plans_section_title: dbSettings?.plans_section_title || fallback.settings.plans_section_title,
+      plans_section_subtitle: dbSettings?.plans_section_subtitle || fallback.settings.plans_section_subtitle,
+    };
+
+    if (!dbPlans || dbPlans.length === 0) {
+      return { settings, plans: fallback.plans };
+    }
+
+    const plans: PricingPlan[] = dbPlans.map((p) => {
+      const planFeatures = dbFeatures
+        .filter((f) => f.plan_id === p.id)
+        .map((f) => f.title);
+
+      return {
+        id: p.id,
+        name: p.name,
+        description: p.description || '',
+        monthly_price: Number(p.monthly_price) || 0,
+        yearly_price: Number(p.yearly_price) || 0,
+        billing_period: p.billing_period || 'ماهانه',
+        custom_price_text: p.custom_price_text || '',
+        is_popular: Boolean(p.is_popular),
+        order: p.order || 1,
+        features: planFeatures,
+      };
+    });
+
+    return { settings, plans };
+  } catch (error) {
+    console.warn('DB Pricing query failed, using static fallback:', error);
+    return pricingFallback as { settings: PricingSettings; plans: PricingPlan[] };
+  }
 }
 

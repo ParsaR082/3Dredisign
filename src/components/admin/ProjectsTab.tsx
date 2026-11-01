@@ -25,6 +25,7 @@ import {
   Image as ImageIcon,
   Tag,
   Eye,
+  Building2,
 } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
 
@@ -45,10 +46,16 @@ export interface AdminCategory {
   is_featured?: boolean;
 }
 
+export interface AdminIndustry {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 type ModalTab = 'base' | 'content' | 'media' | 'metrics' | 'seo_geo';
 
 export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
-  const [activeSection, setActiveSection] = useState<'projects' | 'categories'>('projects');
+  const [activeSection, setActiveSection] = useState<'projects' | 'categories' | 'industries'>('projects');
   const [searchTerm, setSearchTerm] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [activeModalTab, setActiveModalTab] = useState<ModalTab>('base');
@@ -57,7 +64,7 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
   const [error, setError] = useState<string | null>(null);
 
   const [categories, setCategories] = useState<AdminCategory[]>([]);
-  const [industries, setIndustries] = useState<{ id: number; name: string }[]>([]);
+  const [industries, setIndustries] = useState<AdminIndustry[]>([]);
 
   // Category Modal State
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
@@ -74,6 +81,16 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
     order: '1',
     is_active: true,
     is_featured: false,
+  });
+
+  // Industry Modal State
+  const [industryModalOpen, setIndustryModalOpen] = useState(false);
+  const [editingIndustry, setEditingIndustry] = useState<AdminIndustry | null>(null);
+  const [indLoading, setIndLoading] = useState(false);
+  const [indError, setIndError] = useState<string | null>(null);
+  const [indFormData, setIndFormData] = useState({
+    name: '',
+    slug: '',
   });
 
   const fetchCategoriesAndIndustries = () => {
@@ -212,6 +229,83 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
     }
   };
 
+  // Industry Modal Handlers
+  const openCreateIndustryModal = () => {
+    setEditingIndustry(null);
+    setIndFormData({
+      name: '',
+      slug: '',
+    });
+    setIndError(null);
+    setIndustryModalOpen(true);
+  };
+
+  const openEditIndustryModal = (ind: AdminIndustry) => {
+    setEditingIndustry(ind);
+    setIndFormData({
+      name: ind.name || '',
+      slug: ind.slug || '',
+    });
+    setIndError(null);
+    setIndustryModalOpen(true);
+  };
+
+  const handleIndustrySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIndLoading(true);
+    setIndError(null);
+
+    try {
+      const url = '/api/admin/projects/';
+      const method = editingIndustry ? 'PUT' : 'POST';
+      const payload = {
+        type: 'industry',
+        ...(editingIndustry ? { id: editingIndustry.id } : {}),
+        name: indFormData.name.trim(),
+        slug: (indFormData.slug || indFormData.name).trim().toLowerCase().replace(/\s+/g, '-'),
+      };
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'خطا در ذخیره صنعت');
+
+      setIndustryModalOpen(false);
+      fetchCategoriesAndIndustries();
+      onRefresh();
+    } catch (err: any) {
+      setIndError(err.message || 'خطا در ثبت صنعت');
+    } finally {
+      setIndLoading(false);
+    }
+  };
+
+  const handleDeleteIndustry = async (ind: AdminIndustry) => {
+    const linkedCount = projects.filter((p) => p.industry_id === ind.id).length;
+    const warningMsg =
+      linkedCount > 0
+        ? `آیا از حذف صنعت "${ind.name}" اطمینان دارید؟\n${linkedCount} پروژه در این صنعت ثبت شده‌اند که پس از حذف به یک صنعت دیگر منتقل خواهند شد.`
+        : `آیا از حذف صنعت "${ind.name}" اطمینان دارید؟`;
+
+    if (!confirm(warningMsg)) return;
+
+    try {
+      const res = await fetch(`/api/admin/projects/?id=${ind.id}&type=industry`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'خطا در حذف صنعت');
+      fetchCategoriesAndIndustries();
+      onRefresh();
+    } catch (err: any) {
+      alert(err.message || 'خطا در حذف صنعت');
+    }
+  };
+
   const openCreateModal = () => {
     setEditingProject(null);
     setActiveModalTab('base');
@@ -343,6 +437,7 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
   }, [projects]);
 
   const [categorySearchTerm, setCategorySearchTerm] = useState('');
+  const [industrySearchTerm, setIndustrySearchTerm] = useState('');
 
   const filteredCategories = categories.filter((c) => {
     if (!categorySearchTerm) return true;
@@ -350,11 +445,17 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
     return c.name?.toLowerCase().includes(term) || c.slug?.toLowerCase().includes(term);
   });
 
+  const filteredIndustries = industries.filter((ind) => {
+    if (!industrySearchTerm) return true;
+    const term = industrySearchTerm.toLowerCase();
+    return ind.name?.toLowerCase().includes(term) || ind.slug?.toLowerCase().includes(term);
+  });
+
   return (
     <div className="space-y-6">
-      {/* Sub-navigation Switcher between Projects and Categories */}
+      {/* Sub-navigation Switcher between Projects, Categories, and Industries */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-3xl glass-panel border border-white/10">
-        <div className="flex items-center gap-2 p-1 rounded-2xl bg-white/5 border border-white/10 w-full sm:w-auto">
+        <div className="flex flex-wrap items-center gap-2 p-1 rounded-2xl bg-white/5 border border-white/10 w-full sm:w-auto">
           <button
             type="button"
             onClick={() => setActiveSection('projects')}
@@ -379,6 +480,19 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
           >
             <Layers className="w-4 h-4" />
             <span>مدیریت دسته‌بندی‌ها ({categories.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveSection('industries')}
+            className={`flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+              activeSection === 'industries'
+                ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/30'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            <span>مدیریت صنایع و حوزه‌ها ({industries.length})</span>
           </button>
         </div>
 
@@ -414,7 +528,7 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
                 <span>افزودن پروژه جدید</span>
               </button>
             </>
-          ) : (
+          ) : activeSection === 'categories' ? (
             <>
               <div className="relative flex-1 sm:w-60">
                 <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -433,6 +547,27 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
               >
                 <Plus className="w-4 h-4" />
                 <span>افزودن دسته‌بندی جدید</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="relative flex-1 sm:w-60">
+                <Search className="w-4 h-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="جستجو در صنایع..."
+                  value={industrySearchTerm}
+                  onChange={(e) => setIndustrySearchTerm(e.target.value)}
+                  className="w-full pl-4 pr-10 py-2 rounded-xl bg-dark-surface border border-white/10 text-white placeholder-gray-500 text-xs focus:outline-none focus:border-brand-500"
+                />
+              </div>
+
+              <button
+                onClick={openCreateIndustryModal}
+                className="shrink-0 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all shadow-lg shadow-brand-600/30"
+              >
+                <Plus className="w-4 h-4" />
+                <span>افزودن صنعت جدید</span>
               </button>
             </>
           )}
@@ -470,7 +605,13 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
                         {proj.thumbnail_image ? (
                           <div className="w-12 h-8 rounded-lg overflow-hidden bg-dark-surface border border-white/10">
                             <img
-                              src={proj.thumbnail_image}
+                              src={
+                                proj.thumbnail_image.startsWith('http://') ||
+                                proj.thumbnail_image.startsWith('https://') ||
+                                proj.thumbnail_image.startsWith('/')
+                                  ? proj.thumbnail_image
+                                  : `/media/${proj.thumbnail_image}`
+                              }
                               alt=""
                               className="w-full h-full object-cover"
                             />
@@ -719,6 +860,81 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
         </div>
       )}
 
+      {/* ── SECTION 3: INDUSTRIES TABLE ── */}
+      {activeSection === 'industries' && (
+        <div className="rounded-3xl glass-panel border border-white/10 overflow-hidden shadow-xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-right text-xs">
+              <thead>
+                <tr className="border-b border-white/10 bg-white/[0.02] text-gray-400 font-semibold">
+                  <th className="py-3.5 px-4 w-16 text-center">#</th>
+                  <th className="py-3.5 px-4">نام صنعت / حوزه کاری</th>
+                  <th className="py-3.5 px-4">شناسه انگلیسی (Slug)</th>
+                  <th className="py-3.5 px-4 text-center">پروژه‌های متصل</th>
+                  <th className="py-3.5 px-4 text-center">عملیات</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {filteredIndustries.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-12 text-center text-gray-400">
+                      صنعتی یافت نشد.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredIndustries.map((ind) => {
+                    const projectCount = projects.filter((p) => p.industry_id === ind.id).length;
+                    return (
+                      <tr key={ind.id} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="py-3.5 px-4 text-center font-mono text-gray-500">
+                          {ind.id}
+                        </td>
+                        <td className="py-3.5 px-4 font-bold text-white max-w-xs">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="w-4 h-4 text-brand-400" />
+                            <span>{ind.name}</span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono dir-ltr text-brand-300 text-[11px]">
+                          {ind.slug}
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          <span
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 text-[11px] font-mono"
+                            title={`${projectCount} پروژه در این حوزه`}
+                          >
+                            <span className="font-bold text-brand-300">{projectCount}</span>
+                            <span className="text-[10px] text-gray-400">پروژه</span>
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              onClick={() => openEditIndustryModal(ind)}
+                              className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+                              title="ویرایش صنعت"
+                            >
+                              <Edit className="w-3.5 h-3.5 text-brand-400" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteIndustry(ind)}
+                              className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 transition-colors"
+                              title="حذف صنعت"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* ── COMPREHENSIVE ADD/EDIT MODAL ── */}
       {modalOpen && (
         <div
@@ -764,7 +980,7 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                ۱. مشخصات اصلی
+                ۱. مشخصات اصلی و عکس کاور
               </button>
               <button
                 type="button"
@@ -786,7 +1002,7 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
-                ۳. لینک‌ها و موکاپ‌ها
+                ۳. موکاپ‌ها و وب‌سایت
               </button>
               <button
                 type="button"
@@ -816,6 +1032,17 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
               {/* ── TAB 1: BASE INFO ── */}
               {activeModalTab === 'base' && (
                 <div className="space-y-4">
+                  {/* عکس کاور و تصویر اصلی پروژه */}
+                  <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-brand-500/20 shadow-inner">
+                    <ImageUpload
+                      label="عکس کاور و بندانگشتی اصلی پروژه (Cover Image & Thumbnail) *"
+                      value={formData.thumbnail_image}
+                      onChange={(url) => setFormData({ ...formData, thumbnail_image: url })}
+                      folder="portfolio"
+                      hint="این تصویر کاور اصلی پروژه در لیست نمونه‌کارها، پیش‌نمایش کارت‌ها و مانیتور سه‌بعدی است."
+                    />
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-gray-300 font-semibold block">عنوان کامل پروژه *</label>
@@ -1441,6 +1668,107 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
                 >
                   {catLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                   <span>{editingCategory ? 'ذخیره تغییرات دسته‌بندی' : 'ثبت دسته‌بندی'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── INDUSTRY ADD / EDIT MODAL ── */}
+      {industryModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4"
+          onClick={() => setIndustryModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-md bg-dark-base border border-white/15 rounded-3xl p-6 sm:p-8 space-y-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-brand-500/15 border border-brand-500/30 flex items-center justify-center text-brand-400">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">
+                    {editingIndustry ? `ویرایش صنعت: ${editingIndustry.name}` : 'افزودن صنعت جدید'}
+                  </h3>
+                  <p className="text-[11px] text-gray-400 mt-0.5">
+                    تعریف حوزه‌های تخصصی فعالیت و دسته‌بندی موضوعی کسب‌وکارها
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIndustryModalOpen(false)}
+                className="p-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {indError && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs text-center font-medium">
+                {indError}
+              </div>
+            )}
+
+            <form onSubmit={handleIndustrySubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-gray-300 font-semibold block text-xs">
+                  نام فارسی صنعت یا حوزه کاری <span className="text-rose-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="مثال: صنایع غذایی و بسته‌بندی"
+                  value={indFormData.name}
+                  onChange={(e) => {
+                    const name = e.target.value;
+                    setIndFormData((prev) => ({
+                      ...prev,
+                      name,
+                      slug: !editingIndustry
+                        ? name.trim().toLowerCase().replace(/\s+/g, '-')
+                        : prev.slug,
+                    }));
+                  }}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-gray-300 font-semibold block text-xs">
+                  شناسه انگلیسی یکتا (Slug) <span className="text-rose-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  dir="ltr"
+                  placeholder="مثال: food-packaging"
+                  value={indFormData.slug}
+                  onChange={(e) => setIndFormData({ ...indFormData, slug: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500 text-left font-mono"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setIndustryModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 font-semibold text-xs"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="submit"
+                  disabled={indLoading}
+                  className="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-brand-600/30"
+                >
+                  {indLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                  <span>{editingIndustry ? 'ذخیره تغییرات صنعت' : 'ثبت صنعت'}</span>
                 </button>
               </div>
             </form>

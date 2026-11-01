@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, Sparkles, ArrowLeft, ShieldCheck, HelpCircle } from 'lucide-react';
 import { getPricingData } from '@/lib/data-loaders';
+import type { PricingPlan, PricingSettings } from '@/types/content';
 import {
   MotionDiv,
   StaggerContainer,
@@ -17,8 +18,15 @@ import {
 import { TiltCard } from '@/components/ui/TiltCard';
 import { MagneticButton } from '@/components/ui/MagneticButton';
 
-export default function PricingView() {
-  const { settings, plans } = getPricingData();
+interface PricingViewProps {
+  initialSettings?: PricingSettings;
+  initialPlans?: PricingPlan[];
+}
+
+export default function PricingView({ initialSettings, initialPlans }: PricingViewProps = {}) {
+  const fallback = getPricingData();
+  const settings = initialSettings || fallback.settings;
+  const plans = initialPlans && initialPlans.length > 0 ? initialPlans : fallback.plans;
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
 
   return (
@@ -80,8 +88,23 @@ export default function PricingView() {
       {/* Plans Grid */}
       <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-stretch">
         {plans.map((plan) => {
-          const price = billing === 'yearly' ? plan.yearly_price : plan.monthly_price;
-          const formattedPrice = (price / 1000000).toLocaleString('fa-IR');
+          let price = billing === 'yearly' ? (plan.yearly_price || 0) : (plan.monthly_price || 0);
+          if (billing === 'yearly' && (!plan.yearly_price || plan.yearly_price <= 0) && plan.monthly_price) {
+            price = Math.round(plan.monthly_price * 12 * 0.8);
+          }
+
+          let formattedPrice = '';
+          if (plan.custom_price_text && plan.custom_price_text.trim()) {
+            formattedPrice = plan.custom_price_text;
+          } else if (price && price > 0) {
+            if (price >= 1000000) {
+              formattedPrice = (price / 1000000).toLocaleString('fa-IR');
+            } else {
+              formattedPrice = Number(price).toLocaleString('fa-IR');
+            }
+          } else {
+            formattedPrice = 'توافقی';
+          }
 
           return (
             <StaggerItem key={plan.id} className="h-full">
@@ -111,10 +134,10 @@ export default function PricingView() {
                     <div>
                       <h3 className="text-lg sm:text-xl font-bold text-white">{plan.name}</h3>
                       <p className="text-xs text-gray-400 mt-1 leading-relaxed">{plan.description}</p>
-                      <div className="mt-4 flex items-baseline gap-2">
+                      <div className="mt-4 flex items-baseline gap-2 flex-wrap">
                         <AnimatePresence mode="wait">
                           <motion.span
-                            key={formattedPrice}
+                            key={`${plan.id}-${billing}-${formattedPrice}`}
                             initial={{ opacity: 0, y: -8 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 8 }}
@@ -124,19 +147,25 @@ export default function PricingView() {
                             {formattedPrice}
                           </motion.span>
                         </AnimatePresence>
-                        <span className="text-xs text-gray-400">
-                          میلیون تومان {billing === 'yearly' ? '/ سالانه' : '/ ماهانه'}
-                        </span>
+                        {!plan.custom_price_text && price > 0 && (
+                          <span className="text-xs text-gray-400">
+                            میلیون تومان {billing === 'yearly' ? '/ سالانه' : `/${plan.billing_period || 'ماهانه'}`}
+                          </span>
+                        )}
                       </div>
                     </div>
 
                     <div className="space-y-2.5 sm:space-y-3 pt-5 sm:pt-6 border-t border-white/10">
-                      {plan.features.map((feat, fIdx) => (
-                        <div key={fIdx} className="flex items-start gap-2.5 text-xs text-gray-300">
-                          <CheckCircle2 className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
-                          <span>{feat}</span>
-                        </div>
-                      ))}
+                      {Array.isArray(plan.features) && plan.features.length > 0 ? (
+                        plan.features.map((feat, fIdx) => (
+                          <div key={fIdx} className="flex items-start gap-2.5 text-xs text-gray-300">
+                            <CheckCircle2 className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />
+                            <span>{typeof feat === 'string' ? feat : (feat as any).title}</span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-xs text-gray-400 italic">شامل تمامی امکانات استاندارد طراحی و توسعه</p>
+                      )}
                     </div>
                   </div>
 

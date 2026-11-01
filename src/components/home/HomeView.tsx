@@ -296,17 +296,13 @@ export default function HomeView({
         return;
       }
 
-      // Allow internal scrolling inside docked card containers
+      // Allow internal scrolling inside docked card containers and interactive panels
+      // When cursor is over any card/section, ONLY that section scrolls, NEVER the 3D page!
       const target = e.target as HTMLElement | null;
-      const scrollable = target?.closest('.allow-card-scroll');
+      const scrollable = target?.closest('.allow-card-scroll, [data-prevent-3d-scroll], [data-lenis-prevent]');
       if (scrollable) {
-        const isAtTop = scrollable.scrollTop <= 0 && e.deltaY < 0;
-        const isAtBottom =
-          scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 2 &&
-          e.deltaY > 0;
-        if (!isAtTop && !isAtBottom) {
-          return; // Allow native scroll inside the card
-        }
+        // Allow ONLY the inner section to scroll natively without advancing the 3D scene
+        return;
       }
 
       e.preventDefault();
@@ -333,7 +329,7 @@ export default function HomeView({
       if (isTransitioningRef.current || !isExperienceLoadedRef.current) return;
       if (!e.touches[0]) return;
       const target = e.target as HTMLElement | null;
-      if (target?.closest('.allow-card-scroll')) return;
+      if (target?.closest('.allow-card-scroll, [data-prevent-3d-scroll], [data-lenis-prevent]')) return;
 
       // Prevent mobile browser native pull-to-refresh & navigation bounce
       if (e.cancelable) {
@@ -596,7 +592,11 @@ export default function HomeView({
             : 'opacity-0 translate-x-16 pointer-events-none'
         }`}
       >
-        <div className={`allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+        <div 
+          data-lenis-prevent="true"
+          className={`allow-card-scroll overflow-y-auto overscroll-contain max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          style={{ overscrollBehavior: 'contain' }}
+        >
           <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-2.5 backdrop-blur-xl bg-[#030712]/60 border border-white/10 shadow-2xl relative">
             <button
               onClick={() => setIsOverlayVisible(false)}
@@ -687,7 +687,11 @@ export default function HomeView({
             : 'opacity-0 translate-x-16 pointer-events-none'
         }`}
       >
-        <div className={`allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+        <div 
+          data-lenis-prevent="true"
+          className={`allow-card-scroll overflow-y-auto overscroll-contain max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          style={{ overscrollBehavior: 'contain' }}
+        >
           <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-2.5 backdrop-blur-xl bg-[#030712]/60 border border-white/10 shadow-2xl relative">
             <button
               onClick={() => setIsOverlayVisible(false)}
@@ -774,7 +778,11 @@ export default function HomeView({
             : 'opacity-0 translate-x-16 pointer-events-none'
         }`}
       >
-        <div className={`allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+        <div 
+          data-lenis-prevent="true"
+          className={`allow-card-scroll overflow-y-auto overscroll-contain max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          style={{ overscrollBehavior: 'contain' }}
+        >
           <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-2.5 backdrop-blur-xl bg-[#030712]/60 border border-white/10 shadow-2xl relative">
             <button
               onClick={() => setIsOverlayVisible(false)}
@@ -858,7 +866,11 @@ export default function HomeView({
             : 'opacity-0 translate-x-16 pointer-events-none'
         }`}
       >
-        <div className={`allow-card-scroll overflow-y-auto max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+        <div 
+          data-lenis-prevent="true"
+          className={`allow-card-scroll overflow-y-auto overscroll-contain max-h-[calc(100vh-120px)] space-y-4 pr-1 pl-2 ${isOverlayVisible ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          style={{ overscrollBehavior: 'contain' }}
+        >
           <div className="glass-panel-dock p-6 sm:p-7 rounded-3xl space-y-3 backdrop-blur-xl bg-[#030712]/60 border border-brand-500/40 shadow-2xl relative">
             <button
               onClick={() => setIsOverlayVisible(false)}

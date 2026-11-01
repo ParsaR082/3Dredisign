@@ -469,8 +469,27 @@ export async function DELETE(request: Request) {
     }
 
     if (type === 'industry') {
+      const indId = Number(id);
+      const projectCount = await prisma.portfolioProject.count({
+        where: { industry_id: indId },
+      });
+
+      if (projectCount > 0) {
+        // Find a fallback industry
+        const fallbackInd = await prisma.portfolioIndustry.findFirst({
+          where: { id: { not: indId } },
+        });
+
+        if (fallbackInd) {
+          await prisma.portfolioProject.updateMany({
+            where: { industry_id: indId },
+            data: { industry_id: fallbackInd.id },
+          });
+        }
+      }
+
       await prisma.portfolioIndustry.delete({
-        where: { id: Number(id) },
+        where: { id: indId },
       });
       return NextResponse.json({ success: true, message: 'صنعت با موفقیت حذف شد.' });
     }

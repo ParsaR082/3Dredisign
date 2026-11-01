@@ -25,6 +25,7 @@ import {
   Menu,
   X,
   UserCog,
+  PhoneCall,
 } from 'lucide-react';
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
@@ -79,6 +80,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         { id: 'overview', label: 'داشبورد کلی', href: '/admin', icon: LayoutDashboard },
         { id: 'contacts', label: 'پیام‌های تماس', href: '/admin?tab=contacts', icon: Inbox, badge: unreadCount },
         { id: 'leads', label: 'رزرو مشاوره و پروپوزال', href: '/admin?tab=leads', icon: CalendarCheck },
+        { id: 'contact-info', label: 'اطلاعات ارتباط با ما', href: '/admin?tab=contact-info', icon: PhoneCall },
       ],
     },
     {

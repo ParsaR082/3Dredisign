@@ -1,0 +1,281 @@
+[
+  {
+    "idx": 1,
+    "slug": "humazd-restaurant-branding-website",
+    "title": "برندسازی صفر تا صد رستوران هوومزد | طراحی لوگو، وبسایت و مدیریت کامل اینستاگرام",
+    "desc": "برندسازی صفر تا صد، طراحی لوگو، وبسایت و مدیریت اینستاگرام رستوران هوومزد با هویت بصری خلاقانه",
+    "categorySlug": "integrated-digital-marketing-services",
+    "categoryName": "خدمات دیجیتال مارکتینگ یکپارچه",
+    "industrySlug": "restaurant-food-service",
+    "industryName": "رستوران و صنعت غذا",
+    "date": "2026-07-15",
+    "isFeatured": true,
+    "thumbnail": "/media/portfolio/thumbnails/photo_2026-10-26_15-28-12.jpg",
+    "techs": [
+      "AfterEffect",
+      "Ai",
+      "Davinci Resolve"
+    ]
+  },
+  {
+    "idx": 2,
+    "slug": "salar-custom-instagram-content-management",
+    "title": "مدیریت اینستاگرام و تولید محتوای سالار کاستوم | برند تخصصی PDR، PPF و سرامیک خودرو",
+    "desc": "تولید محتوای حرفه‌ای و مدیریت مستمر صفحه اینستاگرام سالار کاستوم، متخصص PDR، PPF و سرامیک خودرو",
+    "categorySlug": "social-media-management-content-production",
+    "categoryName": "مدیریت شبکه‌های اجتماعی و تولید محتوا",
+    "industrySlug": "automotive-detailing-car-care",
+    "industryName": "خدمات خودرو / زیبایی و مراقبت بدنه خودرو",
+    "date": "2026-06-23",
+    "isFeatured": true,
+    "thumbnail": "/media/portfolio/thumbnails/001-PPF-V4_100.png",
+    "techs": [
+      "AfterEffect",
+      "Ai",
+      "Davinci Resolve"
+    ]
+  },
+  {
+    "idx": 3,
+    "slug": "hypetez-supermarket-ecommerce-website",
+    "title": "طراحی وبسایت فروشگاهی هایپتز | فروشگاه آنلاین سوپرمارکت با تجربه خرید مدرن",
+    "desc": "طراحی و توسعه فروشگاه اینترنتی هایپتز، یک پلتفرم فروش آنلاین محصولات سوپرمارکتی با تجربه کاربری سریع و ساده",
+    "categorySlug": "ecommerce-website-design-development",
+    "categoryName": "طراحی و توسعه وبسایت و فروشگاه های اینترنتی",
+    "industrySlug": "retail-supermarket",
+    "industryName": "خرده‌فروشی و سوپرمارکت",
+    "date": "2026-05-12",
+    "isFeatured": true,
+    "thumbnail": "/media/portfolio/thumbnails/%D8%B3%D8%A8%D8%AF_%D8%B1%D8%A7_%D8%A7%D8%B2_%DA%86%D9%BE_%D8%A8%D9%87_202606161408.jpg",
+    "techs": [
+      "django",
+      "next.js",
+      "TypeScript"
+    ]
+  },
+  {
+    "idx": 4,
+    "slug": "humazd-restaurant-branding-website",
+    "title": "برندسازی صفر تا صد رستوران هوومزد | طراحی لوگو، وبسایت و مدیریت کامل اینستاگرام",
+    "desc": "برندسازی صفر تا صد، طراحی لوگو، وبسایت و مدیریت اینستاگرام رستوران هوومزد با هویت بصری خلاقانه",
+    "categorySlug": "integrated-digital-marketing-services",
+    "categoryName": "خدمات دیجیتال مارکتینگ یکپارچه",
+    "industrySlug": "restaurant-food-service",
+    "industryName": "رستوران و صنعت غذا",
+    "date": "2026-07-15",
+    "isFeatured": true,
+    "thumbnail": "/media/portfolio/thumbnails/photo_2026-10-26_15-28-12.jpg",
+    "techs": [
+      "AfterEffect",
+      "Ai",
+      "Davinci Resolve",
+      "django",
+      "Element3D",
+      "next.js",
+      "Premiere",
+      "TypeScript"
+    ]
+  },
+  {
+    "idx": 5,
+    "slug": "knob-handle-smart-door-hardware-branding",
+    "title": "برندسازی و طراحی فروشگاه اینترنتی KNOB &amp; HANDLE | دستگیره‌های هوشمند و لمسی",
+    "desc": "برندسازی صفر تا صد، طراحی فروشگاه اینترنتی و مدیریت کامل اینستاگرام برای KNOB &amp; HANDLE، برند دستگیره‌های هوشمند و لمسی",
+    "categorySlug": "integrated-digital-marketing-services",
+    "categoryName": "خدمات دیجیتال مارکتینگ یکپارچه",
+    "industrySlug": "smart-door-hardware-fittings",
+    "industryName": "یراق‌آلات و سخت‌افزار درب هوشمند",
+    "date": "2026-07-03",
+    "isFeatured": false,
+    "thumbnail": "/media/portfolio/thumbnails/1784531971187.jpg",
+    "techs": [
+      "AfterEffect",
+      "Ai",
+      "django",
+      "next.js",
+      "TypeScript"
+    ]
+  },
+  {
+    "idx": 6,
+    "slug": "shoes-website-ui-design",
+    "title": "طراحی رابط کاربری فروشگاه اینترنتی کفش | هولدینگ تبلیغاتی اروم‌سیما",
+    "desc": "طراحی رابط کاربری و گالری محصول فروشگاه کفش  با اسلایدر سه‌بعدی اختصاصی.",
+    "categorySlug": "ecommerce-website-design-development",
+    "categoryName": "طراحی و توسعه وبسایت و فروشگاه های اینترنتی",
+    "industrySlug": "shoes-website",
+    "industryName": "وبسایت فروشگاهی کفش",
+    "date": "2026-07-02",
+    "isFeatured": false,
+    "thumbnail": "/media/portfolio/thumbnails/slide-1.webp",
+    "techs": [
+      "Ai",
+      "next.js",
+      "TypeScript"
+    ]
+  },
+  {
+    "idx": 7,
+    "slug": "mdad-mobile-instagram-content-production",
+    "title": "تولید محتوای اینستاگرام M.DAD موبایل | فروشگاه تخصصی لوازم جانبی موبایل",
+    "desc": "تولید محتوای منظم اینستاگرام برای فروشگاه لوازم جانبی موبایل M.DAD با تمرکز بر معرفی محصول و افزایش فروش",
+    "categorySlug": "social-media-management-content-production",
+    "categoryName": "مدیریت شبکه‌های اجتماعی و تولید محتوا",
+    "industrySlug": "mobile-accessories-tech-retail",
+    "industryName": "لوازم جانبی موبایل و فناوری",
+    "date": "2026-07-02",
+    "isFeatured": false,
+    "thumbnail": "/media/portfolio/thumbnails/ChatGPT_Image_Jul_21_2026_05_01_27_PM.png",
+    "techs": [
+      "AfterEffect"
+    ]
+  },
+  {
+    "idx": 8,
+    "slug": "salar-custom-instagram-content-management",
+    "title": "مدیریت اینستاگرام و تولید محتوای سالار کاستوم | برند تخصصی PDR، PPF و سرامیک خودرو",
+    "desc": "تولید محتوای حرفه‌ای و مدیریت مستمر صفحه اینستاگرام سالار کاستوم، متخصص PDR، PPF و سرامیک خودرو",
+    "categorySlug": "social-media-management-content-production",
+    "categoryName": "مدیریت شبکه‌های اجتماعی و تولید محتوا",
+    "industrySlug": "automotive-detailing-car-care",
+    "industryName": "خدمات خودرو / زیبایی و مراقبت بدنه خودرو",
+    "date": "2026-06-23",
+    "isFeatured": true,
+    "thumbnail": "/media/portfolio/thumbnails/001-PPF-V4_100.png",
+    "techs": [
+      "AfterEffect",
+      "Ai",
+      "Davinci Resolve",
+      "Premiere"
+    ]
+  },
+  {
+    "idx": 9,
+    "slug": "eyewear-ai-face-shape-ui",
+    "title": "طراحی صفحه محصول هوشمند فروشگاه عینک",
+    "desc": "طراحی صفحه محصول فروشگاه عینک با قابلیت هوشمند تشخیص فرم صورت.",
+    "categorySlug": "ecommerce-website-design-development",
+    "categoryName": "طراحی و توسعه وبسایت و فروشگاه های اینترنتی",
+    "industrySlug": "design-glasses-website",
+    "industryName": "طراحی گرافیکی سایت فروشگاهی عینک",
+    "date": "2026-05-19",
+    "isFeatured": false,
+    "thumbnail": "/media/portfolio/thumbnails/Screenshot_219.png",
+    "techs": [
+      "Ai",
+      "next.js",
+      "TypeScript"
+    ]
+  },
+  {
+    "idx": 10,
+    "slug": "altin-pasha-vehicle-import-website",
+    "title": "طراحی وبسایت و تولید محتوای Altin Pasha | برند تخصصی واردات خودروهای سواری و سنگین",
+    "desc": "طراحی وبسایت معرفی، تولید تیزر تبلیغاتی و مدیریت محتوای اینستاگرام برای Altin Pasha، برند واردات خودروهای سواری و سنگین",
+    "categorySlug": "integrated-digital-marketing-services",
+    "categoryName": "خدمات دیجیتال مارکتینگ یکپارچه",
+    "industrySlug": "vehicle-import-automotive-trade",
+    "industryName": "واردات و فروش خودرو",
+    "date": "2026-05-19",
+    "isFeatured": false,
+    "thumbnail": "/media/portfolio/thumbnails/Black_leather_cardholder_silver_key_202607111724.jpeg",
+    "techs": [
+      "AfterEffect",
+      "Ai",
+      "django",
+      "next.js",
+      "TypeScript"
+    ]
+  },
+  {
+    "idx": 11,
+    "slug": "hypetez-supermarket-ecommerce-website",
+    "title": "طراحی وبسایت فروشگاهی هایپتز | فروشگاه آنلاین سوپرمارکت با تجربه خرید مدرن",
+    "desc": "طراحی و توسعه فروشگاه اینترنتی هایپتز، یک پلتفرم فروش آنلاین محصولات سوپرمارکتی با تجربه کاربری سریع و ساده",
+    "categorySlug": "ecommerce-website-design-development",
+    "categoryName": "طراحی و توسعه وبسایت و فروشگاه های اینترنتی",
+    "industrySlug": "retail-supermarket",
+    "industryName": "خرده‌فروشی و سوپرمارکت",
+    "date": "2026-05-12",
+    "isFeatured": true,
+    "thumbnail": "/media/portfolio/thumbnails/%D8%B3%D8%A8%D8%AF_%D8%B1%D8%A7_%D8%A7%D8%B2_%DA%86%D9%BE_%D8%A8%D9%87_202606161408.jpg",
+    "techs": [
+      "django",
+      "next.js",
+      "TypeScript"
+    ]
+  },
+  {
+    "idx": 12,
+    "slug": "loghmechi-cafe-branding-design",
+    "title": "برندسازی و طراحی گرافیک کافه رستوران لقمه‌چی | هویت بصری و تولید محتوای اینستاگرام",
+    "desc": "طراحی هویت بصری، منو و تولید محتوای اینستاگرام برای کافه رستوران لقمه‌چی با رویکرد گرافیکی خلاقانه",
+    "categorySlug": "branding-graphic-design",
+    "categoryName": "برندسازی و طراحی گرافیک",
+    "industrySlug": "restaurant-cafe",
+    "industryName": "کافه و رستوران",
+    "date": "2026-04-07",
+    "isFeatured": false,
+    "thumbnail": "/media/portfolio/thumbnails/Gemini_Generated_Image_lmjtmjlmjtmjlmjt.jpg",
+    "techs": [
+      "AfterEffect",
+      "Element3D"
+    ]
+  },
+  {
+    "idx": 13,
+    "slug": "iranian-mobleman-branding-ecommerce-website",
+    "title": "طراحی وبسایت فروشگاهی و برندسازی مبلمان ایرانیان | هویت بصری و مدیریت اینستاگرام صفر تا صد",
+    "desc": "طراحی وبسایت فروشگاهی، برندسازی کامل و مدیریت اینستاگرام مبلمان ایرانیان از ایده تا اجرا",
+    "categorySlug": "integrated-digital-marketing-services",
+    "categoryName": "خدمات دیجیتال مارکتینگ یکپارچه",
+    "industrySlug": "furniture-home-decor",
+    "industryName": "مبلمان و دکوراسیون منزل",
+    "date": "2025-12-15",
+    "isFeatured": false,
+    "thumbnail": "/media/portfolio/thumbnails/%D9%BE%D8%A7%D8%B4%D8%A7_1.png",
+    "techs": [
+      "AfterEffect",
+      "Ai",
+      "django",
+      "next.js",
+      "TypeScript"
+    ]
+  },
+  {
+    "idx": 14,
+    "slug": "faraz-bam-gostar",
+    "title": "فراز بام گستر | تولیدکننده قیر و عایق رطوبتی",
+    "desc": "تولید و فروش قیر و عایق رطوبتی با کیفیت بالا",
+    "categorySlug": "sanat-va-sakhteman",
+    "categoryName": "صنعت /ساختمان",
+    "industrySlug": "gir-ayeg",
+    "industryName": "تولید قیر و عایق رطوبتی",
+    "date": "2025-07-10",
+    "isFeatured": false,
+    "thumbnail": "/media/portfolio/thumbnails/farazbam.webp",
+    "techs": [
+      "django",
+      "next.js"
+    ]
+  },
+  {
+    "idx": 15,
+    "slug": "altin-pasha-website-design",
+    "title": "طراحی و توسعه وب‌سایت آلتین پاشا",
+    "desc": "طراحی و توسعه وب‌سایت آلتین پاشا با هدف معرفی برند، نمایش خودروهای وارداتی و فراهم‌کردن بستری حرفه‌ای برای آشنایی مشتریان با محصولات و خدمات مجموعه.",
+    "categorySlug": "ecommerce-website-design-development",
+    "categoryName": "طراحی و توسعه وبسایت و فروشگاه های اینترنتی",
+    "industrySlug": "automotive-detailing-car-care",
+    "industryName": "خدمات خودرو / زیبایی و مراقبت بدنه خودرو",
+    "date": "2026-10-15",
+    "isFeatured": false,
+    "thumbnail": "/media/portfolio/thumbnails/Screenshot_2026-10-20_104400.png",
+    "techs": [
+      "django",
+      "Element3D",
+      "next.js",
+      "TypeScript"
+    ]
+  }
+]

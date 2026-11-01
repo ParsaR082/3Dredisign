@@ -23,10 +23,27 @@ type ViewMode = 'trio' | 'desktop' | 'tablet' | 'mobile';
 type SourceMode = 'mockup' | 'live';
 
 export default function ProjectDeviceShowcase({ project }: ProjectDeviceShowcaseProps) {
-  const hasLiveUrl = Boolean(project.website_url && project.website_url.trim().length > 0);
-  const hasDesktopMockup = Boolean(project.mockups?.desktop);
-  const hasMobileMockup = Boolean(project.mockups?.mobile);
-  const hasTabletMockup = Boolean(project.mockups?.tablet);
+  const hasLiveUrl = Boolean(
+    project.website_url &&
+    project.website_url.trim().length > 0 &&
+    project.website_url.trim() !== 'null' &&
+    project.website_url.trim() !== 'undefined'
+  );
+  const hasDesktopMockup = Boolean(
+    project.mockups?.desktop &&
+    project.mockups.desktop.trim().length > 0 &&
+    !project.mockups.desktop.includes('thumbnails/')
+  );
+  const hasMobileMockup = Boolean(
+    project.mockups?.mobile &&
+    project.mockups.mobile.trim().length > 0 &&
+    !project.mockups.mobile.includes('thumbnails/')
+  );
+  const hasTabletMockup = Boolean(
+    project.mockups?.tablet &&
+    project.mockups.tablet.trim().length > 0 &&
+    !project.mockups.tablet.includes('thumbnails/')
+  );
   const hasAnyMockup = hasDesktopMockup || hasMobileMockup || hasTabletMockup;
 
   // Strict conditional rendering: if neither mockups nor website URL are present, hide completely
@@ -34,9 +51,9 @@ export default function ProjectDeviceShowcase({ project }: ProjectDeviceShowcase
     return null;
   }
 
-  const desktopImg = project.mockups?.desktop || project.thumbnail_image || '';
-  const mobileImg = project.mockups?.mobile || project.mockups?.desktop || project.thumbnail_image || '';
-  const tabletImg = project.mockups?.tablet || project.mockups?.desktop || project.thumbnail_image || '';
+  const desktopImg = hasDesktopMockup ? project.mockups?.desktop! : '';
+  const mobileImg = hasMobileMockup ? project.mockups?.mobile! : (hasDesktopMockup ? project.mockups?.desktop! : '');
+  const tabletImg = hasTabletMockup ? project.mockups?.tablet! : (hasDesktopMockup ? project.mockups?.desktop! : '');
 
   // Initial source and view mode
   const initialSource: SourceMode = hasAnyMockup ? 'mockup' : 'live';

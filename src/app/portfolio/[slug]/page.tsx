@@ -68,12 +68,21 @@ export default async function ProjectDetailPage({ params }: Props) {
     .filter((p) => p.id !== project.id && (p.category_slug === project.category_slug || p.industry === project.industry))
     .slice(0, 3);
 
-  const hasShowcase = Boolean(
-    project.website_url ||
-    project.mockups?.desktop ||
-    project.mockups?.mobile ||
-    project.mockups?.tablet
+  const hasLiveUrl = Boolean(
+    project.website_url &&
+    project.website_url.trim().length > 0 &&
+    project.website_url.trim() !== 'null' &&
+    project.website_url.trim() !== 'undefined'
   );
+
+  const hasAnyMockup = Boolean(
+    project.mockups &&
+    ((project.mockups.desktop && project.mockups.desktop.trim().length > 0) ||
+     (project.mockups.mobile && project.mockups.mobile.trim().length > 0) ||
+     (project.mockups.tablet && project.mockups.tablet.trim().length > 0))
+  );
+
+  const hasShowcase = hasLiveUrl || hasAnyMockup;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10 sm:space-y-16">

@@ -133,7 +133,36 @@ export async function PUT(request: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, plan: updated });
+    if (Array.isArray(body.features)) {
+      await prisma.pricingPricingfeature.deleteMany({
+        where: { plan_id: Number(id) },
+      });
+      for (let i = 0; i < body.features.length; i++) {
+        const featTitle = typeof body.features[i] === 'string' ? body.features[i] : body.features[i]?.title;
+        if (featTitle) {
+          await prisma.pricingPricingfeature.create({
+            data: {
+              title: featTitle,
+              order: i + 1,
+              plan_id: Number(id),
+            },
+          });
+        }
+      }
+    }
+
+    const updatedFeatures = await prisma.pricingPricingfeature.findMany({
+      where: { plan_id: Number(id) },
+      orderBy: { order: 'asc' },
+    });
+
+    return NextResponse.json({
+      success: true,
+      plan: {
+        ...updated,
+        features: updatedFeatures,
+      },
+    });
   } catch (error: any) {
     console.error('Error updating pricing plan:', error);
     return NextResponse.json({ error: error.message || 'خطا در ویرایش پلن قیمت‌گذاری' }, { status: 500 });

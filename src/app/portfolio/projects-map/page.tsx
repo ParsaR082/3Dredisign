@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { MapPin, Sparkles, ChevronRight, ArrowLeft, Building2, ExternalLink } from 'lucide-react';
+import { MapPin, Sparkles, ChevronRight, ArrowLeft, Building2 } from 'lucide-react';
 import { generatePageMetadata } from '@/lib/seo';
 import { getLiveProjects } from '@/lib/db';
 import {
@@ -10,6 +10,7 @@ import {
   InteractiveCard,
   MotionBadge,
 } from '@/components/ui/motion';
+import UrmiaMapClientWrapper from '@/components/portfolio/UrmiaMapClientWrapper';
 
 export const metadata: Metadata = generatePageMetadata({
   title: 'نقشه تعاملی پروژه‌ها در ارومیه و استان | اروم سیما',
@@ -28,7 +29,7 @@ export default async function ProjectsMapPage() {
   ];
 
   return (
-    <div className="min-h-screen py-8 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-10 sm:space-y-16">
+    <div className="min-h-screen py-8 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-10 sm:space-y-14">
       {/* Breadcrumb */}
       <MotionDiv variant="fade-up" className="flex items-center gap-2 text-xs text-gray-400">
         <Link href="/" className="hover:text-brand-400 transition-colors">خانه</Link>
@@ -58,6 +59,11 @@ export default async function ProjectsMapPage() {
         </div>
       </MotionDiv>
 
+      {/* Large Interactive Map of Urmia (Directly after the main hero text) */}
+      <MotionDiv variant="fade-up" className="w-full">
+        <UrmiaMapClientWrapper projects={projects} />
+      </MotionDiv>
+
       {/* Zone Overview Cards */}
       <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {urmiaZones.map((zone, idx) => (
@@ -81,7 +87,7 @@ export default async function ProjectsMapPage() {
         ))}
       </StaggerContainer>
 
-      {/* Interactive Map Visual Presentation */}
+      {/* All Projects Cards Grid */}
       <MotionDiv
         variant="fade-up"
         className="rounded-2xl sm:rounded-3xl border border-white/10 bg-dark-card/90 overflow-hidden shadow-2xl"
@@ -90,14 +96,14 @@ export default async function ProjectsMapPage() {
           <div className="space-y-1 text-right">
             <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-brand-400" />
-              <span>پراکندگی جغرافیایی مشتریان در نقشه کلانشهر ارومیه</span>
+              <span>فهرست کامل پروژه‌های مستقر در ارومیه</span>
             </h2>
             <p className="text-xs text-gray-400">
               روی هر پروژه بزنید تا به پرونده تحلیلی و دستاوردهای آن هدایت شوید.
             </p>
           </div>
           <span className="px-2.5 py-1 rounded-xl bg-white/[0.04] text-[11px] font-mono text-gray-300 border border-white/5">
-            مختصات: 37.5518° N, 45.0782° E
+            {projects.length} پروژه ثبت‌شده
           </span>
         </div>
 
@@ -116,7 +122,7 @@ export default async function ProjectsMapPage() {
                     />
                     <div className="absolute top-3 right-3 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-dark-base/80 text-brand-300 backdrop-blur-sm border border-brand-500/20 flex items-center gap-1">
                       <MapPin className="w-3 h-3" />
-                      <span>ارومیه</span>
+                      <span>{p.location_zone || 'ارومیه'}</span>
                     </div>
                   </div>
 

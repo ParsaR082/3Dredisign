@@ -1,3 +1,4 @@
+@import 'leaflet/dist/leaflet.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -275,8 +276,17 @@ html.lenis, html.lenis body {
   scroll-behavior: auto !important;
 }
 
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
+.lenis.lenis-smooth [data-lenis-prevent],
+.overflow-y-auto,
+.overflow-x-auto,
+.overflow-auto,
+.allow-card-scroll,
+[data-lenis-prevent],
+[data-scrollable],
+.leaflet-container {
+  overscroll-behavior: contain !important;
+  overscroll-behavior-y: contain !important;
+  overscroll-behavior-x: contain !important;
 }
 
 .lenis.lenis-stopped {
@@ -295,5 +305,72 @@ html.lenis, html.lenis body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Custom Leaflet Map & Tooltip Styling */
+.leaflet-container {
+  direction: ltr !important;
+  text-align: left !important;
+  background-color: #0d131f !important;
+  font-family: inherit !important;
+  z-index: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* All internal leaflet panes MUST remain strictly LTR */
+.leaflet-pane,
+.leaflet-tile-pane,
+.leaflet-marker-pane,
+.leaflet-shadow-pane,
+.leaflet-tile-container,
+.leaflet-map-pane,
+.leaflet-zoom-animated {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(11, 15, 23, 0.85) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #6b7280 !important;
+  border-radius: 8px !important;
+  margin: 8px !important;
+  padding: 2px 8px !important;
+  font-size: 10px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.leaflet-control-attribution a {
+  color: #10b981 !important;
+  text-decoration: none !important;
+}
+
+.custom-leaflet-tooltip.leaflet-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  direction: rtl !important;
+  text-align: right !important;
+}
+
+.custom-leaflet-tooltip.leaflet-tooltip::before,
+.custom-leaflet-tooltip.leaflet-tooltip::after {
+  display: none !important;
+}
+
+.custom-div-icon {
+  background: transparent !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Dark mode filter for OpenStreetMap tiles - works 100% in Iran without any VPN or block */
+.osm-dark-tiles .leaflet-tile {
+  filter: brightness(0.65) invert(1) contrast(3.2) hue-rotate(205deg) saturate(0.35) !important;
 }
 

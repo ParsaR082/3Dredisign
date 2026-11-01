@@ -19,9 +19,10 @@ import {
 interface ContactUsViewProps {
   settings: SiteSettings;
   services: Service[];
+  contactPage?: any;
 }
 
-export default function ContactUsView({ settings, services }: ContactUsViewProps) {
+export default function ContactUsView({ settings, services, contactPage }: ContactUsViewProps) {
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -104,17 +105,18 @@ export default function ContactUsView({ settings, services }: ContactUsViewProps
 
         <MotionBadge className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-4 sm:py-2 rounded-full glass-panel-brand text-brand-300 text-[11px] sm:text-xs font-semibold cursor-default">
           <Clock className="w-3.5 h-3.5 text-amber-300" />
-          <span>پاسخگویی سریع در ساعات اداری</span>
+          <span>{contactPage?.hero_badge || 'پاسخگویی سریع در ساعات اداری'}</span>
         </MotionBadge>
       </MotionDiv>
 
       {/* Header */}
       <MotionDiv variant="fade-up" delay={0.05} className="text-center max-w-3xl mx-auto space-y-3 sm:space-y-4">
         <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
-          تماس با آژانس دیجیتال مارکتینگ اروم سیما
+          {contactPage?.hero_title || 'تماس با آژانس دیجیتال مارکتینگ اروم سیما'}
         </h1>
         <p className="text-gray-400 text-xs sm:text-base leading-relaxed">
-          برای مشاوره تخصصی، استعلام هزینه پروژه‌ها یا بازدید حضوری از دفتر مرکزی ارومیه، در کنارتان هستیم.
+          {contactPage?.hero_description ||
+            'برای مشاوره تخصصی، استعلام هزینه پروژه‌ها یا بازدید حضوری از دفتر مرکزی ارومیه، در کنارتان هستیم.'}
         </p>
       </MotionDiv>
 
@@ -262,7 +264,7 @@ export default function ContactUsView({ settings, services }: ContactUsViewProps
         >
           <InteractiveCard className="glass-panel-elevated rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-white/10 space-y-5 sm:space-y-6 shadow-2xl">
             <h2 className="text-base sm:text-lg font-bold text-white border-b border-white/5 pb-3">
-              دفتر مرکزی و اطلاعات تماس
+              {contactPage?.info_section_title || 'دفتر مرکزی و اطلاعات تماس'}
             </h2>
 
             <div className="space-y-4 text-xs sm:text-sm">
@@ -299,8 +301,12 @@ export default function ContactUsView({ settings, services }: ContactUsViewProps
                   >
                     <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
                   </motion.div>
-                  <div className="text-xs font-bold text-white">مختصات: ۳۷.۵۵۲۷ , ۴۵.۰۷۶۰</div>
-                  <div className="text-[11px] text-gray-400">میدان امام حسین، ساختمان ۱۳۴ ارومیه</div>
+                  <div className="text-xs font-bold text-white font-mono dir-ltr">
+                    مختصات: {settings.office_latitude || 37.5527} , {settings.office_longitude || 45.076}
+                  </div>
+                  <div className="text-[11px] text-gray-400 max-w-xs truncate mx-auto">
+                    {settings.office_address}
+                  </div>
                 </div>
               </div>
 
@@ -308,7 +314,7 @@ export default function ContactUsView({ settings, services }: ContactUsViewProps
                 <motion.a
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  href="https://maps.google.com/?q=37.5527,45.0760"
+                  href={`https://maps.google.com/?q=${settings.office_latitude || 37.5527},${settings.office_longitude || 45.076}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium text-center border border-white/5 flex items-center justify-center gap-1.5 transition-colors"
@@ -320,7 +326,7 @@ export default function ContactUsView({ settings, services }: ContactUsViewProps
                 <motion.a
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  href="https://nshn.ir/?lat=37.5527&lng=45.0760"
+                  href={`https://nshn.ir/?lat=${settings.office_latitude || 37.5527}&lng=${settings.office_longitude || 45.076}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium text-center border border-white/5 flex items-center justify-center gap-1.5 transition-colors"

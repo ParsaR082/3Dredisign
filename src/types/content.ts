@@ -224,6 +224,8 @@ export interface PricingPlan {
   description: string;
   monthly_price: number;
   yearly_price: number;
+  billing_period?: string;
+  custom_price_text?: string;
   is_popular: boolean;
   order: number;
   features: string[];

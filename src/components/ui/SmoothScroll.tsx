@@ -28,6 +28,23 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
       smoothWheel: true,
       wheelMultiplier: 1,
       touchMultiplier: 1.5,
+      prevent: (node: any) => {
+        if (!node || typeof node.closest !== 'function') return false;
+        const scrollable = node.closest(
+          '[data-lenis-prevent], .allow-card-scroll, .overflow-y-auto, .overflow-x-auto, .overflow-auto, [data-scrollable], .leaflet-container'
+        );
+        if (scrollable) {
+          if (
+            scrollable.hasAttribute('data-lenis-prevent') ||
+            scrollable.classList.contains('leaflet-container') ||
+            scrollable.scrollHeight > scrollable.clientHeight ||
+            scrollable.scrollWidth > scrollable.clientWidth
+          ) {
+            return true;
+          }
+        }
+        return false;
+      },
     });
 
     let rafId: number;

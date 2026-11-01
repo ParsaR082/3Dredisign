@@ -173,9 +173,16 @@ export default function PricingTab({ plans = [], onRefresh }: PricingTabProps) {
                 ) : (
                   <div>
                     <span className="text-2xl font-black text-white">
-                      {p.monthly_price ? Number(p.monthly_price).toLocaleString() : 'توافقی'}
+                      {p.monthly_price
+                        ? Number(p.monthly_price >= 1000000 ? p.monthly_price / 1000000 : p.monthly_price).toLocaleString('fa-IR')
+                        : 'توافقی'}
                     </span>
-                    <span className="text-xs text-gray-400 mr-1.5">میلیون تومان / {p.billing_period}</span>
+                    <span className="text-xs text-gray-400 mr-1.5">میلیون تومان / {p.billing_period || 'ماهانه'}</span>
+                    {p.yearly_price ? (
+                      <div className="text-[11px] text-emerald-400/80 mt-1">
+                        سالانه: {Number(p.yearly_price >= 1000000 ? p.yearly_price / 1000000 : p.yearly_price).toLocaleString('fa-IR')} م.ت
+                      </div>
+                    ) : null}
                   </div>
                 )}
               </div>
@@ -264,13 +271,29 @@ export default function PricingTab({ plans = [], onRefresh }: PricingTabProps) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-gray-300 mb-1">قیمت (میلیون تومان)</label>
+                  <label className="block text-gray-300 mb-1">قیمت پایه / ماهانه (میلیون تومان)</label>
                   <input
                     type="number"
                     value={formData.monthly_price}
-                    onChange={(e) => setFormData({ ...formData, monthly_price: Number(e.target.value) })}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setFormData({
+                        ...formData,
+                        monthly_price: val,
+                        yearly_price: formData.yearly_price || Math.round(val * 12 * 0.8),
+                      });
+                    }}
+                    className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-brand-500 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1">قیمت سالانه با تخفیف (میلیون تومان)</label>
+                  <input
+                    type="number"
+                    value={formData.yearly_price}
+                    onChange={(e) => setFormData({ ...formData, yearly_price: Number(e.target.value) })}
                     className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-brand-500 font-mono"
                   />
                 </div>
@@ -280,7 +303,7 @@ export default function PricingTab({ plans = [], onRefresh }: PricingTabProps) {
                     type="text"
                     value={formData.billing_period}
                     onChange={(e) => setFormData({ ...formData, billing_period: e.target.value })}
-                    placeholder="پروژه‌ای / ماهانه"
+                    placeholder="ماهانه / پروژه‌ای"
                     className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-brand-500"
                   />
                 </div>

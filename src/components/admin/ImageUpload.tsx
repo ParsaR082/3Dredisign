@@ -117,7 +117,11 @@ export default function ImageUpload({
           <div className="w-20 h-20 rounded-xl bg-black/40 border border-white/10 overflow-hidden shrink-0 relative flex items-center justify-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={value}
+              src={
+                value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')
+                  ? value
+                  : `/media/${value}`
+              }
               alt="پیش‌نمایش"
               className="w-full h-full object-cover"
               onError={(e) => {

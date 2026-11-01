@@ -21,11 +21,13 @@ import {
   UserCog,
   RefreshCw,
   Loader2,
+  PhoneCall,
 } from 'lucide-react';
 
 import OverviewTab from '@/components/admin/OverviewTab';
 import ContactsTab from '@/components/admin/ContactsTab';
 import LeadsTab from '@/components/admin/LeadsTab';
+import ContactInfoTab from '@/components/admin/ContactInfoTab';
 import ProjectsTab from '@/components/admin/ProjectsTab';
 import BlogTab from '@/components/admin/BlogTab';
 import ServicesTab from '@/components/admin/ServicesTab';
@@ -44,6 +46,7 @@ const ALL_TABS = [
   { id: 'overview', label: 'داشبورد کلی', icon: LayoutDashboard },
   { id: 'contacts', label: 'پیام‌های تماس', icon: Inbox },
   { id: 'leads', label: 'رزرو مشاوره و پروپوزال', icon: CalendarCheck },
+  { id: 'contact-info', label: 'اطلاعات ارتباط با ما', icon: PhoneCall },
   { id: 'projects', label: 'پروژه‌ها', icon: FolderGit2 },
   { id: 'blog', label: 'وبلاگ و مقالات', icon: BookOpen },
   { id: 'services', label: 'خدمات تخصصی', icon: Cpu },
@@ -74,6 +77,7 @@ function AdminDashboardContent() {
   const [services, setServices] = useState<any[]>([]);
   const [settings, setSettings] = useState<any>(null);
   const [landing, setLanding] = useState<any>(null);
+  const [contactPage, setContactPage] = useState<any>(null);
   const [testimonials, setTestimonials] = useState<any[]>([]);
   const [counters, setCounters] = useState<any[]>([]);
 
@@ -160,6 +164,7 @@ function AdminDashboardContent() {
         const st = await settingsRes.json();
         setSettings(st.settings);
         setLanding(st.landing);
+        setContactPage(st.contactPage);
       }
       if (testimonialsRes.ok) {
         const t = await testimonialsRes.json();
@@ -310,12 +315,14 @@ function AdminDashboardContent() {
           }
           break;
         }
-        case 'settings': {
+        case 'settings':
+        case 'contact-info': {
           const res = await fetch('/api/admin/settings/');
           if (res.ok) {
             const st = await res.json();
             setSettings(st.settings);
             setLanding(st.landing);
+            setContactPage(st.contactPage);
           }
           break;
         }
@@ -589,6 +596,14 @@ function AdminDashboardContent() {
 
           {currentTab === 'counters' && (
             <CountersTab counters={counters} onRefresh={() => fetchTabData('counters')} />
+          )}
+
+          {currentTab === 'contact-info' && (
+            <ContactInfoTab
+              initialSettings={settings}
+              initialContactPage={contactPage}
+              onRefresh={() => fetchTabData('contact-info')}
+            />
           )}
 
           {currentTab === 'settings' && (

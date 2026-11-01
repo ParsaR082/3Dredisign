@@ -6,6 +6,8 @@ import WhatsAppButton from '@/components/ui/WhatsAppButton';
 import { getLiveSiteSettings, getLiveServices } from '@/lib/db';
 import { generatePageMetadata, generateOrganizationJsonLd } from '@/lib/seo';
 
+export const revalidate = 0;
+
 export const viewport: Viewport = {
   themeColor: '#0B0F17',
   width: 'device-width',
