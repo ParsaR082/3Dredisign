@@ -1,193 +1,20 @@
 'use client';
 
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Float, RoundedBox, Html, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import { easing } from 'maath';
 import {
-  STATIONS_CONFIG,
-  PORTFOLIO_TVS_CONFIG,
   ProjectTVConfig,
-  COLLABORATION_STATIONS_CONFIG,
-  CollaborationStationConfig,
-  EXECUTIVE_LOUNGE_CONFIG,
   DiveTargetConfig,
   DivePhase,
-  BADGE_PROXIMITY_CONFIG,
 } from './stationsConfig';
-import CorporateOfficeEnvironment from './CorporateOfficeEnvironment';
+import CosmicDeepSpace from './CosmicDeepSpace';
+import CosmicSectorShowcase from './CosmicSectorShowcase';
 
-// Preload user's GLB models from public/3Dmodels
-useGLTF.preload('/3Dmodels/hero3d.glb');
-useGLTF.preload('/3Dmodels/logo3d.glb');
-useGLTF.preload('/3Dmodels/Table1.glb');
-useGLTF.preload('/3Dmodels/table2.glb');
-useGLTF.preload('/3Dmodels/table3.glb');
-useGLTF.preload('/3Dmodels/table4.glb');
-useGLTF.preload('/3Dmodels/Laptop3D.glb');
-useGLTF.preload('/3Dmodels/Phone3D.glb');
-useGLTF.preload('/3Dmodels/Camera3D.glb');
-useGLTF.preload('/3Dmodels/gimbal3D.glb');
-useGLTF.preload('/3Dmodels/Pen.glb');
-useGLTF.preload('/3Dmodels/clipboard.glb');
-useGLTF.preload('/3Dmodels/stack of paper.glb');
-useGLTF.preload('/3Dmodels/Billboard.glb');
-useGLTF.preload('/3Dmodels/TV1.glb');
-useGLTF.preload('/3Dmodels/TV2.glb');
-useGLTF.preload('/3Dmodels/TV3.glb');
-useGLTF.preload('/3Dmodels/TV4.glb');
-useGLTF.preload('/3Dmodels/desk_modern.glb');
-useGLTF.preload('/3Dmodels/office_chair.glb');
-useGLTF.preload('/3Dmodels/cup_tea.glb');
-useGLTF.preload('/3Dmodels/headphones.glb');
-useGLTF.preload('/3Dmodels/tablet.glb');
-useGLTF.preload('/3Dmodels/desk_lamp.glb');
-useGLTF.preload('/3Dmodels/pc_case.glb');
-useGLTF.preload('/3Dmodels/keyboard.glb');
-useGLTF.preload('/3Dmodels/whiteboard.glb');
-useGLTF.preload('/3Dmodels/sofa.glb');
-useGLTF.preload('/3Dmodels/desk_phone.glb');
-useGLTF.preload('/3Dmodels/map_pin.glb');
-useGLTF.preload('/3Dmodels/Table1.glb');
-useGLTF.preload('/3Dmodels/stack of paper.glb');
-useGLTF.preload('/3Dmodels/Pen.glb');
-
-// Helper to clone GLTF scenes safely and configure shadows and color spaces
-function useClonedGLTF(path: string) {
-  const gltf = useGLTF(path);
-  return useMemo(() => {
-    const cloned = gltf.scene.clone(true);
-    cloned.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-        const mat = (child as THREE.Mesh).material;
-        if (mat) {
-          const matList = Array.isArray(mat) ? mat : [mat];
-          matList.forEach((m) => {
-            const stdMat = m as THREE.MeshStandardMaterial;
-            if (stdMat.map) {
-              stdMat.map.colorSpace = THREE.SRGBColorSpace;
-            }
-          });
-        }
-      }
-    });
-    return cloned;
-  }, [gltf.scene]);
-}
-
-// ── SMART PROXIMITY BADGE COMPONENT ──
-// Calculates exact real-time 3D camera distance; smoothly dissolves & lifts badge away as camera gets close
-interface SmartProximityBadgeProps {
-  position?: [number, number, number];
-  distanceFactor?: number;
-  center?: boolean;
-  minDist?: number;
-  maxDist?: number;
-  farFadeDist?: number;
-  isDiving?: boolean;
-  children: React.ReactNode;
-}
-
-function SmartProximityBadge({
-  position = [0, 0, 0],
-  distanceFactor = 16,
-  center = true,
-  minDist = BADGE_PROXIMITY_CONFIG.minDist,
-  maxDist = BADGE_PROXIMITY_CONFIG.maxDist,
-  farFadeDist = BADGE_PROXIMITY_CONFIG.farFadeDist,
-  isDiving = false,
-  children,
-}: SmartProximityBadgeProps) {
-  const groupRef = useRef<THREE.Group>(null);
-  const domRef = useRef<HTMLDivElement>(null);
-  const worldPos = useMemo(() => new THREE.Vector3(), []);
-
-  useFrame(({ camera }) => {
-    if (!domRef.current || !groupRef.current) return;
-
-    // Immediately hide when diving or pulling back
-    if (isDiving) {
-      domRef.current.style.opacity = '0';
-      domRef.current.style.pointerEvents = 'none';
-      domRef.current.style.visibility = 'hidden';
-      return;
-    }
-
-    // World coordinates of this badge in 3D space
-    groupRef.current.getWorldPosition(worldPos);
-
-    // Exact physical distance between camera and badge
-    const dist = camera.position.distanceTo(worldPos);
-
-    // If camera is already past the badge along the runway corridor (camera Z < worldPos.z - 0.2)
-    const isPast = camera.position.z < worldPos.z - 0.2;
-
-    if (isPast || dist <= minDist) {
-      domRef.current.style.opacity = '0';
-      domRef.current.style.pointerEvents = 'none';
-      domRef.current.style.visibility = 'hidden';
-      return;
-    }
-
-    let opacity = 1;
-    let translateY = 0;
-    let scale = 1;
-
-    // Close-range proximity fade: between maxDist (1.0) down to minDist (0.0)
-    if (dist < maxDist) {
-      const factor = (dist - minDist) / (maxDist - minDist);
-      // Smooth cubic ease-in-out curve
-      const eased = factor * factor * (3 - 2 * factor);
-      opacity = eased;
-      // Elegant upward float / slide away effect as it dissolves
-      translateY = (1 - eased) * -16;
-      scale = 0.94 + 0.06 * eased;
-    } else if (dist > farFadeDist) {
-      // Far distance fade out to keep horizon clean
-      const farLimit = farFadeDist + 6;
-      if (dist >= farLimit) {
-        opacity = 0;
-      } else {
-        const factor = 1 - (dist - farFadeDist) / 6;
-        opacity = factor * factor;
-      }
-    }
-
-    if (opacity <= 0.01) {
-      domRef.current.style.opacity = '0';
-      domRef.current.style.pointerEvents = 'none';
-      domRef.current.style.visibility = 'hidden';
-    } else {
-      domRef.current.style.visibility = 'visible';
-      domRef.current.style.opacity = opacity.toFixed(3);
-      domRef.current.style.pointerEvents = opacity > 0.5 ? 'auto' : 'none';
-      domRef.current.style.transform = `translate3d(0, ${translateY.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
-    }
-  });
-
-  return (
-    <group ref={groupRef} position={position}>
-      <Html center={center} distanceFactor={distanceFactor}>
-        <div
-          ref={domRef}
-          style={{
-            willChange: 'opacity, transform',
-            transition: 'opacity 0.06s linear, transform 0.06s linear',
-          }}
-        >
-          {children}
-        </div>
-      </Html>
-    </group>
-  );
-}
-
-interface CampusProps {
-  scrollProgress: number; // 0 to 1
-  activeSector: number;   // 0 to 4
+export interface CampusProps {
+  scrollProgress: number; // 0.0 to 1.0
+  activeSector: number; // 0 to 4
   hoveredServiceSlug?: string | null;
   hoveredProjectSlug?: string | null;
   portfolioProjects?: ProjectTVConfig[];
@@ -205,7 +32,7 @@ interface CampusProps {
 // ── CHOREOGRAPHED CAMERA TRAJECTORY & DYNAMIC ITEM GAZE ──
 // Each waypoint defines an exact scroll progress (t), camera position, and gaze lookAt target.
 // When reaching an item, the camera turns to look directly at it.
-// When leaving a sector, the camera faces straight ahead down the central runway into the next room.
+// When traveling between sectors, the camera faces straight ahead down the central warp runway.
 
 export interface ChoreographedWaypoint {
   t: number;
@@ -213,138 +40,135 @@ export interface ChoreographedWaypoint {
   target: THREE.Vector3;
 }
 
-const CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
-  // ── Sector 0: Grand Nexus Portal & Hero Card (Desktop Zoomed-Out Framing) ──
-  { t: 0.00, pos: new THREE.Vector3(0, 4.3, 16.5), target: new THREE.Vector3(0, 3.4, 0.0) },
+export const CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
+  // ── Sector 0: Grand Cosmic Welcome & Metallic 3D Logo ──
+  { t: 0.0, pos: new THREE.Vector3(0, 4.3, 16.5), target: new THREE.Vector3(0, 3.4, 0.0) },
   { t: 0.16, pos: new THREE.Vector3(0, 4.3, 16.5), target: new THREE.Vector3(0, 3.4, 0.0) },
   { t: 0.18, pos: new THREE.Vector3(0, 2.4, -14.0), target: new THREE.Vector3(0, 2.0, -25.0) },
 
-  // ── Sector 1: Services Concourse (Room 1 - With Restful Dwell Windows) ──
-  // Station 1: Laptop (Web Design - Left)
+  // ── Sector 1: Services Concourse (5 Floating HQ Hero Models) ──
+  // Station 1: Curved Monitor (Web Architecture - Left)
   { t: 0.22, pos: new THREE.Vector3(0.2, 2.2, -19.2), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
   { t: 0.24, pos: new THREE.Vector3(0.2, 2.2, -19.2), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
-  // Station 2: Phone (Content Production - Right)
+  // Station 2: iPhone 18 Pro Max (Content & Social - Right)
   { t: 0.27, pos: new THREE.Vector3(-0.2, 2.2, -24.2), target: new THREE.Vector3(2.2, 1.55, -27.0) },
   { t: 0.29, pos: new THREE.Vector3(-0.2, 2.2, -24.2), target: new THREE.Vector3(2.2, 1.55, -27.0) },
-  // Station 3: Camera & Gimbal (Video Teaser - Left)
-  { t: 0.32, pos: new THREE.Vector3(0.2, 2.2, -29.2), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
-  { t: 0.34, pos: new THREE.Vector3(0.2, 2.2, -29.2), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
-  // Station 4: Sketchbook & Logo (Branding - Right)
+  // Station 3: Canon Retro Camera (Teaser & Video - Left)
+  { t: 0.32, pos: new THREE.Vector3(0.2, 2.2, -29.2), target: new THREE.Vector3(-2.1, 1.3, -32.0) },
+  { t: 0.34, pos: new THREE.Vector3(0.2, 2.2, -29.2), target: new THREE.Vector3(-2.1, 1.3, -32.0) },
+  // Station 4: iPad Pro & Stylus (Branding & Identity - Right)
   { t: 0.37, pos: new THREE.Vector3(-0.2, 2.2, -34.2), target: new THREE.Vector3(2.2, 1.25, -37.0) },
   { t: 0.39, pos: new THREE.Vector3(-0.2, 2.2, -34.2), target: new THREE.Vector3(2.2, 1.25, -37.0) },
-  // Station 5: Environmental Billboard (Billboard - Left)
+  // Station 5: Billboard (Outdoor Media - Left)
   { t: 0.42, pos: new THREE.Vector3(0.3, 2.4, -39.0), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
   { t: 0.44, pos: new THREE.Vector3(0.3, 2.4, -39.0), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
 
-  // ── Inter-Room Corridor 1 -> 2: Straighten camera facing forward into Room 2 ──
+  // ── Inter-Sector Warp 1 -> 2: Straighten camera facing forward into Sector 2 ──
   { t: 0.47, pos: new THREE.Vector3(0, 2.4, -48.0), target: new THREE.Vector3(0, 2.0, -62.0) },
 
-  // ── Sector 2: Masterworks Exhibition (Room 2 - Project TVs) ──
-  // TV 1: Araz Metal (Left)
-  { t: 0.50, pos: new THREE.Vector3(0.2, 2.2, -52.5), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
+  // ── Sector 2: Masterworks Exhibition (Curved Displays & Case Studies) ──
+  // Project 1: Araz Metal (Left)
+  { t: 0.5, pos: new THREE.Vector3(0.2, 2.2, -52.5), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
   { t: 0.52, pos: new THREE.Vector3(0.2, 2.2, -52.5), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
-  // TV 2: Dr Sadeghi (Right)
-  { t: 0.54, pos: new THREE.Vector3(-0.2, 2.2, -59.5), target: new THREE.Vector3(2.4, 1.50, -63.0) },
-  { t: 0.56, pos: new THREE.Vector3(-0.2, 2.2, -59.5), target: new THREE.Vector3(2.4, 1.50, -63.0) },
-  // TV 3: Sepid Kooh (Left)
-  { t: 0.58, pos: new THREE.Vector3(0.2, 2.2, -66.5), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
-  { t: 0.60, pos: new THREE.Vector3(0.2, 2.2, -66.5), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
-  // TV 4: Baran Leather (Right)
-  { t: 0.62, pos: new THREE.Vector3(-0.2, 2.2, -73.5), target: new THREE.Vector3(2.4, 1.50, -77.0) },
-  { t: 0.64, pos: new THREE.Vector3(-0.2, 2.2, -73.5), target: new THREE.Vector3(2.4, 1.50, -77.0) },
+  // Project 2: Dr Sadeghi (Right)
+  { t: 0.54, pos: new THREE.Vector3(-0.2, 2.2, -59.5), target: new THREE.Vector3(2.4, 1.5, -63.0) },
+  { t: 0.56, pos: new THREE.Vector3(-0.2, 2.2, -59.5), target: new THREE.Vector3(2.4, 1.5, -63.0) },
+  // Project 3: Sepid Kooh (Left)
+  { t: 0.58, pos: new THREE.Vector3(0.2, 2.2, -66.5), target: new THREE.Vector3(-2.4, 1.6, -70.0) },
+  { t: 0.6, pos: new THREE.Vector3(0.2, 2.2, -66.5), target: new THREE.Vector3(-2.4, 1.6, -70.0) },
+  // Project 4: Baran Leather (Right)
+  { t: 0.62, pos: new THREE.Vector3(-0.2, 2.2, -73.5), target: new THREE.Vector3(2.4, 1.5, -77.0) },
+  { t: 0.64, pos: new THREE.Vector3(-0.2, 2.2, -73.5), target: new THREE.Vector3(2.4, 1.5, -77.0) },
 
-  // ── Inter-Room Corridor 2 -> 3: Straighten camera facing forward into Room 3 ──
+  // ── Inter-Sector Warp 2 -> 3: Straighten camera facing forward into Sector 3 ──
   { t: 0.67, pos: new THREE.Vector3(0, 2.4, -84.0), target: new THREE.Vector3(0, 2.0, -98.0) },
 
-  // ── Sector 3: Collaboration Workflow (Room 3 - Extended Extra Long Dwelling for 5 Steps) ──
-  // Step 1: Discovery (Left - 3% dwell window)
-  { t: 0.70, pos: new THREE.Vector3(0.2, 2.2, -90.5), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
+  // ── Sector 3: Collaboration Workflow (5 Sequential Milestones) ──
+  // Step 1: Discovery & Research (Left)
+  { t: 0.7, pos: new THREE.Vector3(0.2, 2.2, -90.5), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
   { t: 0.73, pos: new THREE.Vector3(0.2, 2.2, -90.5), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
-  // Step 2: UI/UX Design (Right - 3% dwell window)
+  // Step 2: Architecture & UI/UX (Right)
   { t: 0.75, pos: new THREE.Vector3(-0.2, 2.2, -97.5), target: new THREE.Vector3(2.6, 1.5, -101.0) },
   { t: 0.78, pos: new THREE.Vector3(-0.2, 2.2, -97.5), target: new THREE.Vector3(2.6, 1.5, -101.0) },
-  // Step 3: Engineering (Left - 3% dwell window)
-  { t: 0.80, pos: new THREE.Vector3(0.2, 2.2, -104.5), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
+  // Step 3: Production & Code (Left)
+  { t: 0.8, pos: new THREE.Vector3(0.2, 2.2, -104.5), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
   { t: 0.83, pos: new THREE.Vector3(0.2, 2.2, -104.5), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
-  // Step 4: Testing & QA (Right - 3% dwell window)
+  // Step 4: Quality & Testing (Right)
   { t: 0.85, pos: new THREE.Vector3(-0.2, 2.2, -111.5), target: new THREE.Vector3(2.6, 1.5, -115.0) },
   { t: 0.88, pos: new THREE.Vector3(-0.2, 2.2, -111.5), target: new THREE.Vector3(2.6, 1.5, -115.0) },
-  // Step 5: Launch & Support (Left - 3% dwell window)
-  { t: 0.90, pos: new THREE.Vector3(0.2, 2.2, -118.5), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
+  // Step 5: Launch & Scaling (Left)
+  { t: 0.9, pos: new THREE.Vector3(0.2, 2.2, -118.5), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
   { t: 0.93, pos: new THREE.Vector3(0.2, 2.2, -118.5), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
 
-  // ── Inter-Room Corridor 3 -> 4: Straighten camera facing forward into Executive Room ──
+  // ── Inter-Sector Warp 3 -> 4: Straighten camera facing forward into Executive Room ──
   { t: 0.94, pos: new THREE.Vector3(0, 2.4, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
 
   // ── Sector 4: Executive Consultation & Reception (Room 4) ──
-  // VIP Consultation Lounge (Left - Dedicated Dwell Plateau for Calm Reading & Interaction)
+  // Executive Desk Phone & 24/7 Hotline (Left)
   { t: 0.955, pos: new THREE.Vector3(0.2, 2.2, -142.0), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
-  { t: 0.970, pos: new THREE.Vector3(0.2, 2.2, -142.0), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
-  // Executive Reception Desk (Right - Dedicated Dwell Plateau for Contact Details)
-  { t: 0.980, pos: new THREE.Vector3(-0.2, 2.2, -143.0), target: new THREE.Vector3(2.8, 1.4, -146.0) },
+  { t: 0.97, pos: new THREE.Vector3(0.2, 2.2, -142.0), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
+  // Strategic Consultation Station (Right)
+  { t: 0.98, pos: new THREE.Vector3(-0.2, 2.2, -143.0), target: new THREE.Vector3(2.8, 1.4, -146.0) },
   { t: 0.992, pos: new THREE.Vector3(-0.2, 2.2, -143.0), target: new THREE.Vector3(2.8, 1.4, -146.0) },
-  // Terminal 3D Portal & Grand Floating Brand Landmark
-  { t: 1.00, pos: new THREE.Vector3(0.0, 2.4, -148.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
+  // Terminal Celestial Monolith & Brand Crest
+  { t: 1.0, pos: new THREE.Vector3(0.0, 2.4, -148.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
 ];
 
-const MOBILE_CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
-  // ── Sector 0: Grand Nexus Portal & Hero Card (Elevated Vantage Point) ──
-  { t: 0.00, pos: new THREE.Vector3(0, 3.8, 16.5), target: new THREE.Vector3(0, 3.2, 0.0) },
+export const MOBILE_CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
+  // ── Sector 0: Welcome ──
+  { t: 0.0, pos: new THREE.Vector3(0, 3.8, 16.5), target: new THREE.Vector3(0, 3.2, 0.0) },
   { t: 0.16, pos: new THREE.Vector3(0, 3.8, 16.5), target: new THREE.Vector3(0, 3.2, 0.0) },
   { t: 0.18, pos: new THREE.Vector3(0, 2.8, -13.0), target: new THREE.Vector3(0, 2.0, -25.0) },
 
-  // ── Sector 1: Services Concourse (Room 1) ──
+  // ── Sector 1: Services ──
   { t: 0.22, pos: new THREE.Vector3(0.3, 2.5, -18.8), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
   { t: 0.24, pos: new THREE.Vector3(0.3, 2.5, -18.8), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
   { t: 0.27, pos: new THREE.Vector3(-0.3, 2.5, -23.8), target: new THREE.Vector3(2.2, 1.55, -27.0) },
   { t: 0.29, pos: new THREE.Vector3(-0.3, 2.5, -23.8), target: new THREE.Vector3(2.2, 1.55, -27.0) },
-  { t: 0.32, pos: new THREE.Vector3(0.3, 2.5, -28.8), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
-  { t: 0.34, pos: new THREE.Vector3(0.3, 2.5, -28.8), target: new THREE.Vector3(-2.1, 1.30, -32.0) },
+  { t: 0.32, pos: new THREE.Vector3(0.3, 2.5, -28.8), target: new THREE.Vector3(-2.1, 1.3, -32.0) },
+  { t: 0.34, pos: new THREE.Vector3(0.3, 2.5, -28.8), target: new THREE.Vector3(-2.1, 1.3, -32.0) },
   { t: 0.37, pos: new THREE.Vector3(-0.3, 2.5, -33.8), target: new THREE.Vector3(2.2, 1.25, -37.0) },
   { t: 0.39, pos: new THREE.Vector3(-0.3, 2.5, -33.8), target: new THREE.Vector3(2.2, 1.25, -37.0) },
   { t: 0.42, pos: new THREE.Vector3(0.4, 2.7, -38.5), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
   { t: 0.44, pos: new THREE.Vector3(0.4, 2.7, -38.5), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
 
-  // ── Inter-Room Corridor 1 -> 2: Straighten camera facing forward into Room 2 ──
+  // ── Inter-Sector Warp 1 -> 2 ──
   { t: 0.47, pos: new THREE.Vector3(0, 2.8, -48.0), target: new THREE.Vector3(0, 2.0, -62.0) },
 
-  // ── Sector 2: Masterworks Exhibition (Room 2 - Project TVs) ──
-  { t: 0.50, pos: new THREE.Vector3(0.3, 2.6, -52.0), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
+  // ── Sector 2: Exhibition ──
+  { t: 0.5, pos: new THREE.Vector3(0.3, 2.6, -52.0), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
   { t: 0.52, pos: new THREE.Vector3(0.3, 2.6, -52.0), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
-  { t: 0.54, pos: new THREE.Vector3(-0.3, 2.6, -59.0), target: new THREE.Vector3(2.4, 1.50, -63.0) },
-  { t: 0.56, pos: new THREE.Vector3(-0.3, 2.6, -59.0), target: new THREE.Vector3(2.4, 1.50, -63.0) },
-  { t: 0.58, pos: new THREE.Vector3(0.3, 2.6, -66.0), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
-  { t: 0.60, pos: new THREE.Vector3(0.3, 2.6, -66.0), target: new THREE.Vector3(-2.4, 1.60, -70.0) },
-  { t: 0.62, pos: new THREE.Vector3(-0.3, 2.6, -73.0), target: new THREE.Vector3(2.4, 1.50, -77.0) },
-  { t: 0.64, pos: new THREE.Vector3(-0.3, 2.6, -73.0), target: new THREE.Vector3(2.4, 1.50, -77.0) },
+  { t: 0.54, pos: new THREE.Vector3(-0.3, 2.6, -59.0), target: new THREE.Vector3(2.4, 1.5, -63.0) },
+  { t: 0.56, pos: new THREE.Vector3(-0.3, 2.6, -59.0), target: new THREE.Vector3(2.4, 1.5, -63.0) },
+  { t: 0.58, pos: new THREE.Vector3(0.3, 2.6, -66.0), target: new THREE.Vector3(-2.4, 1.6, -70.0) },
+  { t: 0.6, pos: new THREE.Vector3(0.3, 2.6, -66.0), target: new THREE.Vector3(-2.4, 1.6, -70.0) },
+  { t: 0.62, pos: new THREE.Vector3(-0.3, 2.6, -73.0), target: new THREE.Vector3(2.4, 1.5, -77.0) },
+  { t: 0.64, pos: new THREE.Vector3(-0.3, 2.6, -73.0), target: new THREE.Vector3(2.4, 1.5, -77.0) },
 
-  // ── Inter-Room Corridor 2 -> 3: Straighten camera facing forward into Room 3 ──
+  // ── Inter-Sector Warp 2 -> 3 ──
   { t: 0.67, pos: new THREE.Vector3(0, 2.8, -84.0), target: new THREE.Vector3(0, 2.0, -98.0) },
 
-  // ── Sector 3: Collaboration Workflow (Room 3 - Extended Extra Long Dwelling for 5 Steps) ──
-  { t: 0.70, pos: new THREE.Vector3(0.3, 2.6, -90.0), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
+  // ── Sector 3: Workflow ──
+  { t: 0.7, pos: new THREE.Vector3(0.3, 2.6, -90.0), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
   { t: 0.73, pos: new THREE.Vector3(0.3, 2.6, -90.0), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
   { t: 0.75, pos: new THREE.Vector3(-0.3, 2.6, -97.0), target: new THREE.Vector3(2.6, 1.5, -101.0) },
   { t: 0.78, pos: new THREE.Vector3(-0.3, 2.6, -97.0), target: new THREE.Vector3(2.6, 1.5, -101.0) },
-  { t: 0.80, pos: new THREE.Vector3(0.3, 2.6, -104.0), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
+  { t: 0.8, pos: new THREE.Vector3(0.3, 2.6, -104.0), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
   { t: 0.83, pos: new THREE.Vector3(0.3, 2.6, -104.0), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
   { t: 0.85, pos: new THREE.Vector3(-0.3, 2.6, -111.0), target: new THREE.Vector3(2.6, 1.5, -115.0) },
   { t: 0.88, pos: new THREE.Vector3(-0.3, 2.6, -111.0), target: new THREE.Vector3(2.6, 1.5, -115.0) },
-  { t: 0.90, pos: new THREE.Vector3(0.3, 2.6, -118.0), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
+  { t: 0.9, pos: new THREE.Vector3(0.3, 2.6, -118.0), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
   { t: 0.93, pos: new THREE.Vector3(0.3, 2.6, -118.0), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
 
-  // ── Inter-Room Corridor 3 -> 4: Straighten camera facing forward into Executive Room ──
+  // ── Inter-Sector Warp 3 -> 4 ──
   { t: 0.94, pos: new THREE.Vector3(0, 2.8, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
 
-  // ── Sector 4: Executive Consultation & Reception (Room 4) ──
-  // VIP Consultation Lounge (Left - Mobile Dwell Plateau)
+  // ── Sector 4: Executive ──
   { t: 0.955, pos: new THREE.Vector3(0.3, 2.6, -141.5), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
-  { t: 0.970, pos: new THREE.Vector3(0.3, 2.6, -141.5), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
-  // Executive Reception Desk (Right - Mobile Dwell Plateau)
-  { t: 0.980, pos: new THREE.Vector3(-0.3, 2.6, -142.5), target: new THREE.Vector3(2.8, 1.4, -146.0) },
+  { t: 0.97, pos: new THREE.Vector3(0.3, 2.6, -141.5), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
+  { t: 0.98, pos: new THREE.Vector3(-0.3, 2.6, -142.5), target: new THREE.Vector3(2.8, 1.4, -146.0) },
   { t: 0.992, pos: new THREE.Vector3(-0.3, 2.6, -142.5), target: new THREE.Vector3(2.8, 1.4, -146.0) },
-  // Terminal 3D Portal & Grand Floating Brand Landmark
-  { t: 1.00, pos: new THREE.Vector3(0.0, 2.8, -147.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
+  { t: 1.0, pos: new THREE.Vector3(0.0, 2.8, -147.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
 ];
 
 const _splinePos = new THREE.Vector3();
@@ -380,9 +204,7 @@ function getSplinePoint(t: number, isMobile: boolean): { pos: THREE.Vector3; tar
   const span = pB.t - pA.t;
   const fraction = span > 0 ? (t - pA.t) / span : 0;
 
-  // Ken Perlin's Smootherstep curve (zero 1st and 2nd derivatives at endpoints).
-  // Creates an extended, stable dwelling plateau around each 3D item so the camera
-  // comfortably lingers and stays locked looking at the item before gracefully panning to the next.
+  // Ken Perlin's Smootherstep curve for stabilized reading plateaus
   const smooth = fraction * fraction * fraction * (fraction * (fraction * 6 - 15) + 10);
 
   _splinePos.lerpVectors(pA.pos, pB.pos, smooth);
@@ -395,7 +217,7 @@ function easeInOutCubic(x: number): number {
   return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 }
 
-// ── 1. SMOOTH SCROLL CAMERA CONTROLLER WITH DIVE TRANSITION SUPPORT ──
+// ── SMOOTH SCROLL CAMERA CONTROLLER WITH DIVE TRANSITION SUPPORT ──
 function SmoothScrollCamera({
   scrollProgress,
   activeDiveTarget,
@@ -445,7 +267,7 @@ function SmoothScrollCamera({
   // Responsive FOV adjustment on narrow portrait viewports
   useEffect(() => {
     if (!(camera instanceof THREE.PerspectiveCamera)) return;
-    const targetFov = aspect < 0.55 ? 64 : aspect < 0.75 ? 58 : aspect < 1.0 ? 50 : 45;
+    const targetFov = aspect < 0.55 ? 62 : aspect < 0.75 ? 56 : aspect < 1.0 ? 50 : 45;
     if (camera.fov !== targetFov) {
       camera.fov = targetFov;
       camera.updateProjectionMatrix();
@@ -453,17 +275,16 @@ function SmoothScrollCamera({
   }, [camera, aspect]);
 
   useFrame((_, delta) => {
-    // ── 1. CINEMATIC CAMERA DIVE ONTO 3D SCREEN / PAPER (Seamless from current normal view) ──
+    // ── 1. CINEMATIC CAMERA DIVE ONTO 3D SCREEN / PAPER ──
     if (divePhase === 'diving' && activeDiveTarget) {
       if (!diveInitialized.current) {
-        // Record the camera's actual starting position & target so there is ZERO flash / jump cut!
         diveStartPos.current.copy(camera.position);
         diveStartLookAt.current.copy(currentTarget.current);
         diveStartTime.current = performance.now();
         diveInitialized.current = true;
       }
 
-      const DIVE_DURATION = 1150; // 1.15s of majestic cinematic flight
+      const DIVE_DURATION = 1150;
       const elapsed = performance.now() - diveStartTime.current;
       const progress = Math.min(1, Math.max(0, elapsed / DIVE_DURATION));
       const ease = easeInOutCubic(progress);
@@ -471,7 +292,6 @@ function SmoothScrollCamera({
       scratchDivePos.current.set(...activeDiveTarget.camPosition);
       scratchDiveLookAt.current.set(...activeDiveTarget.camLookAt);
 
-      // Smoothly fly from where the camera is standing on the normal path directly into the screen
       camera.position.lerpVectors(diveStartPos.current, scratchDivePos.current, ease);
       currentTarget.current.lerpVectors(diveStartLookAt.current, scratchDiveLookAt.current, ease);
       camera.lookAt(currentTarget.current);
@@ -485,7 +305,7 @@ function SmoothScrollCamera({
       return;
     }
 
-    // ── 2. HOLD POSITION ON SCREEN (Camera zoomed in on screen as black overlay fades) ──
+    // ── 2. HOLD POSITION ON SCREEN ──
     if (divePhase === 'pullback_hold' && activeDiveTarget) {
       camera.position.set(...activeDiveTarget.camPosition);
       currentTarget.current.set(...activeDiveTarget.camLookAt);
@@ -493,7 +313,7 @@ function SmoothScrollCamera({
       return;
     }
 
-    // ── 3. REVERSE DIVE: CINEMATIC CAMERA PULLBACK TO ITEM'S DEDICATED STARTING POINT ──
+    // ── 3. REVERSE DIVE: CINEMATIC CAMERA PULLBACK ──
     if (divePhase === 'pullback' && activeDiveTarget) {
       if (!pullbackInitialized.current) {
         camera.position.set(...activeDiveTarget.camPosition);
@@ -503,7 +323,7 @@ function SmoothScrollCamera({
         pullbackInitialized.current = true;
       }
 
-      const PULLBACK_DURATION = 1150; // 1.15s reverse flight back to unique start point
+      const PULLBACK_DURATION = 1150;
       const elapsed = performance.now() - pullbackStartTime.current;
       const progress = Math.min(1, Math.max(0, elapsed / PULLBACK_DURATION));
       const ease = easeInOutCubic(progress);
@@ -513,19 +333,18 @@ function SmoothScrollCamera({
       scratchDivePos.current.set(...activeDiveTarget.camPosition);
       scratchDiveLookAt.current.set(...activeDiveTarget.camLookAt);
 
-      // Pull back from screen directly to this specific item's normal camera starting position & look-at
       camera.position.lerpVectors(scratchDivePos.current, scratchNormalPos.current, ease);
       currentTarget.current.lerpVectors(scratchDiveLookAt.current, scratchNormalLookAt.current, ease);
       camera.lookAt(currentTarget.current);
       return;
     }
 
-    // ── 4. STANDARD CENTERLINE SPLINE TRACKING (Normal flight, idle & auto-scroll staging) ──
+    // ── 4. STANDARD CENTERLINE SPLINE TRACKING WITH SMOOTH EASING ──
     const { pos, target } = getSplinePoint(scrollProgress, isMobile);
 
-    const parallaxMult = isMobile ? 0.2 : 0.7;
+    const parallaxMult = isMobile ? 0.2 : 0.65;
     const parallaxX = pointer.x * parallaxMult;
-    const parallaxY = pointer.y * (parallaxMult * 0.6);
+    const parallaxY = pointer.y * (parallaxMult * 0.55);
 
     desiredPosRef.current.set(
       pos.x + parallaxX,
@@ -543,1626 +362,10 @@ function SmoothScrollCamera({
   return null;
 }
 
-// ── 2. ARCHITECTURAL REFLECTIVE SLAB & ILLUMINATED CONDUITS ──
-function ArchitecturalFloor() {
-  const runwayConduits = useMemo(() => {
-    const list = [];
-    for (let z = 20; z >= -180; z -= 14) {
-      list.push(z);
-    }
-    return list;
-  }, []);
-
-  return (
-    <group position={[0, -0.05, 0]}>
-      {/* Deep Obsidian Ground Slab */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[140, 260]} />
-        <meshStandardMaterial
-          color="#070B12"
-          roughness={0.18}
-          metalness={0.88}
-        />
-      </mesh>
-
-      {/* Central Emerald Spine Axis */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -80]}>
-        <planeGeometry args={[0.35, 230]} />
-        <meshBasicMaterial color="#0E946E" transparent opacity={0.7} />
-      </mesh>
-
-      {/* Lateral Cyan Conduit Lines */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-3.8, 0.01, -80]}>
-        <planeGeometry args={[0.08, 230]} />
-        <meshBasicMaterial color="#14B8A6" transparent opacity={0.35} />
-      </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[3.8, 0.01, -80]}>
-        <planeGeometry args={[0.08, 230]} />
-        <meshBasicMaterial color="#14B8A6" transparent opacity={0.35} />
-      </mesh>
-
-      {/* Rhythmic Transverse Light Ribs */}
-      {runwayConduits.map((z, idx) => (
-        <mesh key={idx} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.015, z]}>
-          <planeGeometry args={[16, 0.06]} />
-          <meshBasicMaterial color="#10B981" transparent opacity={0.3} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-// ── 3. ZONE 0: GROUND-HINGED 3D HERO CARD & NEXUS GATEWAY (HERO) ──
-function NexusGateway({
-  scrollProgress,
-  onExploreServices,
-  onExploreProjects,
-}: {
-  scrollProgress: number;
-  onExploreServices?: () => void;
-  onExploreProjects?: () => void;
-}) {
-  const cardHingeRef = useRef<THREE.Group>(null);
-  const leftObeliskRef = useRef<THREE.Mesh>(null);
-  const rightObeliskRef = useRef<THREE.Mesh>(null);
-  const monolithRef = useRef<THREE.Group>(null);
-  const impactLightRef = useRef<THREE.PointLight>(null);
-  const shockwaveRef = useRef<THREE.Mesh>(null);
-
-  // ── Load User's 3D Hero and Logo models from /public/3Dmodels ──
-  const heroGltf = useGLTF('/3Dmodels/hero3d.glb');
-  const logoGltf = useGLTF('/3Dmodels/logo3d.glb');
-
-  // Clone and configure 3D Hero model with double-sided rendering and crisp texture filtering
-  const heroScene = useMemo(() => {
-    const cloned = heroGltf.scene.clone(true);
-    cloned.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        if (mesh.material) {
-          const mat = mesh.material as THREE.MeshStandardMaterial;
-          mat.side = THREE.DoubleSide;
-          mat.roughness = 0.22;
-          mat.metalness = 0.12;
-          if (mat.map) {
-            mat.map.colorSpace = THREE.SRGBColorSpace;
-            mat.map.anisotropy = 8;
-            mat.map.needsUpdate = true;
-          }
-        }
-      }
-    });
-    return cloned;
-  }, [heroGltf.scene]);
-
-  // Clone and configure 3D Logo model with luminous emerald and metallic cyber finish
-  const logoScene = useMemo(() => {
-    const cloned = logoGltf.scene.clone(true);
-    cloned.traverse((child) => {
-      if ((child as THREE.Mesh).isMesh) {
-        const mesh = child as THREE.Mesh;
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
-        mesh.material = new THREE.MeshStandardMaterial({
-          color: '#10B981',
-          roughness: 0.18,
-          metalness: 0.88,
-          emissive: '#047857',
-          emissiveIntensity: 0.45,
-          side: THREE.DoubleSide,
-        });
-      }
-    });
-    return cloned;
-  }, [logoGltf.scene]);
-
-  // heroT: progress across the first 16% of scroll (0.00 to 0.16)
-  const heroT = Math.min(1, Math.max(0, scrollProgress / 0.16));
-
-  useFrame((_, delta) => {
-    // ── ROTATION AROUND GROUND HINGE AXIS (y = 0.05, z = 0) ──
-    let targetRotX = 0;
-    let impactIntensity = 0;
-
-    if (heroT <= 0.03) {
-      // Stage 0: Standing upright on runway floor
-      targetRotX = 0;
-    } else if (heroT < 0.10) {
-      // Stage 1: Mechanical Unlatch & Hydraulic Pre-tension Vibration
-      const p = (heroT - 0.03) / 0.07;
-      targetRotX = -Math.sin(p * Math.PI) * 0.025;
-    } else if (heroT < 0.78) {
-      // Stage 2: Accelerated Gravitational Free Fall
-      // Card rotates backward down onto the runway (-Z), its bottom edge NEVER leaving the floor!
-      const p = (heroT - 0.10) / 0.68;
-      const fallCurve = Math.pow(p, 2.2);
-      targetRotX = -fallCurve * (Math.PI / 2);
-    } else if (heroT < 0.96) {
-      // Stage 3: Seismic Touchdown Slam & Damped Harmonic Recoil
-      const p = (heroT - 0.78) / 0.18;
-      const bounce = -Math.sin(p * Math.PI * 3.4) * Math.exp(-p * 4.6) * 0.09;
-      targetRotX = -(Math.PI / 2) + bounce;
-      impactIntensity = Math.max(0, (1 - p * 1.6) * 7.0);
-    } else {
-      // Stage 4: Settled Monumental Plinth Resting Flat on Runway Floor
-      targetRotX = -Math.PI / 2;
-      impactIntensity = 0;
-    }
-
-    if (cardHingeRef.current) {
-      easing.damp(cardHingeRef.current.rotation, 'x', targetRotX, 0.12, delta);
-    }
-
-    if (impactLightRef.current) {
-      impactLightRef.current.intensity = impactIntensity;
-    }
-
-    // Expanding Ground Shockwave Ring on Touchdown
-    if (shockwaveRef.current) {
-      if (heroT >= 0.75) {
-        const p = (heroT - 0.75) / 0.25;
-        shockwaveRef.current.scale.set(0.2 + p * 16, 0.2 + p * 16, 1);
-        (shockwaveRef.current.material as THREE.MeshBasicMaterial).opacity = Math.max(
-          0,
-          (1 - p * 1.5) * 0.9
-        );
-      } else {
-        shockwaveRef.current.scale.set(0.1, 0.1, 1);
-        (shockwaveRef.current.material as THREE.MeshBasicMaterial).opacity = 0;
-      }
-    }
-
-    // Portal obelisks expand laterally once the card begins to fall (heroT > 0.40)
-    const expansionProgress = Math.max(0, (heroT - 0.40) / 0.60);
-    if (leftObeliskRef.current) {
-      const targetX = -6.8 - expansionProgress * 1.5;
-      easing.damp(leftObeliskRef.current.position, 'x', targetX, 0.25, delta);
-    }
-    if (rightObeliskRef.current) {
-      const targetX = 6.8 + expansionProgress * 1.5;
-      easing.damp(rightObeliskRef.current.position, 'x', targetX, 0.25, delta);
-    }
-
-    // Central brand landmark spin accelerates as gateway activates
-    if (monolithRef.current) {
-      monolithRef.current.rotation.y += delta * (0.25 + heroT * 0.8);
-      monolithRef.current.rotation.z = Math.sin(Date.now() * 0.001) * 0.08;
-    }
-  });
-
-  const CARD_WIDTH = 12.0;
-  const CARD_HEIGHT = 6.4;
-
-  return (
-    <group position={[0, 0, 0]}>
-      {/* ── 1. TITANIUM GROUND HINGE KNUCKLES BOLTED TO RUNWAY FLOOR (y = 0.05, z = 0) ── */}
-      {/* Mechanically prove that the card's bottom edge NEVER detaches from the ground */}
-      <group position={[0, 0.05, 0]}>
-        {[-5.2, -2.6, 0, 2.6, 5.2].map((xPos) => (
-          <group key={xPos} position={[xPos, 0, 0]}>
-            {/* Mounting Base Bolted to Ground Slab */}
-            <mesh position={[0, -0.02, 0]} castShadow receiveShadow>
-              <boxGeometry args={[0.55, 0.06, 0.4]} />
-              <meshStandardMaterial color="#0B121E" roughness={0.3} metalness={0.9} />
-            </mesh>
-            {/* Horizontal Hinge Axle Cylinder */}
-            <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0.04, 0]}>
-              <cylinderGeometry args={[0.07, 0.07, 0.5, 16]} />
-              <meshStandardMaterial color="#475569" roughness={0.2} metalness={0.95} />
-            </mesh>
-            {/* Emerald Status Glow Collar */}
-            <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0.04, 0]}>
-              <cylinderGeometry args={[0.076, 0.076, 0.08, 16]} />
-              <meshBasicMaterial color="#10B981" />
-            </mesh>
-          </group>
-        ))}
-      </group>
-
-      {/* ── 2. THE GROUND-HINGED 3D HERO CARD (ROTATES AROUND y = 0.05, z = 0) ── */}
-      <group
-        ref={cardHingeRef}
-        position={[0, 0.05, 0]}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (heroT < 0.15 && onExploreServices) onExploreServices();
-        }}
-        onPointerOver={() => {
-          if (heroT < 0.15) document.body.style.cursor = 'pointer';
-        }}
-        onPointerOut={() => {
-          document.body.style.cursor = 'auto';
-        }}
-      >
-        {/* Structural Chassis Slab behind 3D Hero */}
-        <RoundedBox
-          args={[CARD_WIDTH, CARD_HEIGHT, 0.18]}
-          position={[0, CARD_HEIGHT / 2, -0.09]}
-          radius={0.16}
-          smoothness={4}
-          castShadow
-          receiveShadow
-        >
-          <meshStandardMaterial
-            color="#080F16"
-            roughness={0.22}
-            metalness={0.92}
-          />
-        </RoundedBox>
-
-        {/* Luminous Outer Emerald Conduit Trim */}
-        <mesh position={[0, CARD_HEIGHT / 2, 0.01]}>
-          <planeGeometry args={[CARD_WIDTH + 0.04, CARD_HEIGHT + 0.04]} />
-          <meshBasicMaterial color="#10B981" wireframe transparent opacity={0.35} />
-        </mesh>
-
-        {/* ── 3D HERO MODEL FROM public/3Dmodels/hero3d.glb ── */}
-        <group position={[0, CARD_HEIGHT / 2, 0.02]}>
-          <primitive
-            object={heroScene}
-            rotation={[Math.PI / 2, 0, 0]}
-            scale={[1.56255, -1.56255, 1.56255]}
-          />
-        </group>
-      </group>
-
-      {/* ── 4. TOUCHDOWN IMPACT FLASH & EXPANDING RUNWAY SHOCKWAVE ── */}
-      <pointLight
-        ref={impactLightRef}
-        position={[0, 0.4, -3.2]}
-        color="#10B981"
-        intensity={0}
-        distance={28}
-      />
-      <mesh ref={shockwaveRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.06, -3.2]}>
-        <ringGeometry args={[0.3, 0.9, 32]} />
-        <meshBasicMaterial color="#10B981" transparent opacity={0} side={THREE.DoubleSide} />
-      </mesh>
-
-      {/* ── 5. TWIN MONUMENTAL GATEWAY OBELISKS (FLANKING THE HERO CARD) ── */}
-      {/* Left Monolithic Obelisk */}
-      <mesh ref={leftObeliskRef} position={[-6.8, 5, -0.5]} castShadow receiveShadow>
-        <boxGeometry args={[1.2, 10, 1.8]} />
-        <meshStandardMaterial color="#0B121E" roughness={0.25} metalness={0.9} />
-      </mesh>
-      {/* Left Vertical Glowing Light Slot */}
-      <mesh position={[-6.15, 5, -0.5]}>
-        <boxGeometry args={[0.08, 9.6, 0.1]} />
-        <meshBasicMaterial color="#0E946E" />
-      </mesh>
-
-      {/* Right Monolithic Obelisk */}
-      <mesh ref={rightObeliskRef} position={[6.8, 5, -0.5]} castShadow receiveShadow>
-        <boxGeometry args={[1.2, 10, 1.8]} />
-        <meshStandardMaterial color="#0B121E" roughness={0.25} metalness={0.9} />
-      </mesh>
-      {/* Right Vertical Glowing Light Slot */}
-      <mesh position={[6.15, 5, -0.5]}>
-        <boxGeometry args={[0.08, 9.6, 0.1]} />
-        <meshBasicMaterial color="#0E946E" />
-      </mesh>
-
-      {/* ── 3D URUMSIMA BRAND LOGO LANDMARK ── */}
-      <group ref={monolithRef} position={[0, 3.4, -4]}>
-        <Float speed={2.0} rotationIntensity={0.2} floatIntensity={0.35}>
-          {/* ── 3D LOGO MODEL FROM public/3Dmodels/logo3d.glb (Floating cleanly without backing box) ── */}
-          <group position={[0, 0, 0]}>
-            <Center>
-              <primitive
-                object={logoScene}
-                rotation={[Math.PI / 2, 0, 0]}
-                scale={[1.15, 1.15, 1.15]}
-              />
-            </Center>
-          </group>
-
-          {/* Holographic 3D Brand Label beneath Landmark - only visible after hero card has fallen */}
-          {heroT > 0.85 && (
-            <Html position={[0, -1.9, 0]} center distanceFactor={12}>
-              <div className="px-3.5 py-1 rounded-full glass-panel-dock border border-brand-500/30 text-[10px] font-bold text-brand-300 whitespace-nowrap shadow-xl pointer-events-none select-none backdrop-blur-md flex items-center gap-1.5 animate-fadeIn">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span>اروم سیما • آژانس دیجیتال مارکتینگ</span>
-              </div>
-            </Html>
-          )}
-
-          {/* Central Point Light for Aura Glow on Logo */}
-          <pointLight color="#10B981" intensity={3.0} distance={8} />
-        </Float>
-      </group>
-    </group>
-  );
-}
-
-// ── 4. ZONE 1: THE 5 SERVICES PAVILIONS (ARCHITECTURAL MOTIFS) ──
-interface ServicePavilionProps {
-  id: string;
-  slug: string;
-  title: string;
-  position: [number, number, number];
-  badgeOffset?: [number, number, number];
-  color: string;
-  accent: string;
-  iconSymbol: string;
-  motifType: 'web' | 'instagram' | 'video' | 'branding' | 'billboard';
-  isHoveredByParent?: boolean;
-  scrollProgress?: number;
-  isDiving?: boolean;
-  onSelect?: (slug: string) => void;
-  onHover?: (slug: string | null) => void;
-}
-
-// ── STATION 1: WEB DESIGN (TABLE 1 + 3D LAPTOP) ──
-function WebDesignStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
-  const table = useClonedGLTF('/3Dmodels/Table1.glb');
-  const laptop = useClonedGLTF('/3Dmodels/Laptop3D.glb');
-  const cfg = STATIONS_CONFIG.webDesign;
-
-  const tableScale = typeof cfg.table.scale === 'number' ? [cfg.table.scale, cfg.table.scale, cfg.table.scale] as [number, number, number] : cfg.table.scale;
-  const laptopScale = typeof cfg.laptop.scale === 'number' ? [cfg.laptop.scale, cfg.laptop.scale, cfg.laptop.scale] as [number, number, number] : cfg.laptop.scale;
-
-  return (
-    <group>
-      {/* میز ۱ - پایه‌ها دقیقاً مماس روی سطح زمین Y = 0 */}
-      <group position={cfg.table.position} rotation={cfg.table.rotation} scale={tableScale}>
-        <primitive object={table} position={[0, 0.0631, 0]} />
-      </group>
-
-      {/* لپ‌تاپ سه‌بعدی - سطح میز */}
-      <group position={cfg.laptop.position} rotation={cfg.laptop.rotation}>
-        <group scale={laptopScale}>
-          <primitive object={laptop} position={[-1387.68, -44.30, -2142.99]} />
-        </group>
-      </group>
-
-      {/* حلقه نورانی دور پایه‌های میز */}
-      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.15, 1.3, 32]} />
-        <meshBasicMaterial color={isHighlighted ? '#34D399' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
-      </mesh>
-      <pointLight position={[0, 1.8, 0]} color="#10B981" intensity={isHighlighted ? 2.5 : 1.2} distance={6} />
-    </group>
-  );
-}
-
-// ── STATION 2: CONTENT PRODUCTION (TABLE 2 + FLOATING PHONE) ──
-function ContentProductionStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
-  const table = useClonedGLTF('/3Dmodels/table2.glb');
-  const phone = useClonedGLTF('/3Dmodels/Phone3D.glb');
-  const cfg = STATIONS_CONFIG.contentProduction;
-
-  const tableScale = typeof cfg.table.scale === 'number' ? [cfg.table.scale, cfg.table.scale, cfg.table.scale] as [number, number, number] : cfg.table.scale;
-  const phoneScale = typeof cfg.phone.scale === 'number' ? [cfg.phone.scale, cfg.phone.scale, cfg.phone.scale] as [number, number, number] : cfg.phone.scale;
-
-  return (
-    <group>
-      {/* میز ۲ - پایه‌ها دقیقاً مماس روی سطح زمین Y = 0 */}
-      <group position={cfg.table.position} rotation={cfg.table.rotation} scale={tableScale}>
-        <primitive object={table} position={[0, 0.4837, 0]} />
-      </group>
-
-      {/* گوشی سه‌بعدی شناور در فضا رو به کاربر */}
-      <Float speed={2.5} rotationIntensity={0.15} floatIntensity={0.25} position={cfg.phone.position}>
-        <group rotation={cfg.phone.rotation} scale={phoneScale}>
-          <primitive object={phone} position={[0.005, -0.072, -0.009]} />
-        </group>
-      </Float>
-
-      {/* حلقه نورانی دور میز */}
-      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.0, 1.15, 32]} />
-        <meshBasicMaterial color={isHighlighted ? '#2DD4BF' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
-      </mesh>
-      <pointLight position={[0, 1.7, 0]} color="#2DD4BF" intensity={isHighlighted ? 2.5 : 1.4} distance={6} />
-    </group>
-  );
-}
-
-// ── STATION 3: VIDEO TEASER (TABLE 3 + CAMERA & GIMBAL) ──
-function VideoTeaserStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
-  const table = useClonedGLTF('/3Dmodels/table3.glb');
-  const camera = useClonedGLTF('/3Dmodels/Camera3D.glb');
-  const gimbal = useClonedGLTF('/3Dmodels/gimbal3D.glb');
-  const cfg = STATIONS_CONFIG.videoTeaser;
-
-  const tableScale = typeof cfg.table.scale === 'number' ? [cfg.table.scale, cfg.table.scale, cfg.table.scale] as [number, number, number] : cfg.table.scale;
-  const cameraScale = typeof cfg.camera.scale === 'number' ? [cfg.camera.scale, cfg.camera.scale, cfg.camera.scale] as [number, number, number] : cfg.camera.scale;
-  const gimbalScale = typeof cfg.gimbal.scale === 'number' ? [cfg.gimbal.scale, cfg.gimbal.scale, cfg.gimbal.scale] as [number, number, number] : cfg.gimbal.scale;
-
-  return (
-    <group>
-      {/* میز ۳ - پایه‌ها دقیقاً مماس روی سطح زمین Y = 0 */}
-      <group position={cfg.table.position} rotation={cfg.table.rotation} scale={tableScale}>
-        <primitive object={table} position={[0, -0.0038, 0]} />
-      </group>
-
-      {/* دوربین سینمایی روی میز */}
-      <group position={cfg.camera.position} rotation={cfg.camera.rotation}>
-        <group scale={cameraScale}>
-          <primitive object={camera} position={[0, 0.0055, 0]} />
-        </group>
-      </group>
-
-      {/* گیمبال فیلم‌برداری روی میز */}
-      <group position={cfg.gimbal.position} rotation={cfg.gimbal.rotation}>
-        <group scale={gimbalScale}>
-          <primitive object={gimbal} position={[1.872, -0.0042, -1.175]} />
-        </group>
-      </group>
-
-      {/* حلقه نورانی دور میز */}
-      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.0, 1.15, 32]} />
-        <meshBasicMaterial color={isHighlighted ? '#FBBF24' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
-      </mesh>
-      <pointLight position={[0, 1.9, 0]} color="#FBBF24" intensity={isHighlighted ? 2.5 : 1.2} distance={6} />
-    </group>
-  );
-}
-
-// ── STATION 4: LOGO DESIGN (TABLE 4 + CLIPBOARD, PAPER STACK & PEN) ──
-function LogoDesignStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
-  const desk = useClonedGLTF('/3Dmodels/table4.glb');
-  const clipboard = useClonedGLTF('/3Dmodels/clipboard.glb');
-  const paper = useClonedGLTF('/3Dmodels/stack of paper.glb');
-  const pen = useClonedGLTF('/3Dmodels/Pen.glb');
-  const cfg = STATIONS_CONFIG.logoDesign;
-
-  const deskScale = typeof cfg.table.scale === 'number' ? [cfg.table.scale, cfg.table.scale, cfg.table.scale] as [number, number, number] : cfg.table.scale;
-  const paperScale = typeof cfg.paperStack.scale === 'number' ? [cfg.paperStack.scale, cfg.paperStack.scale, cfg.paperStack.scale] as [number, number, number] : cfg.paperStack.scale;
-  const clipboardScale = typeof cfg.clipboard.scale === 'number' ? [cfg.clipboard.scale, cfg.clipboard.scale, cfg.clipboard.scale] as [number, number, number] : cfg.clipboard.scale;
-  const penScale = typeof cfg.pen.scale === 'number' ? [cfg.pen.scale, cfg.pen.scale, cfg.pen.scale] as [number, number, number] : cfg.pen.scale;
-
-  return (
-    <group>
-      {/* میز ۴ - پایه‌ها دقیقاً مماس روی سطح زمین Y = 0 */}
-      <group position={cfg.table.position} rotation={cfg.table.rotation} scale={deskScale}>
-        <primitive object={desk} position={[0, 0.3766, 0]} />
-      </group>
-
-      {/* دسته کاغذ طراحی روی سطح میز */}
-      <group position={cfg.paperStack.position} rotation={cfg.paperStack.rotation}>
-        <group scale={paperScale}>
-          <primitive object={paper} position={[-0.003, 0.015, -0.004]} />
-        </group>
-      </group>
-
-      {/* تخته شاسی طراحی به حالت تخت روی میز */}
-      <group position={cfg.clipboard.position} rotation={cfg.clipboard.rotation}>
-        <group scale={clipboardScale}>
-          <primitive object={clipboard} position={[0, 0.021, 0]} />
-        </group>
-      </group>
-
-      {/* قلم استایلوس طراحی روی میز */}
-      <group position={cfg.pen.position} rotation={cfg.pen.rotation}>
-        <group scale={penScale}>
-          <primitive object={pen} position={[0, 0.184, 0.485]} />
-        </group>
-      </group>
-
-      {/* حلقه نورانی دور میز */}
-      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.2, 1.35, 32]} />
-        <meshBasicMaterial color={isHighlighted ? '#A78BFA' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
-      </mesh>
-      <pointLight position={[0, 1.9, 0]} color="#A78BFA" intensity={isHighlighted ? 2.5 : 1.2} distance={6} />
-    </group>
-  );
-}
-
-// ── STATION 5: BILLBOARD (GROUND HIGHWAY SCREEN - NO TABLE) ──
-function BillboardStation({ isHighlighted, accent }: { isHighlighted: boolean; accent: string }) {
-  const billboard = useClonedGLTF('/3Dmodels/Billboard.glb');
-  const cfg = STATIONS_CONFIG.billboard;
-
-  const billboardScale = typeof cfg.billboard.scale === 'number' ? [cfg.billboard.scale, cfg.billboard.scale, cfg.billboard.scale] as [number, number, number] : cfg.billboard.scale;
-
-  return (
-    <group>
-      {/* بیلبورد محیطی - پایه‌ها دقیقاً مماس روی سطح زمین Y = 0 */}
-      <group position={cfg.billboard.position}>
-        <group rotation={cfg.billboard.rotation} scale={billboardScale}>
-          <primitive object={billboard} position={[71.03, 15.00, 90.0]} />
-        </group>
-      </group>
-
-      {/* حلقه نورانی پایه بیلبورد */}
-      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.8, 1.98, 32]} />
-        <meshBasicMaterial color={isHighlighted ? '#22D3EE' : accent} transparent opacity={isHighlighted ? 0.85 : 0.4} />
-      </mesh>
-      {/* نورافکن‌های بیلبورد */}
-      <pointLight position={[0, 4.2, 1.6]} color="#22D3EE" intensity={isHighlighted ? 3.5 : 2.0} distance={9} />
-      <pointLight position={[0, 1.2, 0.6]} color="#14B8A6" intensity={1.5} distance={6} />
-    </group>
-  );
-}
-
-function ServiceStationRenderer({
-  motifType,
-  isHighlighted,
-  accent,
-}: {
-  motifType: 'web' | 'instagram' | 'video' | 'branding' | 'billboard';
-  isHighlighted: boolean;
-  accent: string;
-}) {
-  if (motifType === 'web') {
-    return <WebDesignStation isHighlighted={isHighlighted} accent={accent} />;
-  }
-  if (motifType === 'instagram') {
-    return <ContentProductionStation isHighlighted={isHighlighted} accent={accent} />;
-  }
-  if (motifType === 'video') {
-    return <VideoTeaserStation isHighlighted={isHighlighted} accent={accent} />;
-  }
-  if (motifType === 'branding') {
-    return <LogoDesignStation isHighlighted={isHighlighted} accent={accent} />;
-  }
-  return <BillboardStation isHighlighted={isHighlighted} accent={accent} />;
-}
-
-function ServicePavilion({
-  slug,
-  title,
-  position,
-  badgeOffset,
-  color,
-  accent,
-  iconSymbol,
-  motifType,
-  isHoveredByParent,
-  scrollProgress = 0,
-  isDiving = false,
-  onSelect,
-  onHover,
-}: ServicePavilionProps) {
-  const [localHover, setLocalHover] = useState(false);
-  const meshRef = useRef<THREE.Group>(null);
-  const isHighlighted = !!(localHover || isHoveredByParent);
-
-  useFrame((_, delta) => {
-    if (!meshRef.current) return;
-    const targetY = isHighlighted ? 0.25 : 0;
-    easing.damp(meshRef.current.position, 'y', targetY, 0.2, delta);
-  });
-
-  const badgeY =
-    motifType === 'billboard'
-      ? STATIONS_CONFIG.billboard.badgeY
-      : STATIONS_CONFIG.webDesign.badgeY;
-
-  return (
-    <group
-      position={position}
-      ref={meshRef}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setLocalHover(true);
-        if (onHover) onHover(slug);
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={() => {
-        setLocalHover(false);
-        if (onHover) onHover(null);
-        document.body.style.cursor = 'auto';
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (onSelect) onSelect(slug);
-      }}
-    >
-      {/* 3D Station with customized tables and items */}
-      <ServiceStationRenderer
-        motifType={motifType}
-        isHighlighted={isHighlighted}
-        accent={accent}
-      />
-
-      {/* Interactive 3D Label Badge with Smart Proximity Fade */}
-      {scrollProgress >= 0.16 && (
-        <SmartProximityBadge
-          position={badgeOffset || [0, badgeY, 0]}
-          distanceFactor={15}
-          isDiving={isDiving}
-        >
-          <div
-            className={
-              'px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-300 pointer-events-none whitespace-nowrap shadow-2xl border animate-fadeIn ' +
-              (isHighlighted
-                ? 'bg-brand-600 text-white scale-110 border-brand-400 shadow-brand-500/30'
-                : 'bg-dark-base/85 text-gray-300 border-white/10')
-            }
-          >
-            <span className="ml-1.5">{iconSymbol}</span>
-            <span>{title}</span>
-          </div>
-        </SmartProximityBadge>
-      )}
-    </group>
-  );
-}
-
-const SERVICES_DATA: ServicePavilionProps[] = [
-  {
-    id: 's1',
-    slug: 'web-design',
-    title: 'طراحی سایت و پرتال سازمانی',
-    position: STATIONS_CONFIG.webDesign.stationPosition,
-    badgeOffset: STATIONS_CONFIG.webDesign.badgeOffset,
-    color: '#0E946E',
-    accent: '#10B981',
-    iconSymbol: '🌐',
-    motifType: 'web',
-  },
-  {
-    id: 's2',
-    slug: 'instagram-content',
-    title: 'تولید محتوا و اینستاگرام',
-    position: STATIONS_CONFIG.contentProduction.stationPosition,
-    badgeOffset: STATIONS_CONFIG.contentProduction.badgeOffset,
-    color: '#14B8A6',
-    accent: '#2DD4BF',
-    iconSymbol: '📱',
-    motifType: 'instagram',
-  },
-  {
-    id: 's3',
-    slug: 'video-teaser',
-    title: 'تیزر صنعتی و هلی‌شات هوایی',
-    position: STATIONS_CONFIG.videoTeaser.stationPosition,
-    badgeOffset: STATIONS_CONFIG.videoTeaser.badgeOffset,
-    color: '#F59E0B',
-    accent: '#FBBF24',
-    iconSymbol: '🎬',
-    motifType: 'video',
-  },
-  {
-    id: 's4',
-    slug: 'branding-identity',
-    title: 'طراحی لوگو و هویت بصری',
-    position: STATIONS_CONFIG.logoDesign.stationPosition,
-    badgeOffset: STATIONS_CONFIG.logoDesign.badgeOffset,
-    color: '#8B5CF6',
-    accent: '#A78BFA',
-    iconSymbol: '✨',
-    motifType: 'branding',
-  },
-  {
-    id: 's5',
-    slug: 'billboard-advertising',
-    title: 'تبلیغات محیطی و بیلبورد ارومیه',
-    position: STATIONS_CONFIG.billboard.stationPosition,
-    badgeOffset: STATIONS_CONFIG.billboard.badgeOffset,
-    color: '#06B6D4',
-    accent: '#22D3EE',
-    iconSymbol: '🏙️',
-    motifType: 'billboard',
-  },
-];
-
-const MemoizedServicePavilion = React.memo(ServicePavilion);
-
-const MemoizedServicesConcourse = React.memo(function ServicesConcourse({
-  scrollProgress = 0,
-  hoveredServiceSlug,
-  onSelectService,
-  onHoverService,
-  isDiving = false,
-}: {
-  scrollProgress?: number;
-  hoveredServiceSlug?: string | null;
-  onSelectService?: (slug: string) => void;
-  onHoverService?: (slug: string | null) => void;
-  isDiving?: boolean;
-}) {
-  return (
-    <group>
-      {SERVICES_DATA.map((s) => (
-        <MemoizedServicePavilion
-          key={s.id}
-          {...s}
-          scrollProgress={scrollProgress}
-          isHoveredByParent={hoveredServiceSlug === s.slug}
-          isDiving={isDiving}
-          onSelect={onSelectService}
-          onHover={onHoverService}
-        />
-      ))}
-    </group>
-  );
-});
-
-// ── 5. ZONE 2: MASTERWORKS DIGITAL VIDEO WALLS & MONITORS ──
-
-function TVScreenDisplay({
-  imageUrl,
-  screenSize,
-  screenOffset,
-  screenRotation = [0, 0, 0],
-  isHighlighted,
-}: {
-  imageUrl?: string;
-  screenSize: [number, number];
-  screenOffset: [number, number, number];
-  screenRotation?: [number, number, number];
-  isHighlighted: boolean;
-}) {
-  const [texture, setTexture] = useState<THREE.Texture | null>(null);
-
-  useEffect(() => {
-    if (!imageUrl) {
-      setTexture(null);
-      return;
-    }
-
-    // Ensure valid public path (default to /media/ if relative)
-    const resolvedUrl =
-      imageUrl.startsWith('http://') || imageUrl.startsWith('https://') || imageUrl.startsWith('/')
-        ? imageUrl
-        : `/media/${imageUrl}`;
-
-    const safeUrl = resolvedUrl.includes('%') ? resolvedUrl : encodeURI(resolvedUrl);
-
-    const loader = new THREE.TextureLoader();
-    loader.setCrossOrigin('anonymous');
-    let isMounted = true;
-    let createdTexture: THREE.Texture | null = null;
-
-    loader.load(
-      safeUrl,
-      (loadedTex) => {
-        if (!isMounted) {
-          loadedTex.dispose();
-          return;
-        }
-        loadedTex.colorSpace = THREE.SRGBColorSpace;
-        loadedTex.minFilter = THREE.LinearFilter;
-        loadedTex.magFilter = THREE.LinearFilter;
-        loadedTex.generateMipmaps = false;
-        loadedTex.needsUpdate = true;
-        createdTexture = loadedTex;
-        setTexture(loadedTex);
-      },
-      undefined,
-      (err) => {
-        console.warn('Could not load TV screen texture:', safeUrl, err);
-      }
-    );
-
-    return () => {
-      isMounted = false;
-      if (createdTexture) {
-        createdTexture.dispose();
-      }
-    };
-  }, [imageUrl]);
-
-  return (
-    <group position={screenOffset} rotation={screenRotation}>
-      <mesh castShadow={false} receiveShadow={false}>
-        <planeGeometry args={screenSize} />
-        {texture ? (
-          <meshBasicMaterial
-            map={texture}
-            toneMapped={false}
-            color={isHighlighted ? '#FFFFFF' : '#E2E8F0'}
-          />
-        ) : (
-          <meshStandardMaterial
-            color={isHighlighted ? '#1E3A34' : '#0B1B18'}
-            emissive={isHighlighted ? '#10B981' : '#047857'}
-            emissiveIntensity={0.25}
-            roughness={0.2}
-            metalness={0.8}
-          />
-        )}
-      </mesh>
-    </group>
-  );
-}
-
-function TVModelRenderer({ model }: { model: 'TV1' | 'TV2' | 'TV3' | 'TV4' }) {
-  const tv1 = useClonedGLTF('/3Dmodels/TV1.glb');
-  const tv2 = useClonedGLTF('/3Dmodels/TV2.glb');
-  const tv3 = useClonedGLTF('/3Dmodels/TV3.glb');
-  const tv4 = useClonedGLTF('/3Dmodels/TV4.glb');
-
-  switch (model) {
-    case 'TV1':
-      return (
-        <group scale={1.35} rotation={[0, Math.PI / 2, 0]}>
-          <primitive object={tv1} position={[0.0267, 0.2065, -0.012]} />
-        </group>
-      );
-    case 'TV2':
-      return (
-        <group scale={0.0085}>
-          <primitive object={tv2} position={[0, 1.184, 0]} />
-        </group>
-      );
-    case 'TV3':
-      return (
-        <group scale={3.6}>
-          <primitive object={tv3} position={[0, 0.1981, 0]} />
-        </group>
-      );
-    case 'TV4':
-      return (
-        <group scale={8.5} rotation={[0, Math.PI, 0]}>
-          <primitive object={tv4} position={[0.1963, 0, -0.052]} />
-        </group>
-      );
-  }
-}
-
-interface ProjectTVStationProps extends ProjectTVConfig {
-  isHoveredByParent?: boolean;
-  scrollProgress?: number;
-  isDiving?: boolean;
-  onSelect?: (slug: string) => void;
-  onHover?: (slug: string | null) => void;
-}
-
-function ProjectTVStation({
-  slug,
-  title,
-  category,
-  kpi,
-  model,
-  position,
-  rotationY,
-  badgeOffset,
-  screenImage,
-  screenSize,
-  screenOffset,
-  screenRotation,
-  isHoveredByParent,
-  scrollProgress = 0,
-  isDiving = false,
-  onSelect,
-  onHover,
-}: ProjectTVStationProps) {
-  const [localHover, setLocalHover] = useState(false);
-  const groupRef = useRef<THREE.Group>(null);
-  const isHighlighted = !!(localHover || isHoveredByParent);
-
-  useFrame((_, delta) => {
-    if (!groupRef.current) return;
-    const targetScale = isHighlighted ? 1.04 : 1.0;
-    easing.damp(groupRef.current.scale, 'x', targetScale, 0.2, delta);
-    easing.damp(groupRef.current.scale, 'y', targetScale, 0.2, delta);
-    easing.damp(groupRef.current.scale, 'z', targetScale, 0.2, delta);
-  });
-
-  return (
-    <group
-      position={position}
-      rotation={[0, rotationY, 0]}
-      ref={groupRef}
-      onPointerOver={(e) => {
-        e.stopPropagation();
-        setLocalHover(true);
-        if (onHover) onHover(slug);
-        document.body.style.cursor = 'pointer';
-      }}
-      onPointerOut={() => {
-        setLocalHover(false);
-        if (onHover) onHover(null);
-        document.body.style.cursor = 'auto';
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (onSelect) onSelect(slug);
-      }}
-    >
-      {/* Ground Cyber Light Ring under each TV display */}
-      <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[1.6, 1.85, 48]} />
-        <meshBasicMaterial
-          color={isHighlighted ? '#10B981' : '#0E946E'}
-          transparent
-          opacity={isHighlighted ? 0.85 : 0.4}
-        />
-      </mesh>
-
-      {/* 3D TV Monitor Model grounded on Y = 0 */}
-      <TVModelRenderer model={model} />
-
-      {/* High-Fidelity Screen Plane with Dynamic Project Image */}
-      <TVScreenDisplay
-        imageUrl={screenImage}
-        screenSize={screenSize}
-        screenOffset={screenOffset}
-        screenRotation={screenRotation}
-        isHighlighted={isHighlighted}
-      />
-
-      {/* Holographic 3D Overlay Badge with Smart Proximity Fade */}
-      {scrollProgress >= 0.38 && (
-        <SmartProximityBadge
-          position={badgeOffset || [0, screenSize[1] + 0.9, 0]}
-          distanceFactor={16}
-          isDiving={isDiving}
-        >
-          <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-52 animate-fadeIn">
-            <span className="text-[10px] font-mono text-brand-300 block mb-0.5">{category}</span>
-            <div className="text-xs font-black text-white line-clamp-1">{title}</div>
-            <div className="mt-1.5 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2 py-0.5 rounded-full text-[10px] font-bold">
-              {kpi}
-            </div>
-          </div>
-        </SmartProximityBadge>
-      )}
-    </group>
-  );
-}
-
-const MemoizedProjectTVStation = React.memo(ProjectTVStation);
-
-const MemoizedExhibitionGallery = React.memo(function ExhibitionGallery({
-  projects,
-  scrollProgress = 0,
-  hoveredProjectSlug,
-  onSelectProject,
-  onHoverProject,
-  isDiving = false,
-}: {
-  projects?: ProjectTVConfig[];
-  scrollProgress?: number;
-  hoveredProjectSlug?: string | null;
-  onSelectProject?: (slug: string) => void;
-  onHoverProject?: (slug: string | null) => void;
-  isDiving?: boolean;
-}) {
-  const activeProjects = projects && projects.length > 0 ? projects : PORTFOLIO_TVS_CONFIG;
-
-  return (
-    <group>
-      {activeProjects.map((tvConfig) => (
-        <MemoizedProjectTVStation
-          key={tvConfig.slug}
-          {...tvConfig}
-          scrollProgress={scrollProgress}
-          isHoveredByParent={hoveredProjectSlug === tvConfig.slug}
-          isDiving={isDiving}
-          onSelect={onSelectProject}
-          onHover={onHoverProject}
-        />
-      ))}
-    </group>
-  );
-});
-
-// ── 6. ZONE 3: COLLABORATION WORKFLOW (OFFICE DEPARTMENT PODS) ──
-
-// Station 1: Discovery & Strategy (Meeting desk, ergonomic chair, coffee mug, paperwork, strategy pen, desk lamp)
-function DiscoveryStation() {
-  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
-  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
-  const mug = useClonedGLTF('/3Dmodels/cup_tea.glb');
-  const lamp = useClonedGLTF('/3Dmodels/desk_lamp.glb');
-  const paper = useClonedGLTF('/3Dmodels/stack of paper.glb');
-  const pen = useClonedGLTF('/3Dmodels/Pen.glb');
-
-  return (
-    <group>
-      {/* Modern Office Desk */}
-      <primitive object={desk} position={[0, 0, 0]} />
-      {/* Ergonomic Office Chair */}
-      <group position={[0, 0, 0.62]} rotation={[0, Math.PI, 0]}>
-        <primitive object={chair} position={[0, 0, 0]} />
-      </group>
-      {/* Desk Lamp */}
-      <group position={[-0.65, 0.922, -0.1]} scale={0.8}>
-        <primitive object={lamp} />
-      </group>
-      {/* Coffee/Tea Mug */}
-      <group position={[-0.32, 0.922, 0.12]} scale={0.55}>
-        <primitive object={mug} />
-      </group>
-      {/* Research Paperwork */}
-      <group position={[0.22, 0.922, 0.02]} scale={1.8}>
-        <primitive object={paper} />
-      </group>
-      {/* Strategy Pen */}
-      <group position={[0.36, 0.922, 0.12]} scale={0.035} rotation={[0, 0.4, 0]}>
-        <primitive object={pen} />
-      </group>
-    </group>
-  );
-}
-
-// Station 2: Interactive UI/UX Design Studio (Modern desk, chair, graphic tablet, headphones, phone prototype, lamp)
-function DesignStudioStation() {
-  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
-  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
-  const tablet = useClonedGLTF('/3Dmodels/tablet.glb');
-  const headphones = useClonedGLTF('/3Dmodels/headphones.glb');
-  const phone = useClonedGLTF('/3Dmodels/Phone3D.glb');
-  const lamp = useClonedGLTF('/3Dmodels/desk_lamp.glb');
-
-  return (
-    <group>
-      {/* Modern Office Desk */}
-      <primitive object={desk} position={[0, 0, 0]} />
-      {/* Ergonomic Office Chair */}
-      <group position={[0, 0, 0.62]} rotation={[0, Math.PI, 0]}>
-        <primitive object={chair} position={[0, 0, 0]} />
-      </group>
-      {/* Graphic Tablet */}
-      <group position={[0, 0.922, 0.04]} scale={0.0055}>
-        <primitive object={tablet} position={[0.2, 0.21, 5.83]} />
-      </group>
-      {/* Studio Headphones resting on desk */}
-      <group position={[-0.5, 0.922, 0.0]} scale={0.0032} rotation={[0, 0.3, 0]}>
-        <primitive object={headphones} position={[-9.7, 0, 1.5]} />
-      </group>
-      {/* Mobile Prototype */}
-      <group position={[0.42, 0.922, 0.1]} scale={0.45} rotation={[-Math.PI / 2, 0, 0.2]}>
-        <primitive object={phone} />
-      </group>
-      {/* Modern Desk Lamp */}
-      <group position={[0.65, 0.922, -0.1]} scale={0.8}>
-        <primitive object={lamp} />
-      </group>
-    </group>
-  );
-}
-
-// Station 3: Engineering & Software Development (Workstation desk, chair, mechanical keyboard, developer monitor, PC tower on floor, coffee)
-function EngineeringStation() {
-  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
-  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
-  const pcCase = useClonedGLTF('/3Dmodels/pc_case.glb');
-  const keyboard = useClonedGLTF('/3Dmodels/keyboard.glb');
-  const monitor = useClonedGLTF('/3Dmodels/TV3.glb');
-  const mug = useClonedGLTF('/3Dmodels/cup_tea.glb');
-
-  return (
-    <group>
-      {/* Modern Office Desk */}
-      <primitive object={desk} position={[0, 0, 0]} />
-      {/* Ergonomic Office Chair */}
-      <group position={[0, 0, 0.62]} rotation={[0, Math.PI, 0]}>
-        <primitive object={chair} position={[0, 0, 0]} />
-      </group>
-      {/* Tower PC Workstation on floor beside desk */}
-      <group position={[-1.18, 0, 0]} scale={0.28}>
-        <primitive object={pcCase} position={[0.0614, 1.0523, 0.0731]} />
-      </group>
-      {/* Developer Widescreen Monitor on Desk */}
-      <group position={[0, 0.922, -0.12]} scale={0.88}>
-        <primitive object={monitor} position={[0, 0.1981, 0]} />
-      </group>
-      {/* Mechanical Keyboard */}
-      <group position={[0, 0.922, 0.14]} scale={0.00045}>
-        <primitive object={keyboard} position={[-1140.5, 4.10, 1269.7]} />
-      </group>
-      {/* Developer Coffee Mug */}
-      <group position={[0.54, 0.922, 0.1]} scale={0.55}>
-        <primitive object={mug} />
-      </group>
-    </group>
-  );
-}
-
-// Station 4: QA, Testing & SEO (Whiteboard on floor, modern desk, chair, testing laptop, testing phone, QA checklist clipboard)
-function QATestingStation() {
-  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
-  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
-  const whiteboard = useClonedGLTF('/3Dmodels/whiteboard.glb');
-  const laptop = useClonedGLTF('/3Dmodels/Laptop3D.glb');
-  const phone = useClonedGLTF('/3Dmodels/Phone3D.glb');
-  const clipboard = useClonedGLTF('/3Dmodels/clipboard.glb');
-
-  return (
-    <group>
-      {/* Standing Whiteboard with SEO & QA Checklist */}
-      <group position={[0, 0, -0.85]} scale={0.019} rotation={[0, Math.PI / 2, 0]}>
-        <primitive object={whiteboard} position={[0, 0, 0]} />
-      </group>
-      {/* Modern Office Desk */}
-      <primitive object={desk} position={[0, 0, 0]} />
-      {/* Ergonomic Office Chair */}
-      <group position={[0, 0, 0.62]} rotation={[0, Math.PI, 0]}>
-        <primitive object={chair} position={[0, 0, 0]} />
-      </group>
-      {/* Multi-Device Testing Laptop */}
-      <group position={[-0.26, 0.922, 0.02]} scale={0.75} rotation={[0, 0.15, 0]}>
-        <primitive object={laptop} />
-      </group>
-      {/* Responsive Testing Phone */}
-      <group position={[0.26, 0.922, 0.08]} scale={0.42} rotation={[-Math.PI / 2, 0, -0.2]}>
-        <primitive object={phone} />
-      </group>
-      {/* QA Checklist Clipboard */}
-      <group position={[0.52, 0.922, 0.02]} scale={0.8} rotation={[0, 0, -Math.PI / 2]}>
-        <primitive object={clipboard} />
-      </group>
-    </group>
-  );
-}
-
-// Station 5: Launch & Official Handover (Executive Desk, chair, signed contract folder, executive lamp, celebration mug)
-function LaunchHandoverStation() {
-  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
-  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
-  const clipboard = useClonedGLTF('/3Dmodels/clipboard.glb');
-  const pen = useClonedGLTF('/3Dmodels/Pen.glb');
-  const lamp = useClonedGLTF('/3Dmodels/desk_lamp.glb');
-  const mug = useClonedGLTF('/3Dmodels/cup_tea.glb');
-
-  return (
-    <group>
-      {/* Modern Executive Desk */}
-      <primitive object={desk} position={[0, 0, 0]} />
-      {/* Ergonomic Office Chair */}
-      <group position={[0, 0, 0.62]} rotation={[0, Math.PI, 0]}>
-        <primitive object={chair} position={[0, 0, 0]} />
-      </group>
-      {/* Signed Contract Folder */}
-      <group position={[0, 0.922, 0.05]} scale={0.9} rotation={[0, 0, -Math.PI / 2]}>
-        <primitive object={clipboard} />
-      </group>
-      {/* Official Signature Pen */}
-      <group position={[0.16, 0.922, 0.16]} scale={0.035} rotation={[0, 0.5, 0]}>
-        <primitive object={pen} />
-      </group>
-      {/* Executive Desk Lamp */}
-      <group position={[-0.65, 0.922, -0.1]} scale={0.8}>
-        <primitive object={lamp} />
-      </group>
-      {/* Celebration Mug */}
-      <group position={[0.52, 0.922, 0.1]} scale={0.55}>
-        <primitive object={mug} />
-      </group>
-    </group>
-  );
-}
-
-function CollaborationDepartmentStation({
-  config,
-  scrollProgress = 0,
-  isDiving = false,
-}: {
-  config: CollaborationStationConfig;
-  scrollProgress: number;
-  isDiving?: boolean;
-}) {
-  const [hovered, setHovered] = useState(false);
-  const groupRef = useRef<THREE.Group>(null);
-
-  useFrame((_, delta) => {
-    if (!groupRef.current) return;
-    const baseScale = 1.6;
-    const targetScale = hovered ? baseScale * 1.04 : baseScale;
-    easing.damp(groupRef.current.scale, 'x', targetScale, 0.2, delta);
-    easing.damp(groupRef.current.scale, 'y', targetScale, 0.2, delta);
-    easing.damp(groupRef.current.scale, 'z', targetScale, 0.2, delta);
-  });
-
-  return (
-    <group position={config.position}>
-      {/* 3D Office Workstation (scaled 1.6x and rotated towards runway) */}
-      <group
-        rotation={[0, config.rotationY, 0]}
-        scale={[1.6, 1.6, 1.6]}
-        ref={groupRef}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setHovered(true);
-          document.body.style.cursor = 'pointer';
-        }}
-        onPointerOut={() => {
-          setHovered(false);
-          document.body.style.cursor = 'auto';
-        }}
-      >
-        {/* Floor Glow Accent Light */}
-        <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.5, 1.75, 48]} />
-          <meshBasicMaterial
-            color={hovered ? '#10B981' : '#0E946E'}
-            transparent
-            opacity={hovered ? 0.8 : 0.35}
-          />
-        </mesh>
-
-        {/* Specific Office Station Sub-Component */}
-        {config.id === 'step-discovery' && <DiscoveryStation />}
-        {config.id === 'step-design' && <DesignStudioStation />}
-        {config.id === 'step-engineering' && <EngineeringStation />}
-        {config.id === 'step-testing' && <QATestingStation />}
-        {config.id === 'step-launch' && <LaunchHandoverStation />}
-      </group>
-
-      {/* Holographic 3D Overlay Badge with Smart Proximity Fade */}
-      {scrollProgress >= 0.62 && (
-        <SmartProximityBadge
-          position={config.badgeOffset || [0, 3.2, 0]}
-          distanceFactor={16}
-          isDiving={isDiving}
-        >
-          <div className="p-3 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-56 animate-fadeIn">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
-                {config.stepNumber} • {config.stepTag}
-              </span>
-            </div>
-            <div className="text-xs font-black text-white">{config.title}</div>
-            <div className="text-[10px] text-gray-300 mt-1 line-clamp-2 leading-tight">
-              {config.subtitle}
-            </div>
-            <div className="mt-2 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2 py-0.5 rounded-full text-[10px] font-bold">
-              ⏱ {config.duration}
-            </div>
-          </div>
-        </SmartProximityBadge>
-      )}
-    </group>
-  );
-}
-
-const MemoizedCollaborationStation = React.memo(CollaborationDepartmentStation);
-
-const MemoizedCollaborationOfficeConcourse = React.memo(function CollaborationOfficeConcourse({
-  scrollProgress = 0,
-  isDiving = false,
-}: {
-  scrollProgress?: number;
-  isDiving?: boolean;
-}) {
-  return (
-    <group>
-      {COLLABORATION_STATIONS_CONFIG.map((st) => (
-        <MemoizedCollaborationStation
-          key={st.id}
-          config={st}
-          scrollProgress={scrollProgress}
-          isDiving={isDiving}
-        />
-      ))}
-    </group>
-  );
-});
-
-// ── 7. ZONE 4: EXECUTIVE CONSULTATION LOUNGE & RECEPTION ──
-
-function ConsultationLoungeStation({
-  scrollProgress = 0,
-  isDiving = false,
-  onSelectContact,
-}: {
-  scrollProgress?: number;
-  isDiving?: boolean;
-  onSelectContact?: () => void;
-}) {
-  const [hovered, setHovered] = useState(false);
-  const groupRef = useRef<THREE.Group>(null);
-  const cfg = EXECUTIVE_LOUNGE_CONFIG.lounge;
-
-  const sofa = useClonedGLTF('/3Dmodels/sofa.glb');
-  const coffeeTable = useClonedGLTF('/3Dmodels/Table1.glb');
-  const cup = useClonedGLTF('/3Dmodels/cup_tea.glb');
-  const paper = useClonedGLTF('/3Dmodels/stack of paper.glb');
-  const pen = useClonedGLTF('/3Dmodels/Pen.glb');
-  const mapPin = useClonedGLTF('/3Dmodels/map_pin.glb');
-
-  useFrame((_, delta) => {
-    if (!groupRef.current) return;
-    const targetScale = hovered ? 1.03 : 1.0;
-    easing.damp(groupRef.current.scale, 'x', targetScale, 0.2, delta);
-    easing.damp(groupRef.current.scale, 'y', targetScale, 0.2, delta);
-    easing.damp(groupRef.current.scale, 'z', targetScale, 0.2, delta);
-  });
-
-  const handleContactClick = (e: any) => {
-    e.stopPropagation();
-    if (typeof window !== 'undefined') {
-      try {
-        sessionStorage.setItem('last_dive_target', 'contact-us');
-      } catch (_) {}
-    }
-    if (onSelectContact) {
-      onSelectContact();
-    } else {
-      window.location.href = '/contact-us/?returnFrom=contact-us';
-    }
-  };
-
-  return (
-    <group position={cfg.stationPosition}>
-      <group
-        ref={groupRef}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setHovered(true);
-          document.body.style.cursor = 'pointer';
-        }}
-        onPointerOut={() => {
-          setHovered(false);
-          document.body.style.cursor = 'auto';
-        }}
-        onClick={handleContactClick}
-      >
-        {/* Floor Glow Accent Light */}
-        <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.8, 2.1, 48]} />
-          <meshBasicMaterial
-            color={hovered ? '#10B981' : '#0E946E'}
-            transparent
-            opacity={hovered ? 0.85 : 0.4}
-          />
-        </mesh>
-
-        {/* 1. کاناپه راحتی مدرن VIP */}
-        <group position={cfg.sofa.position} rotation={cfg.sofa.rotation} scale={cfg.sofa.scale}>
-          <primitive object={sofa} />
-        </group>
-
-        {/* 2. میز جلو مبلی مدرن */}
-        <group position={cfg.coffeeTable.position} rotation={cfg.coffeeTable.rotation} scale={cfg.coffeeTable.scale}>
-          <primitive object={coffeeTable} position={[0, 0.022, 0]} />
-        </group>
-
-        {/* 3. فنجان قهوه روی میز جلو مبلی */}
-        <group position={cfg.cup.position} scale={cfg.cup.scale}>
-          <primitive object={cup} />
-        </group>
-
-        {/* 4. بروشور و کاتالوگ پروپوزال اروم‌سیما */}
-        <group position={cfg.paper.position} rotation={cfg.paper.rotation} scale={cfg.paper.scale}>
-          <primitive object={paper} />
-        </group>
-
-        {/* 5. خودکار لوکس اروم‌سیما */}
-        <group position={cfg.pen.position} rotation={cfg.pen.rotation} scale={cfg.pen.scale}>
-          <primitive object={pen} />
-        </group>
-
-        {/* 6. پین لوکیشن سه‌بعدی شناور ارومیه */}
-        <Float speed={2.4} rotationIntensity={0.2} floatIntensity={0.35} position={cfg.mapPin.position}>
-          <group scale={cfg.mapPin.scale} rotation={[0, Math.PI / 4, 0]}>
-            <primitive object={mapPin} />
-          </group>
-          <pointLight color="#10B981" intensity={2.5} distance={5} />
-        </Float>
-      </group>
-
-      {/* Holographic 3D Overlay Badge with Smart Proximity Fade */}
-      {scrollProgress >= 0.82 && (
-        <SmartProximityBadge
-          position={cfg.badgeOffset}
-          distanceFactor={16}
-          isDiving={isDiving}
-        >
-          <div
-            onClick={handleContactClick}
-            className="p-3.5 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl cursor-pointer hover:border-brand-500/60 transition-all hover:scale-105 pointer-events-auto w-60 animate-fadeIn backdrop-blur-xl bg-[#030712]/80 group"
-          >
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
-                🏢 دفتر مرکزی ارومیه
-              </span>
-            </div>
-            <div className="text-xs font-black text-white">جلسات مشاوره حضوری VIP</div>
-            <div className="text-[10px] text-gray-300 mt-1 leading-tight">
-              خیابان مدنی ۲، مجتمع تجاری اداری اروم‌سیما
-            </div>
-            <div className="mt-2 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
-              شنبه تا پنج‌شنبه • ۹:۰۰ الی ۱۸:۰۰
-            </div>
-            <div className="mt-2.5 flex items-center justify-center gap-1 text-[10px] font-bold text-emerald-400 group-hover:text-emerald-300">
-              <span>رزرو جلسه و صفحه تماس</span>
-              <span className="group-hover:-translate-x-1 transition-transform">←</span>
-            </div>
-          </div>
-        </SmartProximityBadge>
-      )}
-    </group>
-  );
-}
-
-function ExecutiveReceptionStation({
-  scrollProgress = 0,
-  isDiving = false,
-}: {
-  scrollProgress?: number;
-  isDiving?: boolean;
-}) {
-  const [hovered, setHovered] = useState(false);
-  const [phoneHovered, setPhoneHovered] = useState(false);
-  const groupRef = useRef<THREE.Group>(null);
-  const cfg = EXECUTIVE_LOUNGE_CONFIG.reception;
-
-  const desk = useClonedGLTF('/3Dmodels/desk_modern.glb');
-  const chair = useClonedGLTF('/3Dmodels/office_chair.glb');
-  const phone = useClonedGLTF('/3Dmodels/desk_phone.glb');
-  const lamp = useClonedGLTF('/3Dmodels/desk_lamp.glb');
-  const tablet = useClonedGLTF('/3Dmodels/tablet.glb');
-
-  useFrame((_, delta) => {
-    if (!groupRef.current) return;
-    const targetScale = hovered ? 1.03 : 1.0;
-    easing.damp(groupRef.current.scale, 'x', targetScale, 0.2, delta);
-    easing.damp(groupRef.current.scale, 'y', targetScale, 0.2, delta);
-    easing.damp(groupRef.current.scale, 'z', targetScale, 0.2, delta);
-  });
-
-  return (
-    <group position={cfg.stationPosition}>
-      <group
-        ref={groupRef}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          setHovered(true);
-          document.body.style.cursor = 'pointer';
-        }}
-        onPointerOut={() => {
-          setHovered(false);
-          document.body.style.cursor = 'auto';
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          window.location.href = 'tel:04432241515';
-        }}
-      >
-        {/* Floor Glow Accent Light */}
-        <mesh position={[0, 0.015, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[1.8, 2.1, 48]} />
-          <meshBasicMaterial
-            color={hovered ? '#10B981' : '#0E946E'}
-            transparent
-            opacity={hovered ? 0.85 : 0.4}
-          />
-        </mesh>
-
-        {/* 1. میز مدرن کانتر پذیرش */}
-        <group position={cfg.desk.position} rotation={cfg.desk.rotation} scale={cfg.desk.scale}>
-          <primitive object={desk} />
-        </group>
-
-        {/* 2. صندلی اداری ارگونومیک مدیریت */}
-        <group position={cfg.chair.position} rotation={cfg.chair.rotation} scale={cfg.chair.scale}>
-          <primitive object={chair} />
-        </group>
-
-        {/* 3. تلفن ثابت اداری رومیزی (Interactive Call Trigger) */}
-        <group
-          position={cfg.phone.position}
-          rotation={cfg.phone.rotation}
-          scale={cfg.phone.scale}
-          onPointerOver={(e) => {
-            e.stopPropagation();
-            setPhoneHovered(true);
-          }}
-          onPointerOut={() => {
-            setPhoneHovered(false);
-          }}
-        >
-          <primitive object={phone} />
-          {phoneHovered && (
-            <pointLight position={[0, 0.05, 0]} color="#10B981" intensity={3.5} distance={1.5} />
-          )}
-        </group>
-
-        {/* 4. چراغ رومیزی اداری */}
-        <group position={cfg.lamp.position} rotation={cfg.lamp.rotation} scale={cfg.lamp.scale}>
-          <primitive object={lamp} />
-          <pointLight position={[0, 0.4, 0]} color="#FEF08A" intensity={1.8} distance={3} />
-        </group>
-
-        {/* 5. تبلت پذیرش */}
-        <group position={cfg.tablet.position} rotation={cfg.tablet.rotation} scale={cfg.tablet.scale}>
-          <primitive object={tablet} />
-        </group>
-      </group>
-
-      {/* Holographic 3D Overlay Badge with Smart Proximity Fade */}
-      {scrollProgress >= 0.82 && (
-        <SmartProximityBadge
-          position={cfg.badgeOffset}
-          distanceFactor={16}
-          isDiving={isDiving}
-        >
-          <div className="p-3.5 rounded-2xl glass-panel-elevated text-center border border-brand-500/30 shadow-2xl pointer-events-none w-60 animate-fadeIn backdrop-blur-xl bg-[#030712]/80">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <span className="text-[10px] font-mono text-brand-300 font-bold bg-brand-500/20 px-2 py-0.5 rounded-full border border-brand-500/30">
-                📞 تماس مستقیم و استعلام
-              </span>
-            </div>
-            <div className="text-xs font-black text-white">۰۴۴-۳۲۲۴۱۵۱۵</div>
-            <div className="text-[10px] text-gray-300 mt-1 leading-tight">
-              پاسخگویی سریع کارشناسان ارشد دیجیتال مارکتینگ
-            </div>
-            <div className="mt-2 inline-block bg-brand-500/20 text-brand-300 border border-brand-500/40 px-2.5 py-0.5 rounded-full text-[10px] font-bold">
-              مشاوره رایگان قبل از عقد قرارداد
-            </div>
-          </div>
-        </SmartProximityBadge>
-      )}
-    </group>
-  );
-}
-
-function TerminalPortal({
-  scrollProgress = 0,
-  isDiving = false,
-}: {
-  scrollProgress?: number;
-  isDiving?: boolean;
-}) {
-  const logo = useClonedGLTF('/3Dmodels/logo3d.glb');
-  const cfg = EXECUTIVE_LOUNGE_CONFIG.portal;
-
-  return (
-    <group position={cfg.position}>
-      {/* Obelisks & Architectural Frame */}
-      <mesh position={[-6.2, 6, 0]} castShadow>
-        <boxGeometry args={[1.5, 12, 2.0]} />
-        <meshStandardMaterial color="#0B121E" roughness={0.2} metalness={0.9} />
-      </mesh>
-      <mesh position={[6.2, 6, 0]} castShadow>
-        <boxGeometry args={[1.5, 12, 2.0]} />
-        <meshStandardMaterial color="#0B121E" roughness={0.2} metalness={0.9} />
-      </mesh>
-      <mesh position={[0, 11.5, 0]}>
-        <boxGeometry args={[14, 1.2, 2.2]} />
-        <meshStandardMaterial color="#0E1626" roughness={0.2} metalness={0.9} />
-      </mesh>
-      <mesh position={[0, 10.85, 0]}>
-        <boxGeometry args={[13.5, 0.08, 2.25]} />
-        <meshBasicMaterial color="#0E946E" />
-      </mesh>
-      <mesh position={[-5.4, 6, 0]}>
-        <boxGeometry args={[0.15, 11.5, 0.2]} />
-        <meshBasicMaterial color="#14B8A6" />
-      </mesh>
-      <mesh position={[5.4, 6, 0]}>
-        <boxGeometry args={[0.15, 11.5, 0.2]} />
-        <meshBasicMaterial color="#14B8A6" />
-      </mesh>
-
-      {/* Floating 3D Logo Landmark between the columns */}
-      <Float speed={2.0} rotationIntensity={0.2} floatIntensity={0.3} position={[0, 5.2, 0]}>
-        <group scale={cfg.logoScale}>
-          <Center>
-            <primitive object={logo} rotation={[Math.PI / 2, 0, 0]} />
-          </Center>
-        </group>
-        <pointLight color="#10B981" intensity={3.5} distance={10} />
-      </Float>
-
-      {/* Holographic 3D Overlay Badge with Smart Proximity Fade */}
-      {scrollProgress >= 0.82 && (
-        <SmartProximityBadge
-          position={cfg.badgeOffset}
-          distanceFactor={18}
-          isDiving={isDiving}
-        >
-          <div className="px-4 py-2 rounded-2xl glass-panel-elevated text-center border border-brand-500/40 shadow-2xl pointer-events-none whitespace-nowrap animate-fadeIn backdrop-blur-xl bg-[#030712]/85">
-            <div className="text-xs font-black text-white flex items-center justify-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>اروم‌سیما • پایانه خلق امپراتوری دیجیتال</span>
-            </div>
-          </div>
-        </SmartProximityBadge>
-      )}
-    </group>
-  );
-}
-
-const MemoizedConsultationLounge = React.memo(ConsultationLoungeStation);
-const MemoizedExecutiveReception = React.memo(ExecutiveReceptionStation);
-const MemoizedTerminalPortal = React.memo(TerminalPortal);
-
-// ── 8. MASTER DIGITAL CAMPUS EXPORT ──
+// ── MASTER DIGITAL CAMPUS EXPORT (COSMIC SPACE EXPERIENCE) ──
 export default function DigitalArchitectureCampus({
   scrollProgress,
+  activeSector,
   hoveredServiceSlug,
   hoveredProjectSlug,
   portfolioProjects,
@@ -2173,28 +376,25 @@ export default function DigitalArchitectureCampus({
   onSelectProject,
   onHoverService,
   onHoverProject,
-  onExploreServices,
-  onExploreProjects,
 }: CampusProps) {
   const isDiving = divePhase !== 'idle';
 
   return (
     <>
-      <color attach="background" args={['#E0F2FE']} />
-      <fog attach="fog" args={['#E0F2FE', 35, 170]} />
+      {/* Deep Cosmic Void Background & Atmospheric Horizon Fog */}
+      <color attach="background" args={['#030712']} />
+      <fog attach="fog" args={['#030712', 45, 190]} />
 
-      <ambientLight intensity={1.35} color="#FFFFFF" />
-      <directionalLight
-        position={[20, 32, 20]}
-        intensity={2.5}
-        color="#FFFBEB"
-      />
-      <directionalLight position={[-20, 24, -40]} intensity={1.2} color="#BAE6FD" />
-      <pointLight position={[0, 6, -4]} intensity={1.8} distance={25} color="#10B981" />
-      <pointLight position={[-2, 5, -28]} intensity={1.5} distance={30} color="#10B981" />
-      <pointLight position={[0, 6, -68]} intensity={1.5} distance={35} color="#3B82F6" />
-      <pointLight position={[0, 6, -146]} intensity={1.8} distance={30} color="#10B981" />
+      {/* Cinematic Deep Space Lighting Setup */}
+      <ambientLight intensity={1.1} color="#E0F2FE" />
+      <directionalLight position={[15, 25, 15]} intensity={2.2} color="#F0FDF4" />
+      <directionalLight position={[-15, 20, -35]} intensity={1.5} color="#38BDF8" />
+      <pointLight position={[0, 4, 0]} intensity={2.0} distance={25} color="#10B981" />
+      <pointLight position={[-2, 4, -28]} intensity={1.8} distance={30} color="#5EEAD4" />
+      <pointLight position={[0, 4, -68]} intensity={1.8} distance={35} color="#38BDF8" />
+      <pointLight position={[0, 4, -146]} intensity={2.2} distance={30} color="#10B981" />
 
+      {/* Dynamic Camera Trajectory & Gaze Orientation */}
       <SmoothScrollCamera
         scrollProgress={scrollProgress}
         activeDiveTarget={activeDiveTarget}
@@ -2202,54 +402,21 @@ export default function DigitalArchitectureCampus({
         onDiveReachedTarget={onDiveReachedTarget}
       />
 
-      <CorporateOfficeEnvironment scrollProgress={scrollProgress} />
+      {/* Cosmic Deep Space Environment: Starfield, Hyper-Speed Warp Streaks, Nebulae & Gateways */}
+      <CosmicDeepSpace scrollProgress={scrollProgress} activeSector={activeSector} />
 
-      {/* Sector culling: render rooms and pavilions only when within generous distance of camera */}
-      {(isDiving || scrollProgress <= 0.44) && (
-        <MemoizedServicesConcourse
-          scrollProgress={scrollProgress}
-          hoveredServiceSlug={hoveredServiceSlug}
-          onSelectService={onSelectService}
-          onHoverService={onHoverService}
-          isDiving={isDiving}
-        />
-      )}
-
-      {(isDiving || (scrollProgress >= 0.08 && scrollProgress <= 0.72)) && (
-        <MemoizedExhibitionGallery
-          projects={portfolioProjects}
-          scrollProgress={scrollProgress}
-          hoveredProjectSlug={hoveredProjectSlug}
-          onSelectProject={onSelectProject}
-          onHoverProject={onHoverProject}
-          isDiving={isDiving}
-        />
-      )}
-
-      {(isDiving || (scrollProgress >= 0.35 && scrollProgress <= 0.94)) && (
-        <MemoizedCollaborationOfficeConcourse
-          scrollProgress={scrollProgress}
-          isDiving={isDiving}
-        />
-      )}
-
-      {(isDiving || scrollProgress >= 0.60) && (
-        <>
-          <MemoizedConsultationLounge
-            scrollProgress={scrollProgress}
-            isDiving={isDiving}
-            onSelectContact={onSelectService ? () => onSelectService('contact-us') : undefined}
-          />
-          <MemoizedExecutiveReception
-            scrollProgress={scrollProgress}
-            isDiving={isDiving}
-          />
-          <MemoizedTerminalPortal
-            scrollProgress={scrollProgress}
-            isDiving={isDiving}
-          />
-        </>
-      )}
+      {/* Photorealistic Compressed 3D Models Showcase (Draco Decoded, 60fps) */}
+      <CosmicSectorShowcase
+        scrollProgress={scrollProgress}
+        hoveredServiceSlug={hoveredServiceSlug}
+        hoveredProjectSlug={hoveredProjectSlug}
+        portfolioProjects={portfolioProjects}
+        onSelectService={onSelectService}
+        onSelectProject={onSelectProject}
+        onHoverService={onHoverService}
+        onHoverProject={onHoverProject}
+        isDiving={isDiving}
+      />
     </>
   );
 }

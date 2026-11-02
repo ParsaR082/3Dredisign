@@ -5,15 +5,15 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Center, Float, ContactShadows, Environment, useGLTF, Html } from '@react-three/drei';
 import * as THREE from 'three';
 
-// Preload the 4 creative models
-useGLTF.preload('/3Dmodels/laptop.glb');
-useGLTF.preload('/3Dmodels/apple_iphone_18_pro_max_burgundy_2026.glb');
-useGLTF.preload('/3Dmodels/canon_at-1_retro_camera.glb');
-useGLTF.preload('/3Dmodels/clipboard_with_pen_and_paper_low-poly.glb');
+// Preload the 4 creative models (using compressed HQ models with Draco)
+useGLTF.preload('/3Dmodels/laptop.glb', '/draco/');
+useGLTF.preload('/3Dmodels/hq/apple_iphone_18_pro_max_burgundy_2026.glb', '/draco/');
+useGLTF.preload('/3Dmodels/hq/canon_at-1_retro_camera.glb', '/draco/');
+useGLTF.preload('/3Dmodels/hq/clipboard_with_pen_and_paper_low-poly.glb', '/draco/');
 
 // Helper hook for safe cloned scenes with PBR shadow and colorSpace setup
 function useClonedModel(path: string) {
-  const gltf = useGLTF(path);
+  const gltf = useGLTF(path, '/draco/');
   return useMemo(() => {
     const cloned = gltf.scene.clone(true);
     cloned.traverse((child) => {
@@ -104,7 +104,7 @@ function PhoneModel({
   onPointerOut: () => void;
   onClick: () => void;
 }) {
-  const scene = useClonedModel('/3Dmodels/apple_iphone_18_pro_max_burgundy_2026.glb');
+  const scene = useClonedModel('/3Dmodels/hq/apple_iphone_18_pro_max_burgundy_2026.glb');
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -156,7 +156,7 @@ function CameraModel({
   onPointerOut: () => void;
   onClick: () => void;
 }) {
-  const scene = useClonedModel('/3Dmodels/canon_at-1_retro_camera.glb');
+  const scene = useClonedModel('/3Dmodels/hq/canon_at-1_retro_camera.glb');
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -207,7 +207,7 @@ function ClipboardModel({
   onPointerOut: () => void;
   onClick: () => void;
 }) {
-  const scene = useClonedModel('/3Dmodels/clipboard_with_pen_and_paper_low-poly.glb');
+  const scene = useClonedModel('/3Dmodels/hq/clipboard_with_pen_and_paper_low-poly.glb');
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
