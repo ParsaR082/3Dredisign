@@ -194,7 +194,7 @@ export default function CampusCanvas(props: Props) {
     <div className="fixed inset-0 w-full h-full pointer-events-auto z-0 overflow-hidden touch-none overscroll-none">
       <WebGLErrorBoundary fallback={<AmbientStaticFallback />} onError={handleBoundaryError}>
         <Canvas
-          camera={{ position: [0, 5.0, 15], fov: 45, near: 0.1, far: 260 }}
+          camera={{ position: [0, 0.2, 4.2], fov: 45, near: 0.1, far: 1800 }}
           gl={{
             alpha: true,
             antialias: !isMobile,

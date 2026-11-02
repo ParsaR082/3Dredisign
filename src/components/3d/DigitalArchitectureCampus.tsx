@@ -3,12 +3,15 @@
 import React, { useRef, useEffect } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
-import { easing } from 'maath';
 import {
   ProjectTVConfig,
   DiveTargetConfig,
   DivePhase,
 } from './stationsConfig';
+import {
+  getInterstellarCameraState,
+  STATIONS_3D,
+} from './InterstellarFlightPath';
 import CosmicDeepSpace from './CosmicDeepSpace';
 import CosmicSectorShowcase from './CosmicSectorShowcase';
 
@@ -33,19 +36,21 @@ function easeInOutCubic(x: number): number {
   return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 }
 
-// ── STAGE-CENTRIC CINEMATIC CAMERA CONTROLLER ──
-function SmoothScrollCamera({
+// ── CINEMATIC INTERSTELLAR FLIGHT CAMERA CONTROLLER ──
+function InterstellarFlightCamera({
+  scrollProgress,
   activeDiveTarget,
   divePhase = 'idle',
   onDiveReachedTarget,
+  onFlightMetricsUpdate,
 }: {
   scrollProgress: number;
   activeDiveTarget?: DiveTargetConfig | null;
   divePhase?: DivePhase;
   onDiveReachedTarget?: () => void;
+  onFlightMetricsUpdate?: (tangent: THREE.Vector3, warp: number) => void;
 }) {
   const { camera, pointer, size } = useThree();
-  const currentTarget = useRef(new THREE.Vector3(0, 0.2, 0));
   const hasTriggeredDiveReached = useRef(false);
   const diveInitialized = useRef(false);
   const pullbackInitialized = useRef(false);
@@ -53,11 +58,17 @@ function SmoothScrollCamera({
   const diveStartLookAt = useRef(new THREE.Vector3());
   const diveStartTime = useRef<number>(0);
   const pullbackStartTime = useRef<number>(0);
-  const desiredPosRef = useRef(new THREE.Vector3());
-  const scratchDivePos = useRef(new THREE.Vector3(0, 0.25, 1.3));
-  const scratchDiveLookAt = useRef(new THREE.Vector3(0, 0.25, 0));
-  const scratchNormalPos = useRef(new THREE.Vector3(0, 0, 4.2));
-  const scratchNormalLookAt = useRef(new THREE.Vector3(0, 0.2, 0));
+
+  // Scratch vectors for zero GC allocation in useFrame
+  const currentLookAt = useRef(new THREE.Vector3(0, 0.2, 0));
+  const scratchDivePos = useRef(new THREE.Vector3());
+  const scratchDiveLookAt = useRef(new THREE.Vector3());
+  const scratchNormalPos = useRef(new THREE.Vector3());
+  const scratchNormalLookAt = useRef(new THREE.Vector3());
+  const scratchTargetQuat = useRef(new THREE.Quaternion());
+  const scratchUp = useRef(new THREE.Vector3(0, 1, 0));
+  const scratchMatrix = useRef(new THREE.Matrix4());
+
   const aspect = size.width / (size.height || 1);
   const isMobile = aspect < 1.0;
 
@@ -79,22 +90,29 @@ function SmoothScrollCamera({
     }
   }, [divePhase]);
 
-  // Responsive FOV adjustment on mobile viewports
-  useEffect(() => {
-    if (!(camera instanceof THREE.PerspectiveCamera)) return;
-    const targetFov = aspect < 0.55 ? 58 : aspect < 0.75 ? 52 : aspect < 1.0 ? 48 : 45;
-    if (camera.fov !== targetFov) {
-      camera.fov = targetFov;
-      camera.updateProjectionMatrix();
-    }
-  }, [camera, aspect]);
-
   useFrame((_, delta) => {
-    // ── 1. CINEMATIC CAMERA DIVE ONTO 3D SCREEN ──
+    // 1. Calculate procedural interstellar flight transform
+    const flight = getInterstellarCameraState(scrollProgress, pointer, isMobile);
+
+    // Notify parent for star streak alignment
+    if (onFlightMetricsUpdate) {
+      onFlightMetricsUpdate(flight.tangent, flight.warpIntensity);
+    }
+
+    // ── CASE 1: CINEMATIC DIVE ONTO 3D SCREEN ──
     if (divePhase === 'diving' && activeDiveTarget) {
+      // Find active station world coordinates
+      const st =
+        STATIONS_3D.find((s) => s.id === activeDiveTarget.slug) ||
+        STATIONS_3D[flight.activeStationIndex];
+      const stPos = st.stationPosition;
+
+      scratchDivePos.current.set(stPos[0], stPos[1] + 0.25, stPos[2] + 1.3);
+      scratchDiveLookAt.current.set(stPos[0], stPos[1] + 0.25, stPos[2]);
+
       if (!diveInitialized.current) {
         diveStartPos.current.copy(camera.position);
-        diveStartLookAt.current.copy(currentTarget.current);
+        diveStartLookAt.current.copy(currentLookAt.current);
         diveStartTime.current = performance.now();
         diveInitialized.current = true;
       }
@@ -105,8 +123,8 @@ function SmoothScrollCamera({
       const ease = easeInOutCubic(progress);
 
       camera.position.lerpVectors(diveStartPos.current, scratchDivePos.current, ease);
-      currentTarget.current.lerpVectors(diveStartLookAt.current, scratchDiveLookAt.current, ease);
-      camera.lookAt(currentTarget.current);
+      currentLookAt.current.lerpVectors(diveStartLookAt.current, scratchDiveLookAt.current, ease);
+      camera.lookAt(currentLookAt.current);
 
       if (progress >= 1 && !hasTriggeredDiveReached.current) {
         hasTriggeredDiveReached.current = true;
@@ -117,20 +135,35 @@ function SmoothScrollCamera({
       return;
     }
 
-    // ── 2. HOLD POSITION ON SCREEN ──
+    // ── CASE 2: HOLD CLOSEUP POSITION ON SCREEN ──
     if (divePhase === 'pullback_hold' && activeDiveTarget) {
-      camera.position.set(0, 0.25, 1.3);
-      currentTarget.current.set(0, 0.25, 0);
-      camera.lookAt(currentTarget.current);
+      const st =
+        STATIONS_3D.find((s) => s.id === activeDiveTarget.slug) ||
+        STATIONS_3D[flight.activeStationIndex];
+      const stPos = st.stationPosition;
+
+      camera.position.set(stPos[0], stPos[1] + 0.25, stPos[2] + 1.3);
+      currentLookAt.current.set(stPos[0], stPos[1] + 0.25, stPos[2]);
+      camera.lookAt(currentLookAt.current);
       return;
     }
 
-    // ── 3. REVERSE DIVE: CINEMATIC CAMERA PULLBACK ──
+    // ── CASE 3: REVERSE DIVE (CINEMATIC CAMERA PULLBACK) ──
     if (divePhase === 'pullback' && activeDiveTarget) {
+      const st =
+        STATIONS_3D.find((s) => s.id === activeDiveTarget.slug) ||
+        STATIONS_3D[flight.activeStationIndex];
+      const stPos = st.stationPosition;
+
+      scratchDivePos.current.set(stPos[0], stPos[1] + 0.25, stPos[2] + 1.3);
+      scratchDiveLookAt.current.set(stPos[0], stPos[1] + 0.25, stPos[2]);
+      scratchNormalPos.current.set(stPos[0], stPos[1] + 0.2, stPos[2] + 4.2);
+      scratchNormalLookAt.current.set(stPos[0], stPos[1] + 0.2, stPos[2]);
+
       if (!pullbackInitialized.current) {
-        camera.position.set(0, 0.25, 1.3);
-        currentTarget.current.set(0, 0.25, 0);
-        camera.lookAt(currentTarget.current);
+        camera.position.copy(scratchDivePos.current);
+        currentLookAt.current.copy(scratchDiveLookAt.current);
+        camera.lookAt(currentLookAt.current);
         pullbackStartTime.current = performance.now();
         pullbackInitialized.current = true;
       }
@@ -141,21 +174,33 @@ function SmoothScrollCamera({
       const ease = easeInOutCubic(progress);
 
       camera.position.lerpVectors(scratchDivePos.current, scratchNormalPos.current, ease);
-      currentTarget.current.lerpVectors(scratchDiveLookAt.current, scratchNormalLookAt.current, ease);
-      camera.lookAt(currentTarget.current);
+      currentLookAt.current.lerpVectors(scratchDiveLookAt.current, scratchNormalLookAt.current, ease);
+      camera.lookAt(currentLookAt.current);
       return;
     }
 
-    // ── 4. STABLE STAGE TRACKING WITH GENTLE PARALLAX ──
-    const parallaxMult = isMobile ? 0.2 : 0.55;
-    const targetX = pointer.x * parallaxMult;
-    const targetY = pointer.y * (parallaxMult * 0.45);
+    // ── CASE 4: NORMAL INTERSTELLAR JOURNEY & REVERSIBLE SCROLL SCRUBBING ──
+    // Apply procedural position and orientation directly
+    if (flight.isTransitioning) {
+      // During active flight: high precision direct tracking of spline & banking roll
+      camera.position.copy(flight.position);
+      camera.quaternion.copy(flight.quaternion);
+      currentLookAt.current.copy(flight.lookAt);
+    } else {
+      // When dwelling at a station: smooth damping with interactive mouse parallax
+      camera.position.lerp(flight.position, delta * 10);
+      camera.quaternion.slerp(flight.quaternion, delta * 10);
+      currentLookAt.current.lerp(flight.lookAt, delta * 10);
+    }
 
-    desiredPosRef.current.set(targetX, targetY, isMobile ? 4.8 : 4.2);
-    easing.damp3(camera.position, desiredPosRef.current, 0.35, delta);
-    easing.damp3(currentTarget.current, [0, 0.2, 0], 0.35, delta);
-
-    camera.lookAt(currentTarget.current);
+    // Dynamic FOV expansion during hyper-speed flight
+    if (camera instanceof THREE.PerspectiveCamera) {
+      const targetFov = flight.fov;
+      if (Math.abs(camera.fov - targetFov) > 0.1) {
+        camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, delta * 10);
+        camera.updateProjectionMatrix();
+      }
+    }
   });
 
   return null;
@@ -178,31 +223,44 @@ export default function DigitalArchitectureCampus({
 }: CampusProps) {
   const isDiving = divePhase !== 'idle';
 
+  // Live flight metrics for starfield streaks
+  const cameraTangentRef = useRef(new THREE.Vector3(0, 0, -1));
+  const warpIntensityRef = useRef(0);
+
+  const handleFlightMetricsUpdate = (tangent: THREE.Vector3, warp: number) => {
+    cameraTangentRef.current.copy(tangent);
+    warpIntensityRef.current = warp;
+  };
+
   return (
     <>
-      {/* Deep Cosmic Void Background & Soft Atmospheric Fog */}
+      {/* Deep Cosmic Void Background & Atmospheric Space Fog */}
       <color attach="background" args={['#030712']} />
-      <fog attach="fog" args={['#030712', 25, 75]} />
+      <fog attach="fog" args={['#030712', 45, 650]} />
 
-      {/* Cinematic Studio Deep Space Lighting Setup */}
-      <ambientLight intensity={1.3} color="#E0F2FE" />
-      <directionalLight position={[10, 15, 12]} intensity={2.4} color="#F0FDF4" />
-      <directionalLight position={[-10, 10, 8]} intensity={1.5} color="#38BDF8" />
-      <pointLight position={[0, 2, 3]} intensity={2.0} distance={15} color="#10B981" />
-      <pointLight position={[0, -2, 2]} intensity={1.2} distance={12} color="#38BDF8" />
+      {/* Studio Cosmic Deep Space Ambient & Directional Lighting */}
+      <ambientLight intensity={1.4} color="#E0F2FE" />
+      <directionalLight position={[10, 20, 15]} intensity={2.5} color="#F0FDF4" />
+      <directionalLight position={[-10, 12, 10]} intensity={1.8} color="#38BDF8" />
 
-      {/* Fixed Stable Camera with Parallax & Dive Transitions */}
-      <SmoothScrollCamera
+      {/* Procedural Interstellar Flight Camera Controller */}
+      <InterstellarFlightCamera
         scrollProgress={scrollProgress}
         activeDiveTarget={activeDiveTarget}
         divePhase={divePhase}
         onDiveReachedTarget={onDiveReachedTarget}
+        onFlightMetricsUpdate={handleFlightMetricsUpdate}
       />
 
-      {/* Deep Space Starfield & Forward-Travelling Warp Streak Tunnel */}
-      <CosmicDeepSpace scrollProgress={scrollProgress} activeSector={activeSector} />
+      {/* Motion-Harmonized Deep Space Starfield & Directional Warp Streaks */}
+      <CosmicDeepSpace
+        scrollProgress={scrollProgress}
+        activeSector={activeSector}
+        cameraTangent={cameraTangentRef.current}
+        warpIntensity={warpIntensityRef.current}
+      />
 
-      {/* Stage-Centric Photorealistic 3D Showcase (All Models Perfectly Sized & Centered) */}
+      {/* Photorealistic 3D Galactic Showcase at Distinct 3D Station Coordinates */}
       <CosmicSectorShowcase
         scrollProgress={scrollProgress}
         hoveredServiceSlug={hoveredServiceSlug}

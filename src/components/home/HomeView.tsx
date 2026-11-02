@@ -299,7 +299,7 @@ export default function HomeView({
 
   // Jump to specific sector waypoint
   const handleJumpToSector = useCallback((sectorIndex: number) => {
-    const waypoints = [0.0, 0.23, 0.51, 0.715, 0.962];
+    const waypoints = [0.0, 0.20, 0.55, 0.85, 0.98];
     const target = waypoints[sectorIndex] ?? 0;
     targetProgressRef.current = target;
     setTargetProgress(target);
