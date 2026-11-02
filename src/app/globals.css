@@ -113,6 +113,18 @@ body {
   border: 1px solid rgba(14, 148, 110, 0.25);
 }
 
+/* Mobile GPU optimization: eliminate costly backdrop-filter GPU readback stalls on mobile WebGL */
+@media (max-width: 768px), (pointer: coarse) {
+  .glass-panel,
+  .glass-panel-elevated,
+  .glass-panel-brand,
+  .glass-panel-dock {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(11, 17, 30, 0.94) !important;
+  }
+}
+
 /* Subtle grid background */
 .bg-grid-pattern {
   background-size: 40px 40px;

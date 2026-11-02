@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
+import { AdaptiveDpr, AdaptiveEvents } from '@react-three/drei';
 import DigitalArchitectureCampus from './DigitalArchitectureCampus';
 import { ProjectTVConfig, DiveTargetConfig, DivePhase } from './stationsConfig';
 
@@ -137,6 +138,7 @@ export default function CampusCanvas(props: Props) {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [webglSupported, setWebglSupported] = useState(true);
   const [contextLost, setContextLost] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -150,8 +152,18 @@ export default function CampusCanvas(props: Props) {
     const supported = checkWebGLSupport();
     setWebglSupported(supported);
 
+    // Responsive device classification for hardware profiling
+    const updateDeviceType = () => {
+      const mobileWidth = window.innerWidth <= 768;
+      const touchCapable = 'ontouchstart' in window || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+      setIsMobile(mobileWidth || Boolean(touchCapable && window.innerWidth <= 1024));
+    };
+    updateDeviceType();
+    window.addEventListener('resize', updateDeviceType, { passive: true });
+
     return () => {
       m.removeEventListener?.('change', motionHandler);
+      window.removeEventListener('resize', updateDeviceType);
     };
   }, []);
 
@@ -183,9 +195,18 @@ export default function CampusCanvas(props: Props) {
       <WebGLErrorBoundary fallback={<AmbientStaticFallback />} onError={handleBoundaryError}>
         <Canvas
           camera={{ position: [0, 5.0, 15], fov: 45, near: 0.1, far: 260 }}
-          gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
-          dpr={[1, 1.5]}
+          gl={{
+            alpha: true,
+            antialias: !isMobile,
+            powerPreference: isMobile ? 'default' : 'high-performance',
+            stencil: false,
+            depth: true,
+            precision: isMobile ? 'mediump' : 'highp',
+          }}
+          dpr={isMobile ? [1, 1.15] : [1, 1.5]}
         >
+          <AdaptiveDpr pixelated={false} />
+          <AdaptiveEvents />
           <WebGLContextWatcher
             onContextLost={handleContextLost}
             onContextRestored={handleContextRestored}

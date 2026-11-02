@@ -261,7 +261,10 @@ export default function HomeView({
     const tick = () => {
       setScrollProgress((curr) => {
         const diff = targetProgressRef.current - curr;
-        if (Math.abs(diff) < 0.0002) return targetProgressRef.current;
+        if (Math.abs(diff) < 0.0001) {
+          if (curr === targetProgressRef.current) return curr;
+          return targetProgressRef.current;
+        }
         return curr + diff * 0.10;
       });
       animId = requestAnimationFrame(tick);

@@ -259,7 +259,7 @@ function BannerScreen({ imageUrl }: { imageUrl: string }) {
         key={texture.id}
         map={texture}
         toneMapped={false}
-        side={THREE.DoubleSide}
+        side={THREE.FrontSide}
       />
     </mesh>
   );
@@ -301,7 +301,7 @@ function EntranceWallBanner({
         fallback={
           <mesh position={[0, 0, 0.052]}>
             <planeGeometry args={[2.85, 3.8]} />
-            <meshBasicMaterial color="#070C18" side={THREE.DoubleSide} />
+            <meshBasicMaterial color="#070C18" side={THREE.FrontSide} />
           </mesh>
         }
       >
@@ -659,59 +659,64 @@ function OfficeRoomEnclosure({
   );
 }
 
+const MemoizedLowPolyOutdoorBackdrop = React.memo(LowPolyOutdoorBackdrop);
+const MemoizedOfficeRoomEnclosure = React.memo(OfficeRoomEnclosure);
+const MemoizedWallArtFrame = React.memo(WallArtFrame);
+const MemoizedRoomConnectingPortal = React.memo(RoomConnectingPortal);
+
 /**
  * ── 3. MASTER CORPORATE OFFICE ENVIRONMENT EXPORT ──
  * سریع، سبک و ۶۰fps بدون هیچ لگ یا افت فریم
  */
-export default function CorporateOfficeEnvironment({ scrollProgress }: OfficeEnvironmentProps) {
+export default React.memo(function CorporateOfficeEnvironment({ scrollProgress }: OfficeEnvironmentProps) {
   return (
     <group>
       {/* ── 0. LOW-POLY OUTDOOR SKYLINE & MOUNTAIN VIEW OUTSIDE WINDOWS ── */}
-      <LowPolyOutdoorBackdrop />
+      <MemoizedLowPolyOutdoorBackdrop />
 
       {/* ── 1. MAIN AUTOMATIC ENTRANCE FACADE & SLIDING DOORS (Z = 4) ── */}
       <EntranceBuildingFacade scrollProgress={scrollProgress} />
 
       {/* ── 2. ROOM 1: SERVICES CONCOURSE (اتاق خدمات تخصصی - Z: 4 to -44) ── */}
-      <OfficeRoomEnclosure startZ={4} endZ={-44} themeColor="#0E946E" />
-      <WallArtFrame position={[-8.8, 3.5, -15]} rotation={[0, Math.PI / 2, 0]} themeColor="#10B981" />
-      <WallArtFrame position={[8.8, 3.5, -28]} rotation={[0, -Math.PI / 2, 0]} themeColor="#06B6D4" />
+      <MemoizedOfficeRoomEnclosure startZ={4} endZ={-44} themeColor="#0E946E" />
+      <MemoizedWallArtFrame position={[-8.8, 3.5, -15]} rotation={[0, Math.PI / 2, 0]} themeColor="#10B981" />
+      <MemoizedWallArtFrame position={[8.8, 3.5, -28]} rotation={[0, -Math.PI / 2, 0]} themeColor="#06B6D4" />
 
       {/* ── 3. PORTAL 1-2: ENTRANCE TO PORTFOLIO SHOWROOM (Z = -44) ── */}
-      <RoomConnectingPortal
+      <MemoizedRoomConnectingPortal
         zPos={-44}
         roomNumber="۰۲"
         roomTitle="استودیوی نمایش پروژه‌ها"
       />
 
       {/* ── 4. ROOM 2: PORTFOLIO EXHIBITION SHOWROOM (اتاق نمونه‌کارها - Z: -44 to -84) ── */}
-      <OfficeRoomEnclosure startZ={-44} endZ={-84} themeColor="#3B82F6" />
-      <WallArtFrame position={[-8.8, 3.5, -60]} rotation={[0, Math.PI / 2, 0]} themeColor="#3B82F6" />
-      <WallArtFrame position={[8.8, 3.5, -72]} rotation={[0, -Math.PI / 2, 0]} themeColor="#8B5CF6" />
+      <MemoizedOfficeRoomEnclosure startZ={-44} endZ={-84} themeColor="#3B82F6" />
+      <MemoizedWallArtFrame position={[-8.8, 3.5, -60]} rotation={[0, Math.PI / 2, 0]} themeColor="#3B82F6" />
+      <MemoizedWallArtFrame position={[8.8, 3.5, -72]} rotation={[0, -Math.PI / 2, 0]} themeColor="#8B5CF6" />
 
       {/* ── 5. PORTAL 2-3: ENTRANCE TO COLLABORATION HUB (Z = -84) ── */}
-      <RoomConnectingPortal
+      <MemoizedRoomConnectingPortal
         zPos={-84}
         roomNumber="۰۳"
         roomTitle="مراحل همکاری و توسعه"
       />
 
       {/* ── 6. ROOM 3: COLLABORATION WORKFLOW HUB (اتاق مراحل اجرای پروژه - Z: -84 to -132) ── */}
-      <OfficeRoomEnclosure startZ={-84} endZ={-132} themeColor="#F59E0B" />
-      <WallArtFrame position={[-8.8, 3.5, -100]} rotation={[0, Math.PI / 2, 0]} themeColor="#F59E0B" />
-      <WallArtFrame position={[8.8, 3.5, -118]} rotation={[0, -Math.PI / 2, 0]} themeColor="#EC4899" />
+      <MemoizedOfficeRoomEnclosure startZ={-84} endZ={-132} themeColor="#F59E0B" />
+      <MemoizedWallArtFrame position={[-8.8, 3.5, -100]} rotation={[0, Math.PI / 2, 0]} themeColor="#F59E0B" />
+      <MemoizedWallArtFrame position={[8.8, 3.5, -118]} rotation={[0, -Math.PI / 2, 0]} themeColor="#EC4899" />
 
       {/* ── 7. PORTAL 3-4: ENTRANCE TO EXECUTIVE SUITE (Z = -132) ── */}
-      <RoomConnectingPortal
+      <MemoizedRoomConnectingPortal
         zPos={-132}
         roomNumber="۰۴"
         roomTitle="سوئیت مدیریت و مشاوره VIP"
       />
 
       {/* ── 8. ROOM 4: EXECUTIVE CONSULTATION & VIP RECEPTION (اتاق مشاوره و ارتباط - Z: -132 to -160) ── */}
-      <OfficeRoomEnclosure startZ={-132} endZ={-160} themeColor="#10B981" />
-      <WallArtFrame position={[-8.8, 3.5, -142]} rotation={[0, Math.PI / 2, 0]} themeColor="#10B981" />
-      <WallArtFrame position={[8.8, 3.5, -142]} rotation={[0, -Math.PI / 2, 0]} themeColor="#10B981" />
+      <MemoizedOfficeRoomEnclosure startZ={-132} endZ={-160} themeColor="#10B981" />
+      <MemoizedWallArtFrame position={[-8.8, 3.5, -142]} rotation={[0, Math.PI / 2, 0]} themeColor="#10B981" />
+      <MemoizedWallArtFrame position={[8.8, 3.5, -142]} rotation={[0, -Math.PI / 2, 0]} themeColor="#10B981" />
 
       {/* ── 9. TERMINAL PANORAMIC GLASS WALL BEHIND 3D LOGO (دیوار شیشه‌ای بزرگ انتهای سالن در Z = -160) ── */}
       <mesh position={[0, 3.75, -160]}>
@@ -735,7 +740,7 @@ export default function CorporateOfficeEnvironment({ scrollProgress }: OfficeEnv
       </mesh>
 
       {/* ── 10. NEW COMPREHENSIVE 3D ENVIRONMENTAL PROPS & DECORATIONS ── */}
-      <CampusInteriorDecorations />
+      <CampusInteriorDecorations scrollProgress={scrollProgress} />
     </group>
   );
-}
+});

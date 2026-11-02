@@ -85,9 +85,14 @@ function AutoPropInner({
         if ((child as THREE.Mesh).isMesh) {
           child.castShadow = castShadow;
           child.receiveShadow = true;
-          const mat = (child as THREE.Mesh).material as THREE.Material;
-          if (mat) {
-            mat.side = THREE.DoubleSide;
+          // Enable DoubleSide only for thin flat sheets (blinds, rugs, paper)
+          // Solid 3D objects keep default FrontSide for hardware backface culling, halving fragment shading!
+          const isFlatSheet = file.includes('Blinds') || file.includes('Rug') || file.includes('paper');
+          if (isFlatSheet) {
+            const mat = (child as THREE.Mesh).material as THREE.Material;
+            if (mat) {
+              mat.side = THREE.DoubleSide;
+            }
           }
         }
       });
@@ -111,7 +116,7 @@ function AutoPropInner({
   );
 }
 
-function AutoProp(props: AutoPropProps) {
+const AutoProp = React.memo(function AutoProp(props: AutoPropProps) {
   return (
     <SafePropBoundary file={props.file}>
       <React.Suspense fallback={null}>
@@ -119,7 +124,7 @@ function AutoProp(props: AutoPropProps) {
       </React.Suspense>
     </SafePropBoundary>
   );
-}
+});
 
 /**
  * ── 1. ZONE 0: ENTRANCE LOBBY & RECEPTION CHECKPOINT (Z = 4 to -4) ──
@@ -762,20 +767,62 @@ function Room4ExecutiveDecorations() {
   );
 }
 
+const MemoizedEntranceAndZone0 = React.memo(EntranceAndZone0Decorations);
+const MemoizedRoom1 = React.memo(Room1StrategyDecorations);
+const MemoizedPortal1to2 = React.memo(Portal1to2Decorations);
+const MemoizedRoom2 = React.memo(Room2PortfolioDecorations);
+const MemoizedPortal2to3 = React.memo(Portal2to3Decorations);
+const MemoizedRoom3 = React.memo(Room3CollaborationDecorations);
+const MemoizedPortal3to4 = React.memo(Portal3to4Decorations);
+const MemoizedRoom4 = React.memo(Room4ExecutiveDecorations);
+
+interface CampusInteriorDecorationsProps {
+  scrollProgress?: number;
+}
+
 /**
  * ── MAIN EXPORT: CAMPUS INTERIOR DECORATIONS ──
+ * بهینه‌سازی شده با Memoization کامل و کات هوشمند فضایی بر اساس موقعیت کاربر
  */
-export default function CampusInteriorDecorations() {
+export default React.memo(function CampusInteriorDecorations({
+  scrollProgress,
+}: CampusInteriorDecorationsProps) {
+  // Generous overlapping visibility windows:
+  // Every prop and zone is fully loaded & rendered before the camera approaches,
+  // but faraway rooms 100 meters behind solid portal walls are culled from GPU rasterization.
+  const showZone0And1 = scrollProgress === undefined || scrollProgress <= 0.44;
+  const showRoom2 =
+    scrollProgress === undefined || (scrollProgress >= 0.08 && scrollProgress <= 0.72);
+  const showRoom3 =
+    scrollProgress === undefined || (scrollProgress >= 0.35 && scrollProgress <= 0.94);
+  const showRoom4 = scrollProgress === undefined || scrollProgress >= 0.60;
+
   return (
     <group name="CampusInteriorDecorations">
-      <EntranceAndZone0Decorations />
-      <Room1StrategyDecorations />
-      <Portal1to2Decorations />
-      <Room2PortfolioDecorations />
-      <Portal2to3Decorations />
-      <Room3CollaborationDecorations />
-      <Portal3to4Decorations />
-      <Room4ExecutiveDecorations />
+      {showZone0And1 && (
+        <>
+          <MemoizedEntranceAndZone0 />
+          <MemoizedRoom1 />
+          <MemoizedPortal1to2 />
+        </>
+      )}
+      {showRoom2 && (
+        <>
+          <MemoizedRoom2 />
+          <MemoizedPortal2to3 />
+        </>
+      )}
+      {showRoom3 && (
+        <>
+          <MemoizedRoom3 />
+          <MemoizedPortal3to4 />
+        </>
+      )}
+      {showRoom4 && (
+        <>
+          <MemoizedRoom4 />
+        </>
+      )}
     </group>
   );
-}
+});

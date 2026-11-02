@@ -416,6 +416,11 @@ function SmoothScrollCamera({
   const diveStartLookAt = useRef(new THREE.Vector3());
   const diveStartTime = useRef<number>(0);
   const pullbackStartTime = useRef<number>(0);
+  const desiredPosRef = useRef(new THREE.Vector3());
+  const scratchDivePos = useRef(new THREE.Vector3());
+  const scratchDiveLookAt = useRef(new THREE.Vector3());
+  const scratchNormalPos = useRef(new THREE.Vector3());
+  const scratchNormalLookAt = useRef(new THREE.Vector3());
   const aspect = size.width / (size.height || 1);
   const isMobile = aspect < 1.0;
 
@@ -463,12 +468,12 @@ function SmoothScrollCamera({
       const progress = Math.min(1, Math.max(0, elapsed / DIVE_DURATION));
       const ease = easeInOutCubic(progress);
 
-      const divePos = new THREE.Vector3(...activeDiveTarget.camPosition);
-      const diveLookAt = new THREE.Vector3(...activeDiveTarget.camLookAt);
+      scratchDivePos.current.set(...activeDiveTarget.camPosition);
+      scratchDiveLookAt.current.set(...activeDiveTarget.camLookAt);
 
       // Smoothly fly from where the camera is standing on the normal path directly into the screen
-      camera.position.lerpVectors(diveStartPos.current, divePos, ease);
-      currentTarget.current.lerpVectors(diveStartLookAt.current, diveLookAt, ease);
+      camera.position.lerpVectors(diveStartPos.current, scratchDivePos.current, ease);
+      currentTarget.current.lerpVectors(diveStartLookAt.current, scratchDiveLookAt.current, ease);
       camera.lookAt(currentTarget.current);
 
       if (progress >= 1 && !hasTriggeredDiveReached.current) {
@@ -503,14 +508,14 @@ function SmoothScrollCamera({
       const progress = Math.min(1, Math.max(0, elapsed / PULLBACK_DURATION));
       const ease = easeInOutCubic(progress);
 
-      const normalStartPos = new THREE.Vector3(...activeDiveTarget.startPosition);
-      const normalStartLookAt = new THREE.Vector3(...activeDiveTarget.startLookAt);
-      const divePos = new THREE.Vector3(...activeDiveTarget.camPosition);
-      const diveLookAt = new THREE.Vector3(...activeDiveTarget.camLookAt);
+      scratchNormalPos.current.set(...activeDiveTarget.startPosition);
+      scratchNormalLookAt.current.set(...activeDiveTarget.startLookAt);
+      scratchDivePos.current.set(...activeDiveTarget.camPosition);
+      scratchDiveLookAt.current.set(...activeDiveTarget.camLookAt);
 
       // Pull back from screen directly to this specific item's normal camera starting position & look-at
-      camera.position.lerpVectors(divePos, normalStartPos, ease);
-      currentTarget.current.lerpVectors(diveLookAt, normalStartLookAt, ease);
+      camera.position.lerpVectors(scratchDivePos.current, scratchNormalPos.current, ease);
+      currentTarget.current.lerpVectors(scratchDiveLookAt.current, scratchNormalLookAt.current, ease);
       camera.lookAt(currentTarget.current);
       return;
     }
@@ -522,14 +527,14 @@ function SmoothScrollCamera({
     const parallaxX = pointer.x * parallaxMult;
     const parallaxY = pointer.y * (parallaxMult * 0.6);
 
-    const desiredPos = new THREE.Vector3(
+    desiredPosRef.current.set(
       pos.x + parallaxX,
       pos.y + parallaxY,
       pos.z
     );
 
     const dampSpeed = divePhase === 'staging' ? 0.26 : 0.42;
-    easing.damp3(camera.position, desiredPos, dampSpeed, delta);
+    easing.damp3(camera.position, desiredPosRef.current, dampSpeed, delta);
     easing.damp3(currentTarget.current, target, dampSpeed, delta);
 
     camera.lookAt(currentTarget.current);
@@ -1181,7 +1186,67 @@ function ServicePavilion({
   );
 }
 
-function ServicesConcourse({
+const SERVICES_DATA: ServicePavilionProps[] = [
+  {
+    id: 's1',
+    slug: 'web-design',
+    title: 'طراحی سایت و پرتال سازمانی',
+    position: STATIONS_CONFIG.webDesign.stationPosition,
+    badgeOffset: STATIONS_CONFIG.webDesign.badgeOffset,
+    color: '#0E946E',
+    accent: '#10B981',
+    iconSymbol: '🌐',
+    motifType: 'web',
+  },
+  {
+    id: 's2',
+    slug: 'instagram-content',
+    title: 'تولید محتوا و اینستاگرام',
+    position: STATIONS_CONFIG.contentProduction.stationPosition,
+    badgeOffset: STATIONS_CONFIG.contentProduction.badgeOffset,
+    color: '#14B8A6',
+    accent: '#2DD4BF',
+    iconSymbol: '📱',
+    motifType: 'instagram',
+  },
+  {
+    id: 's3',
+    slug: 'video-teaser',
+    title: 'تیزر صنعتی و هلی‌شات هوایی',
+    position: STATIONS_CONFIG.videoTeaser.stationPosition,
+    badgeOffset: STATIONS_CONFIG.videoTeaser.badgeOffset,
+    color: '#F59E0B',
+    accent: '#FBBF24',
+    iconSymbol: '🎬',
+    motifType: 'video',
+  },
+  {
+    id: 's4',
+    slug: 'branding-identity',
+    title: 'طراحی لوگو و هویت بصری',
+    position: STATIONS_CONFIG.logoDesign.stationPosition,
+    badgeOffset: STATIONS_CONFIG.logoDesign.badgeOffset,
+    color: '#8B5CF6',
+    accent: '#A78BFA',
+    iconSymbol: '✨',
+    motifType: 'branding',
+  },
+  {
+    id: 's5',
+    slug: 'billboard-advertising',
+    title: 'تبلیغات محیطی و بیلبورد ارومیه',
+    position: STATIONS_CONFIG.billboard.stationPosition,
+    badgeOffset: STATIONS_CONFIG.billboard.badgeOffset,
+    color: '#06B6D4',
+    accent: '#22D3EE',
+    iconSymbol: '🏙️',
+    motifType: 'billboard',
+  },
+];
+
+const MemoizedServicePavilion = React.memo(ServicePavilion);
+
+const MemoizedServicesConcourse = React.memo(function ServicesConcourse({
   scrollProgress = 0,
   hoveredServiceSlug,
   onSelectService,
@@ -1194,68 +1259,10 @@ function ServicesConcourse({
   onHoverService?: (slug: string | null) => void;
   isDiving?: boolean;
 }) {
-  const servicesData: ServicePavilionProps[] = [
-    {
-      id: 's1',
-      slug: 'web-design',
-      title: 'طراحی سایت و پرتال سازمانی',
-      position: STATIONS_CONFIG.webDesign.stationPosition,
-      badgeOffset: STATIONS_CONFIG.webDesign.badgeOffset,
-      color: '#0E946E',
-      accent: '#10B981',
-      iconSymbol: '🌐',
-      motifType: 'web',
-    },
-    {
-      id: 's2',
-      slug: 'instagram-content',
-      title: 'تولید محتوا و اینستاگرام',
-      position: STATIONS_CONFIG.contentProduction.stationPosition,
-      badgeOffset: STATIONS_CONFIG.contentProduction.badgeOffset,
-      color: '#14B8A6',
-      accent: '#2DD4BF',
-      iconSymbol: '📱',
-      motifType: 'instagram',
-    },
-    {
-      id: 's3',
-      slug: 'video-teaser',
-      title: 'تیزر صنعتی و هلی‌شات هوایی',
-      position: STATIONS_CONFIG.videoTeaser.stationPosition,
-      badgeOffset: STATIONS_CONFIG.videoTeaser.badgeOffset,
-      color: '#F59E0B',
-      accent: '#FBBF24',
-      iconSymbol: '🎬',
-      motifType: 'video',
-    },
-    {
-      id: 's4',
-      slug: 'branding-identity',
-      title: 'طراحی لوگو و هویت بصری',
-      position: STATIONS_CONFIG.logoDesign.stationPosition,
-      badgeOffset: STATIONS_CONFIG.logoDesign.badgeOffset,
-      color: '#8B5CF6',
-      accent: '#A78BFA',
-      iconSymbol: '✨',
-      motifType: 'branding',
-    },
-    {
-      id: 's5',
-      slug: 'billboard-advertising',
-      title: 'تبلیغات محیطی و بیلبورد ارومیه',
-      position: STATIONS_CONFIG.billboard.stationPosition,
-      badgeOffset: STATIONS_CONFIG.billboard.badgeOffset,
-      color: '#06B6D4',
-      accent: '#22D3EE',
-      iconSymbol: '🏙️',
-      motifType: 'billboard',
-    },
-  ];
-
   return (
     <group>
-      {servicesData.map((s) => (
-        <ServicePavilion
+      {SERVICES_DATA.map((s) => (
+        <MemoizedServicePavilion
           key={s.id}
           {...s}
           scrollProgress={scrollProgress}
@@ -1267,7 +1274,7 @@ function ServicesConcourse({
       ))}
     </group>
   );
-}
+});
 
 // ── 5. ZONE 2: MASTERWORKS DIGITAL VIDEO WALLS & MONITORS ──
 
@@ -1494,7 +1501,9 @@ function ProjectTVStation({
   );
 }
 
-function ExhibitionGallery({
+const MemoizedProjectTVStation = React.memo(ProjectTVStation);
+
+const MemoizedExhibitionGallery = React.memo(function ExhibitionGallery({
   projects,
   scrollProgress = 0,
   hoveredProjectSlug,
@@ -1514,7 +1523,7 @@ function ExhibitionGallery({
   return (
     <group>
       {activeProjects.map((tvConfig) => (
-        <ProjectTVStation
+        <MemoizedProjectTVStation
           key={tvConfig.slug}
           {...tvConfig}
           scrollProgress={scrollProgress}
@@ -1526,7 +1535,7 @@ function ExhibitionGallery({
       ))}
     </group>
   );
-}
+});
 
 // ── 6. ZONE 3: COLLABORATION WORKFLOW (OFFICE DEPARTMENT PODS) ──
 
@@ -1798,7 +1807,9 @@ function CollaborationDepartmentStation({
   );
 }
 
-function CollaborationOfficeConcourse({
+const MemoizedCollaborationStation = React.memo(CollaborationDepartmentStation);
+
+const MemoizedCollaborationOfficeConcourse = React.memo(function CollaborationOfficeConcourse({
   scrollProgress = 0,
   isDiving = false,
 }: {
@@ -1808,7 +1819,7 @@ function CollaborationOfficeConcourse({
   return (
     <group>
       {COLLABORATION_STATIONS_CONFIG.map((st) => (
-        <CollaborationDepartmentStation
+        <MemoizedCollaborationStation
           key={st.id}
           config={st}
           scrollProgress={scrollProgress}
@@ -1817,7 +1828,7 @@ function CollaborationOfficeConcourse({
       ))}
     </group>
   );
-}
+});
 
 // ── 7. ZONE 4: EXECUTIVE CONSULTATION LOUNGE & RECEPTION ──
 
@@ -2145,6 +2156,10 @@ function TerminalPortal({
   );
 }
 
+const MemoizedConsultationLounge = React.memo(ConsultationLoungeStation);
+const MemoizedExecutiveReception = React.memo(ExecutiveReceptionStation);
+const MemoizedTerminalPortal = React.memo(TerminalPortal);
+
 // ── 8. MASTER DIGITAL CAMPUS EXPORT ──
 export default function DigitalArchitectureCampus({
   scrollProgress,
@@ -2172,10 +2187,6 @@ export default function DigitalArchitectureCampus({
       <directionalLight
         position={[20, 32, 20]}
         intensity={2.5}
-        castShadow
-        shadow-mapSize={[1024, 1024]}
-        shadow-camera-near={1}
-        shadow-camera-far={120}
         color="#FFFBEB"
       />
       <directionalLight position={[-20, 24, -40]} intensity={1.2} color="#BAE6FD" />
@@ -2192,38 +2203,53 @@ export default function DigitalArchitectureCampus({
       />
 
       <CorporateOfficeEnvironment scrollProgress={scrollProgress} />
-      <ServicesConcourse
-        scrollProgress={scrollProgress}
-        hoveredServiceSlug={hoveredServiceSlug}
-        onSelectService={onSelectService}
-        onHoverService={onHoverService}
-        isDiving={isDiving}
-      />
-      <ExhibitionGallery
-        projects={portfolioProjects}
-        scrollProgress={scrollProgress}
-        hoveredProjectSlug={hoveredProjectSlug}
-        onSelectProject={onSelectProject}
-        onHoverProject={onHoverProject}
-        isDiving={isDiving}
-      />
-      <CollaborationOfficeConcourse
-        scrollProgress={scrollProgress}
-        isDiving={isDiving}
-      />
-      <ConsultationLoungeStation
-        scrollProgress={scrollProgress}
-        isDiving={isDiving}
-        onSelectContact={onSelectService ? () => onSelectService('contact-us') : undefined}
-      />
-      <ExecutiveReceptionStation
-        scrollProgress={scrollProgress}
-        isDiving={isDiving}
-      />
-      <TerminalPortal
-        scrollProgress={scrollProgress}
-        isDiving={isDiving}
-      />
+
+      {/* Sector culling: render rooms and pavilions only when within generous distance of camera */}
+      {(isDiving || scrollProgress <= 0.44) && (
+        <MemoizedServicesConcourse
+          scrollProgress={scrollProgress}
+          hoveredServiceSlug={hoveredServiceSlug}
+          onSelectService={onSelectService}
+          onHoverService={onHoverService}
+          isDiving={isDiving}
+        />
+      )}
+
+      {(isDiving || (scrollProgress >= 0.08 && scrollProgress <= 0.72)) && (
+        <MemoizedExhibitionGallery
+          projects={portfolioProjects}
+          scrollProgress={scrollProgress}
+          hoveredProjectSlug={hoveredProjectSlug}
+          onSelectProject={onSelectProject}
+          onHoverProject={onHoverProject}
+          isDiving={isDiving}
+        />
+      )}
+
+      {(isDiving || (scrollProgress >= 0.35 && scrollProgress <= 0.94)) && (
+        <MemoizedCollaborationOfficeConcourse
+          scrollProgress={scrollProgress}
+          isDiving={isDiving}
+        />
+      )}
+
+      {(isDiving || scrollProgress >= 0.60) && (
+        <>
+          <MemoizedConsultationLounge
+            scrollProgress={scrollProgress}
+            isDiving={isDiving}
+            onSelectContact={onSelectService ? () => onSelectService('contact-us') : undefined}
+          />
+          <MemoizedExecutiveReception
+            scrollProgress={scrollProgress}
+            isDiving={isDiving}
+          />
+          <MemoizedTerminalPortal
+            scrollProgress={scrollProgress}
+            isDiving={isDiving}
+          />
+        </>
+      )}
     </>
   );
 }
