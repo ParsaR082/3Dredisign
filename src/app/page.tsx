@@ -1,6 +1,6 @@
 import React from 'react';
 import HomeView from '@/components/home/HomeView';
-import { getLandingData, getLiveServices, getLiveProjects, getLiveSiteSettings } from '@/lib/data-loaders';
+import { getLiveLandingData, getLiveServices, getLiveProjects, getLiveSiteSettings } from '@/lib/data-loaders';
 import { generatePageMetadata } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
@@ -13,8 +13,8 @@ export const metadata = generatePageMetadata({
 });
 
 export default async function HomePage() {
-  const landing = getLandingData();
-  const [services, allProjects, settings] = await Promise.all([
+  const [landing, services, allProjects, settings] = await Promise.all([
+    getLiveLandingData(),
     getLiveServices(),
     getLiveProjects(),
     getLiveSiteSettings(),

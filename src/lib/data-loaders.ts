@@ -28,6 +28,8 @@ export {
   getLiveCounters,
   getLiveBlogData,
   getLiveBlogPostBySlug,
+  getLiveLandingData,
+  getLiveTeamData,
 } from './db';
 
 export function getSiteSettings(): SiteSettings {

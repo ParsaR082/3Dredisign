@@ -13,12 +13,17 @@ import type {
   BlogPost,
   PricingPlan,
   PricingSettings,
+  LandingData,
+  TechLead,
+  AboutSettings,
 } from '@/types/content';
 import siteSettingsFallback from '@/content/site-settings.json';
 import servicesFallback from '@/content/services.json';
 import projectsFallback from '@/content/projects.json';
 import blogFallback from '@/content/blog.json';
 import pricingFallback from '@/content/pricing.json';
+import landingFallback from '@/content/landing.json';
+import teamDataRaw from '@/content/team.json';
 
 export function resolveMediaUrl(path: string | null | undefined): string {
   if (!path) return '';
@@ -1063,4 +1068,135 @@ export async function getLivePricing(): Promise<{ settings: PricingSettings; pla
     return pricingFallback as { settings: PricingSettings; plans: PricingPlan[] };
   }
 }
+
+/**
+ * Fetch live Landing Page Elements and Texts from database, with fallback to landing.json
+ */
+export async function getLiveLandingData(): Promise<LandingData> {
+  const fallback = landingFallback as LandingData;
+  try {
+    const [pageRow, processSteps, whyItems, tickerItems, growthStats, counters] = await Promise.all([
+      prisma.publicLandingpage.findFirst().catch(() => null),
+      prisma.publicLandingprocessstep.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+      prisma.publicLandingwhyitem.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+      prisma.publicLandingtickeritem.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+      prisma.publicLandinggrowthstat.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+      prisma.publicLandingcounter.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+    ]);
+
+    // Build Process Steps
+    const mappedProcessSteps = processSteps.length > 0
+      ? processSteps.map((s, idx) => ({
+          step: s.step_number || `۰${idx + 1}`,
+          title: s.title,
+          description: s.description,
+          duration: `گام ${s.step_number || idx + 1}`,
+        }))
+      : fallback.process_steps;
+
+    // Build Why Items
+    const iconNames = ['Cpu', 'TrendingUp', 'Video', 'Radio', 'Sparkles'];
+    const mappedWhyItems = whyItems.length > 0
+      ? whyItems.map((w, idx) => ({
+          title: w.title,
+          description: w.description,
+          icon: iconNames[idx % iconNames.length],
+        }))
+      : fallback.why_us_items;
+
+    // Build Trust Tickers
+    const mappedTickers = tickerItems.length > 0
+      ? tickerItems.map((t) => t.text)
+      : fallback.trust_tickers;
+
+    // Build Stats
+    let mappedStats = fallback.stats;
+    if (counters.length > 0) {
+      mappedStats = counters.map((c) => ({
+        value: `${c.value}${c.suffix || ''}`,
+        label: c.label,
+        detail: 'پروژه‌ها و دستاوردها',
+      }));
+    } else if (growthStats.length > 0) {
+      mappedStats = growthStats.map((g) => ({
+        value: g.value,
+        label: g.label,
+        detail: 'رشد پایدار مشتریان',
+      }));
+    }
+
+    return {
+      hero: {
+        badge: pageRow?.hero_badge || fallback.hero.badge,
+        title_line1: pageRow?.hero_title ? pageRow.hero_title.slice(0, 30) : fallback.hero.title_line1,
+        title_highlight: fallback.hero.title_highlight,
+        title_line2: fallback.hero.title_line2,
+        subtitle: pageRow?.hero_description || fallback.hero.subtitle,
+        cta_primary_text: pageRow?.primary_cta_text || fallback.hero.cta_primary_text,
+        cta_primary_url: pageRow?.primary_cta_url ? resolveMediaUrl(pageRow.primary_cta_url) : fallback.hero.cta_primary_url,
+        cta_secondary_text: pageRow?.secondary_cta_text || fallback.hero.cta_secondary_text,
+        cta_secondary_url: pageRow?.secondary_cta_url || fallback.hero.cta_secondary_url,
+        badge_reviews: fallback.hero.badge_reviews,
+        experience_years: fallback.hero.experience_years,
+      },
+      stats: mappedStats,
+      why_us_title: pageRow?.why_section_title || fallback.why_us_title,
+      why_us_subtitle: pageRow?.why_section_subtitle || fallback.why_us_subtitle,
+      why_us_items: mappedWhyItems,
+      process_title: pageRow?.process_section_title || fallback.process_title,
+      process_subtitle: pageRow?.process_section_subtitle || fallback.process_subtitle,
+      process_steps: mappedProcessSteps,
+      testimonials: fallback.testimonials,
+      trust_tickers: mappedTickers,
+    };
+  } catch (error) {
+    console.warn('DB Landing query failed, using static fallback:', error);
+    return fallback;
+  }
+}
+
+/**
+ * Fetch live Team/About data from database, with fallback to team.json
+ */
+export async function getLiveTeamData(): Promise<{ settings: AboutSettings; leads: TechLead[] }> {
+  const fallback = teamDataRaw as { settings: AboutSettings; leads: TechLead[] };
+  try {
+    const [settingsRow, members] = await Promise.all([
+      prisma.aboutAboutpagesettings.findFirst().catch(() => null),
+      prisma.aboutTechlead.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+    ]);
+
+    const settings: AboutSettings = {
+      title: settingsRow?.hero_title || fallback.settings.title,
+      subtitle: settingsRow?.hero_subtitle || fallback.settings.subtitle,
+      vision: settingsRow?.vision_text || fallback.settings.vision,
+      mission: settingsRow?.mission_text || fallback.settings.mission,
+      stats: fallback.settings.stats || [],
+    };
+
+    if (!members || members.length === 0) {
+      return { settings, leads: fallback.leads };
+    }
+
+    const leads: TechLead[] = members.map((m) => ({
+      name: m.name,
+      role: m.role,
+      skills: m.skills_csv ? m.skills_csv.split(',').map((s) => s.trim()) : [],
+      years_experience: m.years_experience || 3,
+      total_projects: m.total_projects || 10,
+      accent_color: m.accent_color || '#10B981',
+      planet_type: (m.planet_type as any) || 'crystal',
+      tagline: m.tagline || '',
+      poster_image: resolveMediaUrl(m.poster_image) || '/images/team-hero.webp',
+      order: m.order || 1,
+    }));
+
+    return { settings, leads };
+  } catch (error) {
+    console.warn('DB Team query failed, using static fallback:', error);
+    return fallback;
+  }
+}
+
+
 

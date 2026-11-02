@@ -1,8 +1,18 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 import { useFrame } from '@react-three/fiber';
-import { Float, useGLTF, Html } from '@react-three/drei';
+import { Float, useGLTF, useTexture, Html } from '@react-three/drei';
 import CampusInteriorDecorations from './CampusInteriorDecorations';
+
+// Preload entrance banner textures into Three.js cache
+if (typeof window !== 'undefined') {
+  try {
+    useTexture.preload('/images/banners/entrance-banner-left.jpg');
+    useTexture.preload('/images/banners/entrance-banner-right.jpg');
+  } catch (e) {
+    // Ignore preload error during SSR
+  }
+}
 
 interface OfficeEnvironmentProps {
   scrollProgress: number;
@@ -226,6 +236,113 @@ function RoomConnectingPortal({
 }
 
 /**
+ * ── ENTRANCE WALL ILLUMINATED BILLBOARD BANNER (بنر دیواری ورودی اروم‌سیما) ──
+ * قاب مدرن متالیک همراه با نور پس‌زمینه و پوستر باکیفیت برند اروم‌سیما
+ */
+function BannerScreen({ imageUrl }: { imageUrl: string }) {
+  const texture = useTexture(imageUrl);
+
+  useEffect(() => {
+    if (texture) {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      texture.generateMipmaps = false;
+      texture.needsUpdate = true;
+    }
+  }, [texture]);
+
+  return (
+    <mesh position={[0, 0, 0.052]}>
+      <planeGeometry args={[2.85, 3.8]} />
+      <meshBasicMaterial
+        key={texture.id}
+        map={texture}
+        toneMapped={false}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
+  );
+}
+
+function EntranceWallBanner({
+  position,
+  imageUrl,
+  title,
+  accentColor = '#10B981',
+}: {
+  position: [number, number, number];
+  imageUrl: string;
+  title: string;
+  accentColor?: string;
+}) {
+  return (
+    <group position={position}>
+      {/* Sleek Anthracite Backing & Wall Mount */}
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[2.97, 3.92, 0.08]} />
+        <meshStandardMaterial color="#0B0F17" roughness={0.25} metalness={0.85} />
+      </mesh>
+
+      {/* Outer Neon Glow Bezel Strip (کادر نئونی باریک برند) */}
+      <mesh position={[0, 0, 0.042]}>
+        <boxGeometry args={[2.91, 3.86, 0.01]} />
+        <meshBasicMaterial color={accentColor} />
+      </mesh>
+
+      {/* Inner Black Bezel Mask */}
+      <mesh position={[0, 0, 0.045]}>
+        <boxGeometry args={[2.88, 3.83, 0.01]} />
+        <meshStandardMaterial color="#030712" roughness={0.5} />
+      </mesh>
+
+      {/* The Illuminated Poster Display Surface */}
+      <React.Suspense
+        fallback={
+          <mesh position={[0, 0, 0.052]}>
+            <planeGeometry args={[2.85, 3.8]} />
+            <meshBasicMaterial color="#070C18" side={THREE.DoubleSide} />
+          </mesh>
+        }
+      >
+        <BannerScreen imageUrl={imageUrl} />
+      </React.Suspense>
+
+      {/* Top Architectural Downlight Fixture (پروژکتور خطی بالای بنر) */}
+      <mesh position={[0, 2.02, 0.12]}>
+        <boxGeometry args={[2.7, 0.08, 0.2]} />
+        <meshStandardMaterial color="#1E293B" roughness={0.3} metalness={0.9} />
+      </mesh>
+      {/* Downlight Luminous Emitter Strip */}
+      <mesh position={[0, 1.97, 0.12]}>
+        <boxGeometry args={[2.5, 0.02, 0.14]} />
+        <meshBasicMaterial color="#FFFFFF" />
+      </mesh>
+
+      {/* Bottom Accent Neon Strip */}
+      <mesh position={[0, -1.97, 0.06]}>
+        <boxGeometry args={[2.85, 0.04, 0.03]} />
+        <meshBasicMaterial color={accentColor} />
+      </mesh>
+
+      {/* Bottom Metal Base Plaque */}
+      <mesh position={[0, -2.04, 0.06]}>
+        <boxGeometry args={[2.5, 0.1, 0.08]} />
+        <meshStandardMaterial color="#020617" roughness={0.2} metalness={0.9} />
+      </mesh>
+
+      {/* Elegant Persian Badge at the base */}
+      <Html position={[0, -2.04, 0.14]} center distanceFactor={14}>
+        <div className="px-3 py-1 rounded-full bg-[#030712]/92 text-white border border-white/10 shadow-2xl backdrop-blur-md text-[10px] font-bold whitespace-nowrap pointer-events-none select-none flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} />
+          <span className="text-gray-200">{title}</span>
+        </div>
+      </Html>
+    </group>
+  );
+}
+
+/**
  * ── 1. MAIN AUTOMATIC SLIDING GLASS DOORS AT BUILDING ENTRANCE (در اتوماتیک ورودی) ──
  * فاقد شیدرهای سنگین transmission؛ استفاده از متریال سبک استاندارد با رفلکشن
  */
@@ -318,6 +435,23 @@ function EntranceBuildingFacade({ scrollProgress }: { scrollProgress: number }) 
         <boxGeometry args={[4.5, 2.3, 0.4]} />
         <meshStandardMaterial color="#1E293B" roughness={0.3} metalness={0.8} />
       </mesh>
+
+      {/* ── ENTRANCE FACADE ILLUMINATED WALL BANNERS (بنرهای دیواری ورودی اروم‌سیما) ── */}
+      {/* Left Wall Banner: Creative Agency & Web Design */}
+      <EntranceWallBanner
+        position={[-5.3, 3.55, 0.22]}
+        imageUrl="/images/banners/entrance-banner-left.jpg"
+        title="اروم‌سیما • آژانس دیجیتال مارکتینگ و توسعه وب"
+        accentColor="#10B981"
+      />
+
+      {/* Right Wall Banner: Cinema, Video Teaser & Media Production */}
+      <EntranceWallBanner
+        position={[5.3, 3.55, 0.22]}
+        imageUrl="/images/banners/entrance-banner-right.jpg"
+        title="اروم‌سیما • تیزر تبلیغاتی و بیلبورد محیطی"
+        accentColor="#06B6D4"
+      />
 
       {/* ── HIGH PERFORMANCE AUTOMATIC SLIDING GLASS DOORS ── */}
       {/* Left Sliding Door */}

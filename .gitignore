@@ -38,3 +38,12 @@ yarn-error.log*
 .vscode/
 *.swp
 *.swo
+
+# Database & local dumps
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+/scratch/
+prisma/*.db
+

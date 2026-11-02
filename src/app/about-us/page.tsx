@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, Award, ShieldCheck, Cpu, Code2, Users, ArrowLeft, Atom } from 'lucide-react';
-import { getTeamData, getSiteSettings } from '@/lib/data-loaders';
+import { getLiveTeamData, getLiveSiteSettings } from '@/lib/data-loaders';
 import { generatePageMetadata } from '@/lib/seo';
 import TechLeadPlanet from '@/components/3d/TechLeadPlanetWrapper';
 import {
@@ -23,9 +23,11 @@ export const metadata = generatePageMetadata({
   path: '/about-us/',
 });
 
-export default function AboutUsPage() {
-  const { settings, leads } = getTeamData();
-  const siteSettings = getSiteSettings();
+export default async function AboutUsPage() {
+  const [{ settings, leads }, siteSettings] = await Promise.all([
+    getLiveTeamData(),
+    getLiveSiteSettings(),
+  ]);
 
   return (
     <div className="relative w-full overflow-hidden">
