@@ -42,6 +42,7 @@ interface HomeViewProps {
   services: Service[];
   projects: Project[];
   settings: SiteSettings;
+  forceFreshStart?: boolean;
 }
 
 // Helper to resolve dive target whether it's a fixed service, contact-us, or dynamic portfolio TV
@@ -130,11 +131,25 @@ export default function HomeView({
   services,
   projects,
   settings,
+  forceFreshStart = false,
 }: HomeViewProps) {
   const router = useRouter();
 
-  // Check if returning from a service/project dive transition
-  const initialTarget = useMemo(() => getInitialDiveTarget(projects), [projects]);
+  // On forced fresh start, clear any cached dive targets from sessionStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && forceFreshStart) {
+      try {
+        sessionStorage.removeItem('last_dive_target');
+        sessionStorage.removeItem('last_dive_station');
+      } catch (_) {}
+    }
+  }, [forceFreshStart]);
+
+  // Check if returning from a service/project dive transition (disabled on fresh start)
+  const initialTarget = useMemo(() => {
+    if (forceFreshStart) return null;
+    return getInitialDiveTarget(projects);
+  }, [projects, forceFreshStart]);
 
   // ── VIRTUAL SMOOTH SPATIAL SCROLL CONTROLLER ──
   const [targetProgress, setTargetProgress] = useState(
@@ -526,7 +541,7 @@ export default function HomeView({
       {/* ── 3D ASSET & SHADER COMPILATION LOADER ── */}
       <ExperienceLoader
         onLoaded={() => setIsExperienceLoaded(true)}
-        skipIfReturning={true}
+        skipIfReturning={!forceFreshStart}
       />
 
       {/* ── PERSISTENT 3D DIGITAL ARCHITECTURE BACKGROUND ── */}

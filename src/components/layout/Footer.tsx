@@ -17,7 +17,8 @@ export default function Footer({ settings, services }: FooterProps) {
 
   // On the immersive 3D campus ('/campus-3d'), navigation is handled through the 3D campus & Sector 4 terminal portal.
   // We hide the static footer on /campus-3d so it does not block the 3D scene.
-  if (pathname === '/campus-3d' || pathname?.startsWith('/admin')) {
+  const isCampus3D = Boolean(pathname && (pathname === '/campus-3d' || pathname.startsWith('/campus-3d')));
+  if (isCampus3D || pathname?.startsWith('/admin')) {
     return null;
   }
 

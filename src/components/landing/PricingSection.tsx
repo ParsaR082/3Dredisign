@@ -56,10 +56,22 @@ export default function PricingSection({ title, subtitle, desc, plans }: Pricing
               )}
 
               <div>
-                <h3 className="pr-name text-xs font-bold text-emerald-400 tracking-wider uppercase mb-4">
+                <h3 className="pr-name text-xs font-bold text-emerald-400 tracking-wider uppercase mb-3">
                   {plan.name}
                 </h3>
 
+                {/* Highlighted & Bold Billing Period Tag */}
+                <div className="mb-4">
+                  <span className="pr-period-tag inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-600/30 via-teal-500/35 to-emerald-600/30 border-2 border-emerald-400 text-white text-xs sm:text-sm font-black shadow-lg shadow-emerald-950/60">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span className="text-emerald-200 font-bold text-xs">دوره پرداخت:</span>
+                    <span className="text-white font-black text-xs sm:text-sm tracking-wide">
+                      {plan.billing_period || 'ماهانه'}
+                    </span>
+                  </span>
+                </div>
+
+                {/* Price Display */}
                 <div className="pr-price flex items-baseline gap-2 mb-4">
                   {plan.monthly_price > 0 ? (
                     <>
@@ -68,7 +80,7 @@ export default function PricingSection({ title, subtitle, desc, plans }: Pricing
                       </span>
                       <div className="pr-unit text-xs text-gray-400">
                         <div className="pr-curr text-emerald-400 font-bold">تومان</div>
-                        <div className="pr-per">/{plan.billing_period || 'ماهانه'}</div>
+                        <div className="pr-per font-bold text-emerald-200">/ {plan.billing_period || 'ماهانه'}</div>
                       </div>
                     </>
                   ) : (

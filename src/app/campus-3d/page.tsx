@@ -25,13 +25,14 @@ export default async function Campus3DPage() {
   const displayProjects = [...featured, ...nonFeatured].slice(0, 4);
 
   return (
-    <main className="relative w-screen h-screen overflow-hidden bg-[#050B14]">
+    <div className="relative w-screen h-screen overflow-hidden bg-[#050B14]">
       <HomeView
         landing={landing}
         services={services}
         projects={displayProjects}
         settings={settings}
+        forceFreshStart={true}
       />
-    </main>
+    </div>
   );
 }

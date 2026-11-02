@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 import { SmoothScroll } from '@/components/ui/SmoothScroll';
 import { CustomCursor } from '@/components/ui/CustomCursor';
-import { PageTransition } from '@/components/ui/PageTransition';
+import MainContentWrapper from '@/components/layout/MainContentWrapper';
 
 export default async function RootLayout({
   children,
@@ -59,9 +59,7 @@ export default async function RootLayout({
         <SmoothScroll>
           <CustomCursor />
           <Navbar settings={settings} services={services} />
-          <main className="flex-grow pt-20">
-            <PageTransition>{children}</PageTransition>
-          </main>
+          <MainContentWrapper>{children}</MainContentWrapper>
           <Footer settings={settings} services={services} />
           <WhatsAppButton number={settings.whatsapp_number} />
         </SmoothScroll>

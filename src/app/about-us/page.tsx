@@ -1,13 +1,26 @@
 import React from 'react';
-import { Sparkles, Award, ShieldCheck, Cpu, Code2, Users, ArrowLeft, Atom } from 'lucide-react';
+import Link from 'next/link';
+import {
+  Sparkles,
+  Award,
+  ShieldCheck,
+  Cpu,
+  Code2,
+  Atom,
+  TrendingUp,
+  Video,
+  Target,
+  Headphones,
+  CheckCircle2,
+  ArrowLeft,
+  Zap,
+} from 'lucide-react';
 import { getLiveTeamData, getLiveSiteSettings } from '@/lib/data-loaders';
 import { generatePageMetadata } from '@/lib/seo';
-import TechLeadPlanet from '@/components/3d/TechLeadPlanetWrapper';
 import {
   MotionDiv,
   StaggerContainer,
   StaggerItem,
-  InteractiveCard,
   MotionBadge,
 } from '@/components/ui/motion';
 import { MeshGradient } from '@/components/ui/MeshGradient';
@@ -17,14 +30,65 @@ import { KineticTypography } from '@/components/ui/KineticTypography';
 import { TextScramble } from '@/components/ui/TextScramble';
 
 export const metadata = generatePageMetadata({
-  title: 'درباره ما و تیم رهبران فناوری ۳D | اروم سیما',
+  title: 'درباره ما | هویت، استانداردها و فناوری‌های اروم سیما',
   description:
-    'آشنایی با آژانس دیجیتال مارکتینگ اروم سیما؛ پیشرو در طراحی سایت ۳ بعدی، سئو تکنیکال و مهندسی نرم‌افزار با بیش از ۱۵ سال تجربه در ارومیه.',
+    'آشنایی با آژانس دیجیتال مارکتینگ اروم سیما؛ پیشرو در طراحی سایت‌های ۳ بعدی مدرن، سئو تکنیکال، تولید محتوای تخصصی و بیلبورد با بیش از ۱۵ سال سابقه درخشان در ارومیه.',
   path: '/about-us/',
 });
 
+const QUALITY_PILLARS = [
+  {
+    icon: Code2,
+    badge: 'توسعه تمیز و مدرن',
+    title: 'مهندسی نرم‌افزار تمیز و کدنویسی اختصاصی',
+    desc: 'طراحی زیرساخت اختصاصی با Next.js و React بدون وابستگی به قالب‌های آماده و کدهای سنگین؛ تضمین سرعت لود زیر ۱ ثانیه، معماری ماژولار و کسب بالاترین نمرات در ارزیابی Core Web Vitals گوگل.',
+    accent: 'emerald',
+    stats: '۱۰۰٪ اختصاصی',
+  },
+  {
+    icon: ShieldCheck,
+    badge: 'امنیت و پایداری',
+    title: 'امنیت چندلایه و پایداری تضمین‌شده سرور',
+    desc: 'حفاظت پیشرفته در برابر حملات DDoS و نفوذهای سایبری، فایروال‌های ابری چندلایه، رمزنگاری End-to-End داده‌ها، بکاپ‌گیری منظم و اجرای بالاترین استانداردهای امنیتی وب.',
+    accent: 'teal',
+    stats: '۹۹.۹٪ آپتایم',
+  },
+  {
+    icon: TrendingUp,
+    badge: 'سئو الگوریتمی',
+    title: 'سئو داده‌محور و رشد پایدار در موتورهای جستجو',
+    desc: 'تحلیل دقیق داده‌های کاربران و هوش جستجو، ساختاردهی معنایی عمیق (Semantic SEO)، استراتژی کلاسترینگ کلمات کلیدی هدف و رساندن برند شما به جایگاه‌های برتر و پرفروش گوگل.',
+    accent: 'cyan',
+    stats: '+۳.۸x رشد فروش',
+  },
+  {
+    icon: Video,
+    badge: 'استودیو ۳D و تیزر',
+    title: 'تولید محتوای نسل بعد، ۳D و جلوه‌های بصری',
+    desc: 'خلق انیمیشن‌ها و تجربیات تعاملی سه‌بعدی با WebGL و Three.js، ایده‌پردازی سناریوهای داستانی جذب مخاطب، ریلزهای اینستاگرامی و ساخت تیزرهای سینمایی با تجهیزات 4K استودیویی.',
+    accent: 'amber',
+    stats: 'محتوای سینمایی',
+  },
+  {
+    icon: Target,
+    badge: 'مارکتینگ منطقه‌ای',
+    title: 'استراتژی ۳۶۰ درجه و تسلط بر بازار شمال‌غرب',
+    desc: 'اشراف عمیق بر اکوسیستم اقتصادی ارومیه و آذربایجان غربی؛ تلفیق هوشمندانه شبکه‌های مجازی، تبلیغات محیطی بیلبورد و کمپین‌های هدفمند برای جذب حداکثری مشتریان بالفعل.',
+    accent: 'rose',
+    stats: 'پوشش سراسری',
+  },
+  {
+    icon: Headphones,
+    badge: 'شراکت استراتژیک',
+    title: 'پشتیبانی ۲۴/۷ و همراهی گام‌به‌گام تجاری',
+    desc: 'اروم‌سیما فراتر از یک مجری پروژه، بازوی فنی و تبلیغاتی پایدار کسب‌وکار شماست. از آموزش مداوم پرسنل و مشاوره دوره‌ای تا مانیتورینگ بلادرنگ سرورها و تضمین رضایت کامل.',
+    accent: 'emerald',
+    stats: '۲۴/۷ در کنار شما',
+  },
+];
+
 export default async function AboutUsPage() {
-  const [{ settings, leads }, siteSettings] = await Promise.all([
+  const [{ settings }, siteSettings] = await Promise.all([
     getLiveTeamData(),
     getLiveSiteSettings(),
   ]);
@@ -159,75 +223,130 @@ export default async function AboutUsPage() {
           <ParticleMorph />
         </div>
 
-        {/* Tech Leads with 3D Planets & 3D Tilt */}
-        <div className="space-y-10">
-          <MotionDiv variant="fade-up" className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-brand-400 text-xs font-bold uppercase tracking-widest">
-              تیم نخبه اروم‌سیما
+        {/* ── CORE QUALITY PILLARS & ENTERPRISE STANDARDS ── */}
+        <div className="space-y-12">
+          <MotionDiv variant="fade-up" className="text-center max-w-2xl mx-auto space-y-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+              <Zap className="w-3.5 h-3.5" />
+              <span>استانداردهای مهندسی اروم‌سیما</span>
             </span>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              مدیران و معماران نوآوری دیجیتال
+            <h2 className="text-2xl sm:text-4xl font-extrabold text-white">
+              ارزش‌های بنیادین و تعهدات اجرایی
             </h2>
-            <p className="text-gray-400 text-xs sm:text-sm">
-              هر لید با یک هویت سیاره‌ای در منظومه سه‌بعدی اروم‌سیما شناخته می‌شود.
+            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
+              اصولی که هر روز در تحلیل، توسعه معماری، طراحی بصری و پشتیبانی پروژه‌ها رعایت می‌کنیم.
             </p>
           </MotionDiv>
 
-          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {leads.map((lead, idx) => (
-              <StaggerItem key={idx}>
-                <TiltCard maxTilt={10} glare className="h-full">
-                  <div
-                    data-cursor="view"
-                    className="h-full glass-panel rounded-3xl p-5 border border-white/10 hover:border-brand-500/40 transition-colors group flex flex-col justify-between shadow-xl backdrop-blur-xl"
-                  >
-                    <div className="space-y-4">
-                      {/* 3D Planet Canvas */}
-                      <div className="h-36 sm:h-44 w-full rounded-2xl bg-dark-base/60 border border-white/5 overflow-hidden relative group-hover:border-brand-500/30 transition-colors">
-                        <TechLeadPlanet
-                          planetType={lead.planet_type}
-                          accentColor={lead.accent_color}
-                        />
-                        <span className="absolute bottom-2 left-2 text-[10px] font-mono text-gray-400 bg-dark-base/80 px-2 py-0.5 rounded backdrop-blur-sm">
-                          {lead.planet_type}
-                        </span>
-                      </div>
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {QUALITY_PILLARS.map((pillar, idx) => {
+              const IconComponent = pillar.icon;
+              return (
+                <StaggerItem key={idx}>
+                  <TiltCard maxTilt={8} glare className="h-full">
+                    <div className="h-full glass-panel rounded-3xl p-6 sm:p-7 border border-white/10 hover:border-emerald-500/40 transition-all duration-300 flex flex-col justify-between shadow-xl backdrop-blur-xl group hover:-translate-y-1">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold group-hover:scale-110 group-hover:bg-emerald-500/20 transition-all shadow-lg shadow-emerald-950/40">
+                            <IconComponent className="w-6 h-6" />
+                          </div>
+                          <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-white/5 border border-white/10 text-emerald-300">
+                            {pillar.stats}
+                          </span>
+                        </div>
 
-                      <div>
-                        <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-brand-300 transition-colors">
-                          {lead.name}
-                        </h3>
-                        <p className="text-xs text-brand-400 font-medium mt-0.5">
-                          {lead.role}
+                        <div>
+                          <span className="text-[11px] font-semibold text-emerald-400 block mb-1">
+                            {pillar.badge}
+                          </span>
+                          <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-emerald-300 transition-colors">
+                            {pillar.title}
+                          </h3>
+                        </div>
+
+                        <p className="text-xs text-gray-300 leading-relaxed font-light">
+                          {pillar.desc}
                         </p>
                       </div>
 
-                      <p className="text-xs text-gray-300 italic line-clamp-2">
-                        «{lead.tagline}»
-                      </p>
-
-                      <div className="flex flex-wrap gap-1 pt-2 border-t border-white/5">
-                        {lead.skills.map((skill, sIdx) => (
-                          <span
-                            key={sIdx}
-                            className="text-[10px] font-mono bg-white/5 px-2 py-0.5 rounded text-gray-300 group-hover:bg-brand-500/10 group-hover:text-brand-300 transition-colors"
-                          >
-                            {skill}
-                          </span>
-                        ))}
+                      <div className="pt-4 mt-5 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
+                        <span className="inline-flex items-center gap-1.5 text-emerald-400/80">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>تضمین رسمی کیفیت</span>
+                        </span>
+                        <span className="font-mono text-[11px] text-gray-500">
+                          0{idx + 1}
+                        </span>
                       </div>
                     </div>
-
-                    <div className="pt-4 mt-4 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
-                      <span>{lead.years_experience} سال سابقه</span>
-                      <span>+{lead.total_projects} پروژه</span>
-                    </div>
-                  </div>
-                </TiltCard>
-              </StaggerItem>
-            ))}
+                  </TiltCard>
+                </StaggerItem>
+              );
+            })}
           </StaggerContainer>
         </div>
+
+        {/* ── ENTERPRISE IMPACT & TRUST METRICS BAR ── */}
+        <MotionDiv
+          variant="scale-up"
+          className="glass-panel-elevated rounded-3xl p-6 sm:p-10 border border-emerald-500/20 shadow-2xl relative overflow-hidden backdrop-blur-2xl"
+        >
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 text-center divide-y lg:divide-y-0 lg:divide-x lg:divide-x-reverse divide-white/10">
+            <div className="pt-4 lg:pt-0 space-y-1">
+              <span className="text-3xl sm:text-4xl font-black text-emerald-400 font-mono">
+                +۱۵
+              </span>
+              <p className="text-xs sm:text-sm font-bold text-white">سال تجربه مستمر</p>
+              <p className="text-[11px] text-gray-400">پیشگام در شمال‌غرب کشور</p>
+            </div>
+
+            <div className="pt-4 lg:pt-0 space-y-1">
+              <span className="text-3xl sm:text-4xl font-black text-teal-400 font-mono">
+                +۴۵۰
+              </span>
+              <p className="text-xs sm:text-sm font-bold text-white">پروژه موفق سازمانی</p>
+              <p className="text-[11px] text-gray-400">صنعتی، پزشکی، تجاری</p>
+            </div>
+
+            <div className="pt-4 lg:pt-0 space-y-1">
+              <span className="text-3xl sm:text-4xl font-black text-cyan-400 font-mono">
+                ۹۹.۸٪
+              </span>
+              <p className="text-xs sm:text-sm font-bold text-white">آپتایم سرور و سرویس</p>
+              <p className="text-[11px] text-gray-400">زیرساخت ابری پایدار</p>
+            </div>
+
+            <div className="pt-4 lg:pt-0 space-y-1">
+              <span className="text-3xl sm:text-4xl font-black text-amber-400 font-mono">
+                +۳.۸x
+              </span>
+              <p className="text-xs sm:text-sm font-bold text-white">میانگین رشد فروش</p>
+              <p className="text-[11px] text-gray-400">بازگشت سرمایه مشتریان</p>
+            </div>
+          </div>
+        </MotionDiv>
+
+        {/* ── CONSULTATION CTA ── */}
+        <MotionDiv
+          variant="fade-up"
+          className="text-center p-8 sm:p-12 rounded-3xl bg-gradient-to-r from-emerald-950/40 via-teal-950/30 to-emerald-950/40 border border-emerald-500/20 backdrop-blur-xl space-y-4"
+        >
+          <h2 className="text-2xl sm:text-3xl font-black text-white">
+            آماده‌اید کسب‌وکارتان را وارد فاز بعدی رشد کنید؟
+          </h2>
+          <p className="text-xs sm:text-sm text-gray-300 max-w-xl mx-auto leading-relaxed">
+            برای مشاوره تخصصی رایگان پیرامون طراحی سایت، سئو و کمپین‌های دیجیتال مارکتینگ با ما تماس بگیرید.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/contact/"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs sm:text-sm shadow-lg shadow-emerald-600/30 transition-all hover:scale-105"
+            >
+              <span>دریافت مشاوره رایگان</span>
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+          </div>
+        </MotionDiv>
       </div>
     </div>
   );

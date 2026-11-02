@@ -134,6 +134,18 @@ export default function PricingView({ initialSettings, initialPlans }: PricingVi
                     <div>
                       <h3 className="text-lg sm:text-xl font-bold text-white">{plan.name}</h3>
                       <p className="text-xs text-gray-400 mt-1 leading-relaxed">{plan.description}</p>
+
+                      {/* Highlighted & Bold Billing Period Tag */}
+                      <div className="mt-3">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500/25 via-teal-500/30 to-emerald-500/25 border-2 border-emerald-400 text-white text-xs sm:text-sm font-black shadow-lg shadow-emerald-950/60">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                          <span className="text-emerald-200 font-bold text-xs">دوره پرداخت:</span>
+                          <span className="text-white font-black text-xs sm:text-sm tracking-wide">
+                            {billing === 'yearly' ? 'سالانه' : (plan.billing_period || 'ماهانه')}
+                          </span>
+                        </span>
+                      </div>
+
                       <div className="mt-4 flex items-baseline gap-2 flex-wrap">
                         <AnimatePresence mode="wait">
                           <motion.span
@@ -148,7 +160,7 @@ export default function PricingView({ initialSettings, initialPlans }: PricingVi
                           </motion.span>
                         </AnimatePresence>
                         {!plan.custom_price_text && price > 0 && (
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-emerald-300 font-bold">
                             میلیون تومان {billing === 'yearly' ? '/ سالانه' : `/${plan.billing_period || 'ماهانه'}`}
                           </span>
                         )}
