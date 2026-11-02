@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { getLiveTeamData, getLiveSiteSettings } from '@/lib/data-loaders';
 import { generatePageMetadata } from '@/lib/seo';
+import dynamic from 'next/dynamic';
 import {
   MotionDiv,
   StaggerContainer,
@@ -24,7 +25,13 @@ import {
   MotionBadge,
 } from '@/components/ui/motion';
 import { MeshGradient } from '@/components/ui/MeshGradient';
-import { ParticleMorph } from '@/components/3d/ParticleMorph';
+const ParticleMorph = dynamic(
+  () => import('@/components/3d/ParticleMorph').then((m) => m.ParticleMorph),
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-full min-h-[300px] flex items-center justify-center bg-transparent" />,
+  }
+);
 import { TiltCard } from '@/components/ui/TiltCard';
 import { KineticTypography } from '@/components/ui/KineticTypography';
 import { TextScramble } from '@/components/ui/TextScramble';

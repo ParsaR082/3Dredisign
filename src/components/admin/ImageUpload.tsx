@@ -190,7 +190,7 @@ export default function ImageUpload({
           {uploading ? (
             <div className="py-2 flex flex-col items-center justify-center space-y-2">
               <Loader2 className="w-6 h-6 text-brand-400 animate-spin" />
-              <p className="text-xs text-brand-300 font-medium">در حال آپلود و ذخیره در سرور...</p>
+              <p className="text-xs text-brand-300 font-medium">در حال آپلود، فشرده‌سازی و تبدیل خودکار به WebP...</p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center space-y-2">
@@ -201,8 +201,11 @@ export default function ImageUpload({
                 <p className="text-xs font-semibold text-white">
                   کلیک کنید یا فایل تصویر را بکشید و رها کنید
                 </p>
+                <p className="text-[10px] text-emerald-400/90 font-medium mt-1 flex items-center justify-center gap-1">
+                  <span>⚡ تبدیل و فشرده‌سازی خودکار به فرمت نسل جدید WebP</span>
+                </p>
                 <p className="text-[10px] text-gray-400 mt-0.5">
-                  پشتیبانی از فرمت‌های WebP, PNG, JPG (حداکثر ۱۵ مگابایت)
+                  پشتیبانی از فرمت‌های JPG, PNG, WebP, SVG (حداکثر ۱۵ مگابایت)
                 </p>
               </div>
             </div>

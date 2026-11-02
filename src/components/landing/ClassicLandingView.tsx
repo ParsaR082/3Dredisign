@@ -1,21 +1,28 @@
-import React from 'react';
+import dynamic from 'next/dynamic';
 import type { LiveLandingFullData, SiteSettings } from '@/types/content';
 import TeamBanner from './TeamBanner';
 import Ticker from './Ticker';
 import HeroClassic from './HeroClassic';
 import PortfolioSection from './PortfolioSection';
 import InstagramReelsGrid from './InstagramReelsGrid';
-import MapTeaser from './MapTeaser';
-import BeforeAfterSlider from './BeforeAfterSlider';
 import ServicesSection from './ServicesSection';
 import WhyUsSection from './WhyUsSection';
 import CountersSection from './CountersSection';
 import GrowthSection from './GrowthSection';
 import ProcessSection from './ProcessSection';
 import TestimonialsSection from './TestimonialsSection';
-import RoiCalculatorWidget from './RoiCalculatorWidget';
 import PricingSection from './PricingSection';
 import ConsultationCta from './ConsultationCta';
+
+const MapTeaser = dynamic(() => import('./MapTeaser'), {
+  loading: () => <div className="min-h-[300px] w-full bg-[#050C0A]" />,
+});
+const BeforeAfterSlider = dynamic(() => import('./BeforeAfterSlider'), {
+  loading: () => <div className="min-h-[350px] w-full bg-[#050C0A]" />,
+});
+const RoiCalculatorWidget = dynamic(() => import('./RoiCalculatorWidget'), {
+  loading: () => <div className="min-h-[400px] w-full bg-[#050C0A]" />,
+});
 
 interface ClassicLandingViewProps {
   data: LiveLandingFullData;

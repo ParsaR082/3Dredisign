@@ -1395,7 +1395,15 @@ export async function getLiveLandingFull(): Promise<LiveLandingFullData> {
       show_testimonials: landingRow?.show_testimonials ?? true,
       show_pricing: landingRow?.show_pricing ?? true,
     },
-    tickerItems: tickerItems.map((t) => ({ id: t.id, text: t.text })),
+    tickerItems: tickerItems.length > 0
+      ? tickerItems.map((t) => ({ id: t.id, text: t.text }))
+      : ((landingFallback as any).ticker_items || [
+          { id: 1, text: '🚀 رشد ۳۰۰٪ ترافیک سایت در ۳ ماه' },
+          { id: 2, text: '💡 طراحی مدرن و ریسپانسیو' },
+          { id: 3, text: '🎯 استراتژی محتوای هدفمند' },
+          { id: 4, text: '📈 رتبه اول گوگل برای کلمات کلیدی' },
+          { id: 5, text: '🤝 پشتیبانی ۲۴/۷' },
+        ]),
     whyItems: whyItems.map((w, idx) => ({
       id: w.id,
       number: w.number || String(idx + 1),

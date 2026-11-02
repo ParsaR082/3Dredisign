@@ -51,17 +51,44 @@ export async function POST(request: Request) {
     const uploadDir = path.join(process.cwd(), 'public', 'media', 'uploads', safeFolder);
     await fs.mkdir(uploadDir, { recursive: true });
 
+    const isSvg = file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg');
+    const isGif = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
+
+    let finalBuffer: Buffer = buffer;
+    let finalExt = path.extname(file.name).toLowerCase() || '.jpg';
+    let finalMime = file.type;
+
+    if (!isSvg && !isGif) {
+      try {
+        const sharp = (await import('sharp')).default;
+        finalBuffer = await sharp(buffer)
+          .rotate()
+          .resize({
+            width: 2048,
+            height: 2048,
+            fit: 'inside',
+            withoutEnlargement: true,
+          })
+          .webp({ quality: 82, effort: 4 })
+          .toBuffer();
+
+        finalExt = '.webp';
+        finalMime = 'image/webp';
+      } catch (sharpError) {
+        console.warn('Sharp optimization fallback to original buffer:', sharpError);
+      }
+    }
+
     // Generate clean unique filename
-    const ext = path.extname(file.name).toLowerCase() || '.jpg';
     const originalBase = path
-      .basename(file.name, ext)
+      .basename(file.name, path.extname(file.name))
       .replace(/[^a-zA-Z0-9_-]/g, '_')
       .slice(0, 30);
     const uniqueSuffix = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const filename = `${originalBase || 'img'}_${uniqueSuffix}${ext}`;
+    const filename = `${originalBase || 'img'}_${uniqueSuffix}${finalExt}`;
     const filePath = path.join(uploadDir, filename);
 
-    await fs.writeFile(filePath, buffer);
+    await fs.writeFile(filePath, finalBuffer);
 
     const publicUrl = `/media/uploads/${safeFolder}/${filename}`;
 
@@ -69,8 +96,10 @@ export async function POST(request: Request) {
       success: true,
       url: publicUrl,
       filename,
-      size: file.size,
-      mimeType: file.type,
+      size: finalBuffer.length,
+      originalSize: file.size,
+      mimeType: finalMime,
+      convertedToWebp: finalExt === '.webp',
     });
   } catch (error: any) {
     console.error('Upload API error:', error);

@@ -8,9 +8,24 @@ import { BentoGrid, BentoCard } from '@/components/ui/BentoGrid';
 import { MeshGradient } from '@/components/ui/MeshGradient';
 import { TextScramble } from '@/components/ui/TextScramble';
 import { KineticTypography } from '@/components/ui/KineticTypography';
+import dynamic from 'next/dynamic';
 import { TiltCard } from '@/components/ui/TiltCard';
-import { IsometricCreativeUniverse3D } from '@/components/3d/IsometricCreativeUniverse3D';
-import { ProductConfigurator3D } from '@/components/3d/ProductConfigurator3D';
+
+const IsometricCreativeUniverse3D = dynamic(
+  () => import('@/components/3d/IsometricCreativeUniverse3D').then((m) => m.IsometricCreativeUniverse3D),
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-[400px] flex items-center justify-center bg-black/20 rounded-2xl animate-pulse" />,
+  }
+);
+
+const ProductConfigurator3D = dynamic(
+  () => import('@/components/3d/ProductConfigurator3D').then((m) => m.ProductConfigurator3D),
+  {
+    ssr: false,
+    loading: () => <div className="w-full h-[350px] flex items-center justify-center bg-black/20 rounded-2xl animate-pulse" />,
+  }
+);
 import { MagneticButton } from '@/components/ui/MagneticButton';
 
 interface ServicesEnhancedViewProps {
