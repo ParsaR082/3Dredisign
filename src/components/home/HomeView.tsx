@@ -922,7 +922,7 @@ export default function HomeView({
             <div className="pt-2 border-t border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <a
-                  href={settings.instagram_url}
+                  href={settings.instagram_url || 'https://instagram.com/urum_sima'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 rounded-xl bg-white/5 hover:bg-brand-600/30 text-gray-300 hover:text-brand-300 transition-colors"
@@ -931,13 +931,22 @@ export default function HomeView({
                   <Instagram className="w-4 h-4" />
                 </a>
                 <a
-                  href={settings.telegram_url}
+                  href={settings.telegram_url || 'https://t.me/Urumsimaa'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 rounded-xl bg-white/5 hover:bg-teal-600/30 text-gray-300 hover:text-teal-300 transition-colors"
                   aria-label="تلگرام"
                 >
                   <Send className="w-4 h-4" />
+                </a>
+                <a
+                  href={settings.rubika_url || 'https://rubika.ir/urumsima'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-2 py-1 rounded-xl bg-white/5 hover:bg-amber-600/30 text-gray-300 hover:text-amber-300 transition-colors text-[10px] font-bold"
+                  aria-label="روبیکا"
+                >
+                  روبیکا
                 </a>
               </div>
               <span className="text-[10px] text-gray-400 font-mono">

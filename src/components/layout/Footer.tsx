@@ -52,7 +52,7 @@ export default function Footer({ settings, services }: FooterProps) {
               <motion.a
                 whileHover={{ scale: 1.1, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                href={settings.instagram_url}
+                href={settings.instagram_url || 'https://instagram.com/urum_sima'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-xl bg-white/5 hover:bg-brand-600/20 hover:text-brand-400 text-gray-300 flex items-center justify-center transition-colors border border-white/5 shadow-sm"
@@ -63,7 +63,7 @@ export default function Footer({ settings, services }: FooterProps) {
               <motion.a
                 whileHover={{ scale: 1.1, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                href={settings.telegram_url}
+                href={settings.telegram_url || 'https://t.me/Urumsimaa'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-xl bg-white/5 hover:bg-teal-600/20 hover:text-teal-400 text-gray-300 flex items-center justify-center transition-colors border border-white/5 shadow-sm"
@@ -74,7 +74,7 @@ export default function Footer({ settings, services }: FooterProps) {
               <motion.a
                 whileHover={{ scale: 1.1, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                href={settings.rubika_url}
+                href={settings.rubika_url || 'https://rubika.ir/urumsima'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-xl bg-white/5 hover:bg-amber-600/20 hover:text-amber-400 text-gray-300 flex items-center justify-center transition-colors border border-white/5 text-xs font-bold shadow-sm"

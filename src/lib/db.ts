@@ -48,6 +48,17 @@ export function resolveMediaUrl(path: string | null | undefined): string {
   return `/media/${path}`;
 }
 
+function formatSocialUrl(url: string | null | undefined, type: 'telegram' | 'instagram' | 'rubika', fallback: string): string {
+  if (!url || !url.trim()) return fallback;
+  const trimmed = url.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+  const handle = trimmed.replace(/^@/, '').trim();
+  if (type === 'telegram') return `https://t.me/${handle}`;
+  if (type === 'instagram') return `https://instagram.com/${handle}`;
+  if (type === 'rubika') return `https://rubika.ir/${handle}`;
+  return trimmed;
+}
+
 /**
  * Fetch live SiteSettings from database, with fallback to local JSON
  */
@@ -69,9 +80,9 @@ export async function getLiveSiteSettings(): Promise<SiteSettings> {
       office_longitude: Number(row.office_longitude) || 45.0782,
       map_zoom: row.map_zoom || 15,
       show_contact_map: row.show_contact_map,
-      instagram_url: row.instagram_url,
-      telegram_url: row.telegram_url,
-      rubika_url: row.rubika_url,
+      instagram_url: formatSocialUrl(row.instagram_url, 'instagram', siteSettingsFallback.instagram_url || 'https://instagram.com/urum_sima'),
+      telegram_url: formatSocialUrl(row.telegram_url, 'telegram', siteSettingsFallback.telegram_url || 'https://t.me/Urumsimaa'),
+      rubika_url: formatSocialUrl(row.rubika_url, 'rubika', siteSettingsFallback.rubika_url || 'https://rubika.ir/urumsima'),
       linkedin_url: row.linkedin_url || undefined,
       footer_about_text: row.footer_about_text,
       footer_working_hours: row.footer_working_hours,

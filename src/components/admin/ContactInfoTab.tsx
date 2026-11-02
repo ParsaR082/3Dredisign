@@ -315,7 +315,7 @@ export default function ContactInfoTab({
                 <input
                   type="url"
                   dir="ltr"
-                  placeholder="https://instagram.com/urumsima"
+                  placeholder="https://instagram.com/urum_sima"
                   value={settings.instagram_url || ''}
                   onChange={(e) => setSettings({ ...settings, instagram_url: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500 text-left font-mono"
@@ -327,7 +327,7 @@ export default function ContactInfoTab({
                 <input
                   type="url"
                   dir="ltr"
-                  placeholder="https://t.me/urumsima"
+                  placeholder="https://t.me/Urumsimaa"
                   value={settings.telegram_url || ''}
                   onChange={(e) => setSettings({ ...settings, telegram_url: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500 text-left font-mono"
