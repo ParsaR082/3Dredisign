@@ -419,7 +419,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'web-design': {
     slug: 'web-design',
     targetUrl: '/web-design-urmia/',
-    stagingProgress: 0.19,
+    stagingProgress: 0.10,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -428,7 +428,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'corporate-industrial-web-design': {
     slug: 'web-design',
     targetUrl: '/web-design-urmia/',
-    stagingProgress: 0.19,
+    stagingProgress: 0.10,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -438,7 +438,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'instagram-content': {
     slug: 'instagram-content',
     targetUrl: '/content-production-urmia/',
-    stagingProgress: 0.26,
+    stagingProgress: 0.19,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -447,7 +447,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'content-production': {
     slug: 'instagram-content',
     targetUrl: '/content-production-urmia/',
-    stagingProgress: 0.26,
+    stagingProgress: 0.19,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -456,7 +456,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'instagram-content-creation-management': {
     slug: 'instagram-content',
     targetUrl: '/content-production-urmia/',
-    stagingProgress: 0.26,
+    stagingProgress: 0.19,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -466,7 +466,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'video-teaser': {
     slug: 'video-teaser',
     targetUrl: '/video-teaser-urmia/',
-    stagingProgress: 0.33,
+    stagingProgress: 0.28,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -475,7 +475,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'industrial-commercial-video-production': {
     slug: 'video-teaser',
     targetUrl: '/video-teaser-urmia/',
-    stagingProgress: 0.33,
+    stagingProgress: 0.28,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -485,7 +485,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'branding-identity': {
     slug: 'branding-identity',
     targetUrl: '/services/branding-identity/',
-    stagingProgress: 0.40,
+    stagingProgress: 0.37,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -494,7 +494,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'branding-logo': {
     slug: 'branding-identity',
     targetUrl: '/services/branding-identity/',
-    stagingProgress: 0.40,
+    stagingProgress: 0.37,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -503,7 +503,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'logo-corporate-identity-design': {
     slug: 'branding-identity',
     targetUrl: '/services/branding-identity/',
-    stagingProgress: 0.40,
+    stagingProgress: 0.37,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -513,7 +513,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'billboard-advertising': {
     slug: 'billboard-advertising',
     targetUrl: '/billboard-urmia/',
-    stagingProgress: 0.47,
+    stagingProgress: 0.46,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -522,7 +522,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'billboard': {
     slug: 'billboard-advertising',
     targetUrl: '/billboard-urmia/',
-    stagingProgress: 0.47,
+    stagingProgress: 0.46,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -531,7 +531,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'billboard-outdoor-advertising-design': {
     slug: 'billboard-advertising',
     targetUrl: '/billboard-urmia/',
-    stagingProgress: 0.47,
+    stagingProgress: 0.46,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -542,7 +542,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'araz-metal-industrial-portal': {
     slug: 'araz-metal-industrial-portal',
     targetUrl: '/portfolio/araz-metal-industrial-portal/',
-    stagingProgress: 0.54,
+    stagingProgress: 0.55,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -551,7 +551,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'dr-sadeghi-medical-branding': {
     slug: 'dr-sadeghi-medical-branding',
     targetUrl: '/portfolio/dr-sadeghi-medical-branding/',
-    stagingProgress: 0.60,
+    stagingProgress: 0.64,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -560,7 +560,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'sepid-kooh-outdoor-campaign': {
     slug: 'sepid-kooh-outdoor-campaign',
     targetUrl: '/portfolio/sepid-kooh-outdoor-campaign/',
-    stagingProgress: 0.66,
+    stagingProgress: 0.73,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -569,7 +569,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'baran-leather-ecommerce': {
     slug: 'baran-leather-ecommerce',
     targetUrl: '/portfolio/baran-leather-ecommerce/',
-    stagingProgress: 0.72,
+    stagingProgress: 0.82,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -580,7 +580,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'contact-us': {
     slug: 'contact-us',
     targetUrl: '/contact-us/',
-    stagingProgress: 0.98,
+    stagingProgress: 1.00,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],
@@ -589,7 +589,7 @@ export const DIVE_TARGETS_CONFIG: Record<string, DiveTargetConfig> = {
   'consultation-lounge': {
     slug: 'contact-us',
     targetUrl: '/contact-us/',
-    stagingProgress: 0.98,
+    stagingProgress: 1.00,
     startPosition: [0, 0, 4.2],
     startLookAt: [0, 0.2, 0],
     camPosition: [0, 0.25, 1.3],

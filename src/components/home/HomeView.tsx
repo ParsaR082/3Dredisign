@@ -35,6 +35,7 @@ import {
   DiveTargetConfig,
   DivePhase,
 } from '@/components/3d/stationsConfig';
+import { STATION_WAYPOINTS, STATIONS_3D } from '@/components/3d/InterstellarFlightPath';
 import type { LandingData, Service, Project, SiteSettings } from '@/types/content';
 
 interface HomeViewProps {
@@ -151,22 +152,47 @@ export default function HomeView({
     return getInitialDiveTarget(projects);
   }, [projects, forceFreshStart]);
 
-  // ── VIRTUAL SMOOTH SPATIAL SCROLL CONTROLLER ──
-  const [targetProgress, setTargetProgress] = useState(
-    initialTarget ? initialTarget.stagingProgress : 0
+  // ── STEP-BASED INTERSTELLAR FLIGHT NAVIGATION CONTROLLER ──
+  const initialStationIndex = useMemo(() => {
+    if (!initialTarget) return 0;
+    const p = initialTarget.stagingProgress;
+    let nearestIdx = 0;
+    let minDiff = 999;
+    for (let i = 0; i < STATION_WAYPOINTS.length; i++) {
+      const diff = Math.abs(p - STATION_WAYPOINTS[i]);
+      if (diff < minDiff) {
+        minDiff = diff;
+        nearestIdx = i;
+      }
+    }
+    return nearestIdx;
+  }, [initialTarget]);
+
+  const [currentStationIndex, setCurrentStationIndex] = useState(initialStationIndex);
+  const currentStationIndexRef = useRef(initialStationIndex);
+  currentStationIndexRef.current = currentStationIndex;
+
+  const [isInterstellarFlying, setIsInterstellarFlying] = useState(false);
+  const isInterstellarFlyingRef = useRef(false);
+  const [targetStationIndex, setTargetStationIndex] = useState(initialStationIndex);
+
+  const scrollProgressRef = useRef(
+    initialTarget ? initialTarget.stagingProgress : STATION_WAYPOINTS[0]
   );
   const [scrollProgress, setScrollProgress] = useState(
-    initialTarget ? initialTarget.stagingProgress : 0
+    initialTarget ? initialTarget.stagingProgress : STATION_WAYPOINTS[0]
   );
   const [activeSector, setActiveSector] = useState(
     initialTarget
       ? initialTarget.stagingProgress >= 0.95
         ? 4
-        : initialTarget.stagingProgress >= 0.67
+        : initialTarget.stagingProgress >= 0.77
         ? 3
-        : initialTarget.stagingProgress >= 0.46
+        : initialTarget.stagingProgress >= 0.50
         ? 2
-        : 1
+        : initialTarget.stagingProgress >= 0.05
+        ? 1
+        : 0
       : 0
   );
   const [hoveredServiceSlug, setHoveredServiceSlug] = useState<string | null>(null);
@@ -213,8 +239,18 @@ export default function HomeView({
           isTransitioningRef.current = true;
           setActiveDiveTarget(targetConfig);
           setScrollProgress(targetConfig.stagingProgress);
-          setTargetProgress(targetConfig.stagingProgress);
-          targetProgressRef.current = targetConfig.stagingProgress;
+          scrollProgressRef.current = targetConfig.stagingProgress;
+          let matchedStationIdx = 0;
+          let minD = 999;
+          for (let i = 0; i < STATION_WAYPOINTS.length; i++) {
+            const d = Math.abs(targetConfig.stagingProgress - STATION_WAYPOINTS[i]);
+            if (d < minD) {
+              minD = d;
+              matchedStationIdx = i;
+            }
+          }
+          currentStationIndexRef.current = matchedStationIdx;
+          setCurrentStationIndex(matchedStationIdx);
 
           // 1. Camera is already zoomed in on screen under solid black
           setDivePhase('pullback_hold');
@@ -266,76 +302,111 @@ export default function HomeView({
     return () => window.removeEventListener('pageshow', onPageShow);
   }, [projects]);
 
-  // Target progress ref for event handlers to avoid stale closures
-  const targetProgressRef = useRef(initialTarget ? initialTarget.stagingProgress : 0);
-  targetProgressRef.current = targetProgress;
+  // ── CINEMATIC INTERSTELLAR FLIGHT TRANSITION & INPUT LOCK CONTROLLER ──
+  const triggerFlightToStation = useCallback((targetIndex: number) => {
+    // Lock: if already flying or performing a screen dive, block all new inputs!
+    if (
+      isInterstellarFlyingRef.current ||
+      isTransitioningRef.current ||
+      !isExperienceLoadedRef.current
+    ) {
+      return;
+    }
 
-  // Silky smooth damping interpolation loop
-  useEffect(() => {
-    let animId: number;
-    const tick = () => {
-      setScrollProgress((curr) => {
-        const diff = targetProgressRef.current - curr;
-        if (Math.abs(diff) < 0.0001) {
-          if (curr === targetProgressRef.current) return curr;
-          return targetProgressRef.current;
-        }
-        return curr + diff * 0.10;
-      });
-      animId = requestAnimationFrame(tick);
+    const clampedTarget = Math.max(0, Math.min(STATION_WAYPOINTS.length - 1, targetIndex));
+    if (clampedTarget === currentStationIndexRef.current) return;
+
+    const startP = scrollProgressRef.current;
+    const endP = STATION_WAYPOINTS[clampedTarget];
+    const startTime = performance.now();
+    const stationDistance = Math.abs(clampedTarget - currentStationIndexRef.current);
+    // 2800ms for 1 station jump, or 3300ms for multi-station jumps across sectors
+    const FLIGHT_DURATION = stationDistance === 1 ? 2800 : 3300;
+
+    isInterstellarFlyingRef.current = true;
+    setIsInterstellarFlying(true);
+    setTargetStationIndex(clampedTarget);
+
+    let frameId: number;
+    const step = () => {
+      const elapsed = performance.now() - startTime;
+      const progress = Math.min(1, Math.max(0, elapsed / FLIGHT_DURATION));
+      // Quintic ease: slow departure -> high-speed cosmic flight -> smooth arrival
+      const ease = progress < 0.5
+        ? 16 * Math.pow(progress, 5)
+        : 1 - Math.pow(-2 * progress + 2, 5) / 2;
+
+      const currentP = startP + (endP - startP) * ease;
+      scrollProgressRef.current = currentP;
+      setScrollProgress(currentP);
+
+      if (progress < 1) {
+        frameId = requestAnimationFrame(step);
+      } else {
+        scrollProgressRef.current = endP;
+        setScrollProgress(endP);
+        currentStationIndexRef.current = clampedTarget;
+        setCurrentStationIndex(clampedTarget);
+        isInterstellarFlyingRef.current = false;
+        setIsInterstellarFlying(false);
+      }
     };
-    animId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animId);
+
+    frameId = requestAnimationFrame(step);
   }, []);
 
   // Update activeSector based on scrollProgress
   useEffect(() => {
-    if (scrollProgress < 0.18) setActiveSector(0);
-    else if (scrollProgress < 0.46) setActiveSector(1);
-    else if (scrollProgress < 0.67) setActiveSector(2);
+    if (scrollProgress < 0.05) setActiveSector(0);
+    else if (scrollProgress < 0.50) setActiveSector(1);
+    else if (scrollProgress < 0.77) setActiveSector(2);
     else if (scrollProgress < 0.95) setActiveSector(3);
     else setActiveSector(4);
   }, [scrollProgress]);
 
-  // Jump to specific sector waypoint
+  // Jump to specific sector waypoint via HUD buttons
   const handleJumpToSector = useCallback((sectorIndex: number) => {
-    const waypoints = [0.0, 0.20, 0.55, 0.85, 0.98];
-    const target = waypoints[sectorIndex] ?? 0;
-    targetProgressRef.current = target;
-    setTargetProgress(target);
-  }, []);
+    const sectorToStation = [0, 1, 6, 10, 11];
+    const target = sectorToStation[sectorIndex] ?? 0;
+    triggerFlightToStation(target);
+  }, [triggerFlightToStation]);
 
-  // Mouse Wheel listener: Prevents standard window scroll down, drives 3D spatial progress
+  // Mouse Wheel listener: Prevents standard window scroll, triggers automated flight
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      // Lock input during camera dive transition or initial asset compilation
-      if (isTransitioningRef.current || !isExperienceLoadedRef.current) {
+      // Lock input completely during flight or screen dive
+      if (
+        isInterstellarFlyingRef.current ||
+        isTransitioningRef.current ||
+        !isExperienceLoadedRef.current
+      ) {
         e.preventDefault();
+        e.stopPropagation();
         return;
       }
 
       // Allow internal scrolling inside docked card containers and interactive panels
-      // When cursor is over any card/section, ONLY that section scrolls, NEVER the 3D page!
       const target = e.target as HTMLElement | null;
       const scrollable = target?.closest('.allow-card-scroll, [data-prevent-3d-scroll], [data-lenis-prevent]');
       if (scrollable) {
-        // Allow ONLY the inner section to scroll natively without advancing the 3D scene
         return;
       }
 
       e.preventDefault();
-      // Sector 3 (Collaboration Steps) and Sector 4 (Consultation & Reception) have extra scroll resistance so user can comfortably read each section
-      const isDwellSector = targetProgressRef.current >= 0.67;
-      const speedMultiplier = isDwellSector ? 0.55 : 1.0;
-      const delta = e.deltaY * (0.00017 * speedMultiplier);
-      const next = Math.min(1, Math.max(0, targetProgressRef.current + delta));
-      targetProgressRef.current = next;
-      setTargetProgress(next);
+
+      // Trigger automatic jump on wheel scroll
+      if (Math.abs(e.deltaY) > 15) {
+        if (e.deltaY > 0) {
+          triggerFlightToStation(currentStationIndexRef.current + 1);
+        } else {
+          triggerFlightToStation(currentStationIndexRef.current - 1);
+        }
+      }
     };
 
     window.addEventListener('wheel', onWheel, { passive: false });
     return () => window.removeEventListener('wheel', onWheel);
-  }, []);
+  }, [triggerFlightToStation]);
 
   // Touch listener for mobile devices / trackpad swipe
   useEffect(() => {
@@ -344,25 +415,31 @@ export default function HomeView({
       if (e.touches[0]) startY = e.touches[0].clientY;
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (isTransitioningRef.current || !isExperienceLoadedRef.current) return;
+      if (
+        isInterstellarFlyingRef.current ||
+        isTransitioningRef.current ||
+        !isExperienceLoadedRef.current
+      ) {
+        if (e.cancelable) e.preventDefault();
+        return;
+      }
       if (!e.touches[0]) return;
       const target = e.target as HTMLElement | null;
       if (target?.closest('.allow-card-scroll, [data-prevent-3d-scroll], [data-lenis-prevent]')) return;
 
-      // Prevent mobile browser native pull-to-refresh & navigation bounce
       if (e.cancelable) {
         e.preventDefault();
       }
 
       const deltaY = startY - e.touches[0].clientY;
-      startY = e.touches[0].clientY;
-      // Extra resistance in Sector 3 steps and Sector 4 Consultation Lounge
-      const isDwellSector = targetProgressRef.current >= 0.67;
-      const speedMultiplier = isDwellSector ? 0.55 : 1.0;
-      const delta = deltaY * (0.00040 * speedMultiplier);
-      const next = Math.min(1, Math.max(0, targetProgressRef.current + delta));
-      targetProgressRef.current = next;
-      setTargetProgress(next);
+      if (Math.abs(deltaY) > 30) {
+        startY = e.touches[0].clientY;
+        if (deltaY > 0) {
+          triggerFlightToStation(currentStationIndexRef.current + 1);
+        } else {
+          triggerFlightToStation(currentStationIndexRef.current - 1);
+        }
+      }
     };
 
     window.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -371,27 +448,26 @@ export default function HomeView({
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
     };
-  }, []);
+  }, [triggerFlightToStation]);
 
-  // Keyboard navigation
+  // Keyboard navigation (Arrow keys and PageUp/PageDown)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (isTransitioningRef.current) return;
+      if (isInterstellarFlyingRef.current || isTransitioningRef.current) {
+        e.preventDefault();
+        return;
+      }
       if (e.key === 'ArrowDown' || e.key === 'PageDown') {
         e.preventDefault();
-        const next = Math.min(1, targetProgressRef.current + 0.035);
-        targetProgressRef.current = next;
-        setTargetProgress(next);
+        triggerFlightToStation(currentStationIndexRef.current + 1);
       } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
         e.preventDefault();
-        const next = Math.max(0, targetProgressRef.current - 0.035);
-        targetProgressRef.current = next;
-        setTargetProgress(next);
+        triggerFlightToStation(currentStationIndexRef.current - 1);
       }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, []);
+  }, [triggerFlightToStation]);
 
   // ── CINEMATIC CAMERA DIVE TRANSITION CONTROLLER ──
   const triggerDiveTransition = useCallback((targetConfig: DiveTargetConfig) => {
@@ -407,19 +483,27 @@ export default function HomeView({
     }
 
     // Check distance between current camera progress and target station's staging progress
-    const dist = Math.abs(targetProgressRef.current - targetConfig.stagingProgress);
-    const isAlreadyAtStation = dist < 0.02;
+    const dist = Math.abs(scrollProgressRef.current - targetConfig.stagingProgress);
+    const isAlreadyAtStation = dist < 0.03;
 
     if (isAlreadyAtStation) {
       // User is already standing at the station: smoothly dive directly into screen with ZERO delay/jump
       setDivePhase('diving');
     } else {
-      // User is somewhere else: automatically and smoothly scroll the normal camera along the runway to the station!
+      // User is somewhere else: automatically fly to the station, then dive into screen upon arrival!
       setDivePhase('staging');
-      targetProgressRef.current = targetConfig.stagingProgress;
-      setTargetProgress(targetConfig.stagingProgress);
+      let targetIdx = 0;
+      let minD = 999;
+      for (let i = 0; i < STATION_WAYPOINTS.length; i++) {
+        const d = Math.abs(targetConfig.stagingProgress - STATION_WAYPOINTS[i]);
+        if (d < minD) {
+          minD = d;
+          targetIdx = i;
+        }
+      }
+      triggerFlightToStation(targetIdx);
     }
-  }, []);
+  }, [triggerFlightToStation]);
 
   // When in 'staging' (auto-scrolling along normal corridor to station), trigger dive upon arrival
   useEffect(() => {
@@ -561,6 +645,22 @@ export default function HomeView({
         onExploreServices={() => handleJumpToSector(1)}
         onExploreProjects={() => handleJumpToSector(2)}
       />
+
+      {/* ── CINEMATIC HYPERSPACE FLIGHT LOCK SHIELD & STATUS HUD ── */}
+      {isInterstellarFlying && (
+        <>
+          {/* Fullscreen Input Lock Shield: completely absorbs and blocks clicks and drags */}
+          <div className="fixed inset-0 z-40 pointer-events-auto cursor-wait select-none" />
+
+          {/* Hyperspace Status HUD Banner */}
+          <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300">
+            <div className="dir-rtl inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-[#030712]/90 backdrop-blur-xl border border-cyan-400/50 text-cyan-200 shadow-[0_0_35px_rgba(6,182,212,0.4)] text-xs font-bold tracking-wide">
+              <Sparkles className="w-4 h-4 text-cyan-400 animate-spin" style={{ animationDuration: '3s' }} />
+              <span>جهش با سرعت نور به سوی {STATIONS_3D[targetStationIndex]?.name || 'ایستگاه بعدی'}...</span>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* ── SPATIAL NAVIGATION HUD ── */}
       <SpatialHUD

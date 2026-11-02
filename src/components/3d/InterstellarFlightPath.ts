@@ -2,13 +2,28 @@
 
 import * as THREE from 'three';
 
+// ── EXACT STATION RESTING PROGRESS WAYPOINTS [0 to 1] ──
+export const STATION_WAYPOINTS: number[] = [
+  0.00, // 0: Welcome Nexus & 3D Logo Core
+  0.10, // 1: Web Architecture (Curved OLED Display)
+  0.19, // 2: Content & Social (Titanium iPhone 18 Pro Max)
+  0.28, // 3: Cinema Video & Teaser (Canon Retro Camera)
+  0.37, // 4: Branding & Identity (iPad Pro & Pencil)
+  0.46, // 5: Billboard & Outdoor Media (LED Monolith)
+  0.55, // 6: Project 1: Araz Metal Portal
+  0.64, // 7: Project 2: Dr. Sadeghi Medical Campaign
+  0.73, // 8: Project 3: Sepid Kooh Outdoor Media
+  0.82, // 9: Project 4: Baran Leather E-Commerce
+  0.91, // 10: Collaboration Workflow (4 Development Stages)
+  1.00, // 11: Executive Consultation Lounge & Direct Phone
+];
+
 // ── STATION DEFINITIONS IN 3D GALACTIC SPACE ──
 export interface StationPoint {
   id: string;
   name: string;
   sectorIndex: number;
-  // Dwell window in normalized scrollProgress [0, 1]
-  dwellRange: [number, number];
+  waypointProgress: number;
   // Coordinates in galactic 3D space
   stationPosition: [number, number, number];
   cameraOffset: [number, number, number];
@@ -22,7 +37,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'welcome',
     name: 'پردیس معماری دیجیتال اروم‌سیما',
     sectorIndex: 0,
-    dwellRange: [0.00, 0.11],
+    waypointProgress: STATION_WAYPOINTS[0],
     stationPosition: [0, 0, 0],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -34,7 +49,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'web-design',
     name: 'طراحی و معماری وب‌سایت',
     sectorIndex: 1,
-    dwellRange: [0.17, 0.23],
+    waypointProgress: STATION_WAYPOINTS[1],
     stationPosition: [-42, 16, -75],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -44,7 +59,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'instagram-content',
     name: 'تولید محتوا و اینستاگرام',
     sectorIndex: 1,
-    dwellRange: [0.25, 0.30],
+    waypointProgress: STATION_WAYPOINTS[2],
     stationPosition: [48, -14, -155],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -54,7 +69,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'video-teaser',
     name: 'تیزر تبلیغاتی و فیلمبرداری',
     sectorIndex: 1,
-    dwellRange: [0.32, 0.37],
+    waypointProgress: STATION_WAYPOINTS[3],
     stationPosition: [-52, -24, -240],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -64,7 +79,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'branding-identity',
     name: 'طراحی لوگو و برندینگ',
     sectorIndex: 1,
-    dwellRange: [0.39, 0.44],
+    waypointProgress: STATION_WAYPOINTS[4],
     stationPosition: [42, 22, -325],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -74,7 +89,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'billboard-advertising',
     name: 'بیلبورد و تبلیغات محیطی',
     sectorIndex: 1,
-    dwellRange: [0.46, 0.51],
+    waypointProgress: STATION_WAYPOINTS[5],
     stationPosition: [-30, 8, -410],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -86,7 +101,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'araz-metal',
     name: 'پورتال آراز متال',
     sectorIndex: 2,
-    dwellRange: [0.53, 0.57],
+    waypointProgress: STATION_WAYPOINTS[6],
     stationPosition: [45, -10, -495],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -96,7 +111,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'dr-sadeghi',
     name: 'کمپین دکتر صادقی',
     sectorIndex: 2,
-    dwellRange: [0.59, 0.63],
+    waypointProgress: STATION_WAYPOINTS[7],
     stationPosition: [-38, 20, -580],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -106,7 +121,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'sepid-kooh',
     name: 'کمپین سپید کوه',
     sectorIndex: 2,
-    dwellRange: [0.65, 0.69],
+    waypointProgress: STATION_WAYPOINTS[8],
     stationPosition: [40, 10, -665],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -116,7 +131,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'baran-leather',
     name: 'فروشگاه چرم باران',
     sectorIndex: 2,
-    dwellRange: [0.71, 0.75],
+    waypointProgress: STATION_WAYPOINTS[9],
     stationPosition: [-44, -16, -750],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -128,7 +143,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'workflow',
     name: 'فرآیند همکاری و توسعه',
     sectorIndex: 3,
-    dwellRange: [0.77, 0.93],
+    waypointProgress: STATION_WAYPOINTS[10],
     stationPosition: [26, -22, -840],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -140,7 +155,7 @@ export const STATIONS_3D: StationPoint[] = [
     id: 'executive',
     name: 'پایانه مشاوره و تماس مستقیم مدیریت',
     sectorIndex: 4,
-    dwellRange: [0.96, 1.00],
+    waypointProgress: STATION_WAYPOINTS[11],
     stationPosition: [0, 4, -940],
     cameraOffset: [0, 0.2, 4.2],
     lookAtOffset: [0, 0.2, 0],
@@ -153,7 +168,7 @@ interface TransitionFlightConfig {
   fromIndex: number;
   toIndex: number;
   tRange: [number, number];
-  // Intermediate Catmull-Rom waypoint control offsets relative to straight-line chord
+  // Intermediate Catmull-Rom waypoint control offsets in world space
   waypoints: [number, number, number][];
   // Maximum banking roll angle (radians) during turns
   maxBank: number;
@@ -166,7 +181,7 @@ const TRANSITIONS_CONFIG: TransitionFlightConfig[] = [
   {
     fromIndex: 0,
     toIndex: 1,
-    tRange: [0.11, 0.17],
+    tRange: [STATION_WAYPOINTS[0], STATION_WAYPOINTS[1]],
     waypoints: [
       [15, 28, -20],
       [10, 32, -38],
@@ -180,7 +195,7 @@ const TRANSITIONS_CONFIG: TransitionFlightConfig[] = [
   {
     fromIndex: 1,
     toIndex: 2,
-    tRange: [0.23, 0.25],
+    tRange: [STATION_WAYPOINTS[1], STATION_WAYPOINTS[2]],
     waypoints: [
       [-28, -8, -92],
       [-5, -30, -112],
@@ -194,7 +209,7 @@ const TRANSITIONS_CONFIG: TransitionFlightConfig[] = [
   {
     fromIndex: 2,
     toIndex: 3,
-    tRange: [0.30, 0.32],
+    tRange: [STATION_WAYPOINTS[2], STATION_WAYPOINTS[3]],
     waypoints: [
       [68, 6, -172],
       [35, 18, -195],
@@ -208,7 +223,7 @@ const TRANSITIONS_CONFIG: TransitionFlightConfig[] = [
   {
     fromIndex: 3,
     toIndex: 4,
-    tRange: [0.37, 0.39],
+    tRange: [STATION_WAYPOINTS[3], STATION_WAYPOINTS[4]],
     waypoints: [
       [-38, 15, -260],
       [-8, 38, -282],
@@ -222,7 +237,7 @@ const TRANSITIONS_CONFIG: TransitionFlightConfig[] = [
   {
     fromIndex: 4,
     toIndex: 5,
-    tRange: [0.44, 0.46],
+    tRange: [STATION_WAYPOINTS[4], STATION_WAYPOINTS[5]],
     waypoints: [
       [26, -12, -345],
       [0, -18, -368],
@@ -236,7 +251,7 @@ const TRANSITIONS_CONFIG: TransitionFlightConfig[] = [
   {
     fromIndex: 5,
     toIndex: 6,
-    tRange: [0.51, 0.53],
+    tRange: [STATION_WAYPOINTS[5], STATION_WAYPOINTS[6]],
     waypoints: [
       [-48, 28, -428],
       [-10, 22, -450],
@@ -250,7 +265,7 @@ const TRANSITIONS_CONFIG: TransitionFlightConfig[] = [
   {
     fromIndex: 6,
     toIndex: 7,
-    tRange: [0.57, 0.59],
+    tRange: [STATION_WAYPOINTS[6], STATION_WAYPOINTS[7]],
     waypoints: [
       [32, -28, -515],
       [0, -16, -538],
@@ -264,7 +279,7 @@ const TRANSITIONS_CONFIG: TransitionFlightConfig[] = [
   {
     fromIndex: 7,
     toIndex: 8,
-    tRange: [0.63, 0.65],
+    tRange: [STATION_WAYPOINTS[7], STATION_WAYPOINTS[8]],
     waypoints: [
       [-55, 32, -600],
       [-12, 28, -622],
@@ -278,7 +293,7 @@ const TRANSITIONS_CONFIG: TransitionFlightConfig[] = [
   {
     fromIndex: 8,
     toIndex: 9,
-    tRange: [0.69, 0.71],
+    tRange: [STATION_WAYPOINTS[8], STATION_WAYPOINTS[9]],
     waypoints: [
       [28, -25, -685],
       [0, -32, -708],
@@ -292,7 +307,7 @@ const TRANSITIONS_CONFIG: TransitionFlightConfig[] = [
   {
     fromIndex: 9,
     toIndex: 10,
-    tRange: [0.75, 0.77],
+    tRange: [STATION_WAYPOINTS[9], STATION_WAYPOINTS[10]],
     waypoints: [
       [-25, 15, -770],
       [5, 20, -792],
@@ -306,7 +321,7 @@ const TRANSITIONS_CONFIG: TransitionFlightConfig[] = [
   {
     fromIndex: 10,
     toIndex: 11,
-    tRange: [0.93, 0.96],
+    tRange: [STATION_WAYPOINTS[10], STATION_WAYPOINTS[11]],
     waypoints: [
       [38, 12, -862],
       [20, 28, -888],
@@ -326,7 +341,6 @@ interface BuiltTransition {
   toStation: StationPoint;
 }
 
-// Built curves initialized once
 const BUILT_TRANSITIONS: BuiltTransition[] = TRANSITIONS_CONFIG.map((cfg) => {
   const fromSt = STATIONS_3D[cfg.fromIndex];
   const toSt = STATIONS_3D[cfg.toIndex];
@@ -403,7 +417,6 @@ const cachedResult: CameraStateResult = {
   transitionProgress: 0,
 };
 
-// Smooth quintic easing for ultra-cinematic departure & arrival
 function quinticEaseInOut(x: number): number {
   return x < 0.5
     ? 16 * x * x * x * x * x
@@ -418,7 +431,6 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
 /**
  * Pure deterministic mathematical function to compute camera transform,
  * flight dynamics, banking, and warp speed from scroll progress [0, 1].
- * Completely reversible, scrubbable, and allocation-free.
  */
 export function getInterstellarCameraState(
   scrollProgress: number,
@@ -427,11 +439,12 @@ export function getInterstellarCameraState(
 ): CameraStateResult {
   const p = Math.max(0, Math.min(1, scrollProgress));
 
-  // 1. Check if we are inside a transition
+  // Check if p is actively transitioning between two stations
   let activeTrans: BuiltTransition | null = null;
   for (let i = 0; i < BUILT_TRANSITIONS.length; i++) {
     const t = BUILT_TRANSITIONS[i];
-    if (p >= t.config.tRange[0] && p <= t.config.tRange[1]) {
+    // A small buffer around endpoints determines if we are dwelling or actively flying
+    if (p > t.config.tRange[0] + 0.0005 && p < t.config.tRange[1] - 0.0005) {
       activeTrans = t;
       break;
     }
@@ -440,14 +453,13 @@ export function getInterstellarCameraState(
   // ── CASE A: IN-FLIGHT INTERSTELLAR JOURNEY ──
   if (activeTrans) {
     const [tStart, tEnd] = activeTrans.config.tRange;
-    const rawU = (p - tStart) / (tEnd - tStart);
-    // Apply quintic easing to spline parameter so camera decelerates into arrival
+    const rawU = Math.max(0, Math.min(1, (p - tStart) / (tEnd - tStart)));
     const easedU = quinticEaseInOut(rawU);
 
     // Sample Catmull-Rom curve
     activeTrans.curve.getPoint(easedU, _scratchPos);
 
-    // Tangent vector: compute derivative by sampling slightly ahead & behind
+    // Tangent vector
     const deltaU = 0.005;
     const uPrev = Math.max(0, easedU - deltaU);
     const uNext = Math.min(1, easedU + deltaU);
@@ -455,34 +467,32 @@ export function getInterstellarCameraState(
     activeTrans.curve.getPoint(uNext, _scratchNextPos);
 
     _scratchForward.subVectors(_scratchNextPos, _scratchPrevPos).normalize();
-    // In three.js camera space, the look direction is along -Z
     _scratchVelocity.subVectors(_scratchNextPos, _scratchPrevPos).multiplyScalar(1 / (2 * deltaU));
 
-    // Dynamic Banking Angle based on curvature & lateral turn
-    // Curvature is lateral derivative of forward vector
+    // Dynamic Banking Angle
     const turnX = _scratchForward.x;
     let bankAngle = -turnX * activeTrans.config.maxBank * 1.5;
 
-    // Optional barrel-roll or corkscrew in mid-flight segment
-    if (activeTrans.config.corkscrewRotations && rawU > 0.25 && rawU < 0.85) {
-      const corkU = (rawU - 0.25) / 0.60;
-      // Full smooth sine-bell roll
-      const rollAmount = Math.sin(corkU * Math.PI) * Math.sin(corkU * Math.PI) * Math.PI * 2 * activeTrans.config.corkscrewRotations;
+    // Optional barrel-roll or corkscrew in mid-flight
+    if (activeTrans.config.corkscrewRotations && rawU > 0.20 && rawU < 0.80) {
+      const corkU = (rawU - 0.20) / 0.60;
+      const rollAmount =
+        Math.sin(corkU * Math.PI) *
+        Math.sin(corkU * Math.PI) *
+        Math.PI *
+        2 *
+        activeTrans.config.corkscrewRotations;
       bankAngle += rollAmount;
     }
 
     // Build flight orientation matrix
-    // Right = forward x up
     _scratchRight.crossVectors(_scratchForward, _scratchUp).normalize();
-    // True Up = right x forward
     const trueUp = new THREE.Vector3().crossVectors(_scratchRight, _scratchForward).normalize();
 
-    // Apply roll around flight forward axis
     const rollQuat = new THREE.Quaternion().setFromAxisAngle(_scratchForward, bankAngle);
     trueUp.applyQuaternion(rollQuat);
     _scratchRight.crossVectors(_scratchForward, trueUp).normalize();
 
-    // Rotation matrix: X=Right, Y=Up, Z=-Forward
     _scratchRotMatrix.makeBasis(_scratchRight, trueUp, _scratchForward.clone().negate());
     _scratchFlightQuat.setFromRotationMatrix(_scratchRotMatrix);
 
@@ -517,22 +527,18 @@ export function getInterstellarCameraState(
     _scratchRotMatrix.lookAt(toCam, toLook, _scratchUp);
     _scratchEndQuat.setFromRotationMatrix(_scratchRotMatrix);
 
-    // Smoothly blend from Start Station orientation into Flight orientation,
-    // and from Flight orientation into End Station orientation!
-    // Guaranteed zero gimbal flips!
-    const blendIn = smoothstep(0.0, 0.20, rawU);
-    const blendOut = smoothstep(0.80, 1.0, rawU);
+    // Smooth Hermite blend
+    const blendIn = smoothstep(0.0, 0.22, rawU);
+    const blendOut = smoothstep(0.78, 1.0, rawU);
 
     _scratchFinalQuat.copy(_scratchStartQuat);
     _scratchFinalQuat.slerp(_scratchFlightQuat, blendIn);
     _scratchFinalQuat.slerp(_scratchEndQuat, blendOut);
 
-    // LookAt target: 10 units along flight direction
     _scratchLookAt.copy(_scratchPos).addScaledVector(_scratchForward, 10);
 
-    // Dynamic FOV Warp Expansion during high-speed phase
-    const midSpeedFactor = Math.sin(rawU * Math.PI);
-    const warpIntensity = Math.pow(midSpeedFactor, 1.6);
+    // Warp intensity bell curve
+    const warpIntensity = Math.pow(Math.sin(rawU * Math.PI), 1.4);
     const fov = 45 + warpIntensity * (isMobile ? 8 : 15);
 
     cachedResult.position.copy(_scratchPos);
@@ -550,16 +556,14 @@ export function getInterstellarCameraState(
     return cachedResult;
   }
 
-  // ── CASE B: STATIONARY DWELL / EXPLORATION AT A STATION ──
-  // Find which station is active
+  // ── CASE B: STATIONARY DWELL AT A STATION ──
+  // Find nearest station
   let stationIndex = 0;
-  for (let i = 0; i < STATIONS_3D.length; i++) {
-    const st = STATIONS_3D[i];
-    if (p <= st.dwellRange[1]) {
-      stationIndex = i;
-      break;
-    }
-    if (i === STATIONS_3D.length - 1) {
+  let minDiff = 999;
+  for (let i = 0; i < STATION_WAYPOINTS.length; i++) {
+    const diff = Math.abs(p - STATION_WAYPOINTS[i]);
+    if (diff < minDiff) {
+      minDiff = diff;
       stationIndex = i;
     }
   }
@@ -569,7 +573,7 @@ export function getInterstellarCameraState(
   const camOff = st.cameraOffset;
   const lookOff = st.lookAtOffset;
 
-  // Gentle pointer parallax at the station
+  // Gentle pointer parallax
   const parallaxMult = isMobile ? 0.15 : 0.45;
   const targetX = stPos[0] + camOff[0] + pointer.x * parallaxMult;
   const targetY = stPos[1] + camOff[1] + pointer.y * (parallaxMult * 0.45);

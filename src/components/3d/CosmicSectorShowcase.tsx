@@ -14,7 +14,7 @@ import {
   COLLABORATION_STATIONS_CONFIG,
   ProjectTVConfig,
 } from './stationsConfig';
-import { STATIONS_3D } from './InterstellarFlightPath';
+import { STATIONS_3D, STATION_WAYPOINTS } from './InterstellarFlightPath';
 
 // Preload all optimized HQ models via local Draco decoder
 useGLTF.preload('/3Dmodels/hq/apple_ipad_pro.glb', '/draco/');
@@ -59,20 +59,16 @@ function useClonedHqGLTF(path: string) {
 // Station Proximity & Fade Helper
 function getStationProximity(
   scrollProgress: number,
-  dwellRange: [number, number],
-  fadeMargin: number = 0.035
+  targetProgress: number,
+  margin: number = 0.045
 ) {
-  const [start, end] = dwellRange;
-  const center = (start + end) / 2;
-  const halfSpan = (end - start) / 2 + fadeMargin;
-  const dist = Math.abs(scrollProgress - center);
-
-  if (dist > halfSpan) {
+  const dist = Math.abs(scrollProgress - targetProgress);
+  if (dist > margin) {
     return { visible: false, opacity: 0, scale: 0.95 };
   }
 
   // Smooth cosine fade
-  const normalized = dist / halfSpan;
+  const normalized = dist / margin;
   const opacity = Math.max(0, Math.cos(normalized * Math.PI * 0.5));
   const scale = 0.95 + opacity * 0.05;
 
@@ -143,26 +139,26 @@ export default function CosmicSectorShowcase({
 
   const tvProjects = portfolioProjects || PORTFOLIO_TVS_CONFIG;
 
-  // Proximity calculations for each station based on STATIONS_3D dwell windows
-  const s0 = getStationProximity(scrollProgress, STATIONS_3D[0].dwellRange, 0.05);
-  const s1 = getStationProximity(scrollProgress, STATIONS_3D[1].dwellRange, 0.035);
-  const s2 = getStationProximity(scrollProgress, STATIONS_3D[2].dwellRange, 0.035);
-  const s3 = getStationProximity(scrollProgress, STATIONS_3D[3].dwellRange, 0.035);
-  const s4 = getStationProximity(scrollProgress, STATIONS_3D[4].dwellRange, 0.035);
-  const s5 = getStationProximity(scrollProgress, STATIONS_3D[5].dwellRange, 0.035);
+  // Proximity calculations for each station based on STATION_WAYPOINTS
+  const s0 = getStationProximity(scrollProgress, STATION_WAYPOINTS[0], 0.045);
+  const s1 = getStationProximity(scrollProgress, STATION_WAYPOINTS[1], 0.045);
+  const s2 = getStationProximity(scrollProgress, STATION_WAYPOINTS[2], 0.045);
+  const s3 = getStationProximity(scrollProgress, STATION_WAYPOINTS[3], 0.045);
+  const s4 = getStationProximity(scrollProgress, STATION_WAYPOINTS[4], 0.045);
+  const s5 = getStationProximity(scrollProgress, STATION_WAYPOINTS[5], 0.045);
 
-  const p1 = getStationProximity(scrollProgress, STATIONS_3D[6].dwellRange, 0.032);
-  const p2 = getStationProximity(scrollProgress, STATIONS_3D[7].dwellRange, 0.032);
-  const p3 = getStationProximity(scrollProgress, STATIONS_3D[8].dwellRange, 0.032);
-  const p4 = getStationProximity(scrollProgress, STATIONS_3D[9].dwellRange, 0.032);
+  const p1 = getStationProximity(scrollProgress, STATION_WAYPOINTS[6], 0.045);
+  const p2 = getStationProximity(scrollProgress, STATION_WAYPOINTS[7], 0.045);
+  const p3 = getStationProximity(scrollProgress, STATION_WAYPOINTS[8], 0.045);
+  const p4 = getStationProximity(scrollProgress, STATION_WAYPOINTS[9], 0.045);
 
-  // Workflow steps
-  const w1 = getStationProximity(scrollProgress, [0.77, 0.81], 0.025);
-  const w2 = getStationProximity(scrollProgress, [0.81, 0.85], 0.025);
-  const w3 = getStationProximity(scrollProgress, [0.85, 0.89], 0.025);
-  const w4 = getStationProximity(scrollProgress, [0.89, 0.93], 0.025);
+  // Workflow steps at station 10
+  const w1 = getStationProximity(scrollProgress, STATION_WAYPOINTS[10], 0.045);
+  const w2 = getStationProximity(scrollProgress, STATION_WAYPOINTS[10] + 0.015, 0.035);
+  const w3 = getStationProximity(scrollProgress, STATION_WAYPOINTS[10] + 0.030, 0.035);
+  const w4 = getStationProximity(scrollProgress, STATION_WAYPOINTS[10] + 0.045, 0.035);
 
-  const sContact = getStationProximity(scrollProgress, STATIONS_3D[11].dwellRange, 0.04);
+  const sContact = getStationProximity(scrollProgress, STATION_WAYPOINTS[11], 0.045);
 
   return (
     <group name="CosmicSectorShowcase">
