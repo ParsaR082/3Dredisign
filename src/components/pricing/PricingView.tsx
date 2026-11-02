@@ -185,7 +185,7 @@ export default function PricingView({ initialSettings, initialPlans }: PricingVi
                     <MagneticButton distance={0.25}>
                       <Link
                         href="/contact-us/"
-                        className={`w-full py-3 sm:py-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all group block ${
+                        className={`w-full py-3 sm:py-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all group ${
                           plan.is_popular
                             ? 'bg-brand-500 hover:bg-brand-400 text-white shadow-lg shadow-brand-500/30 hover:scale-[1.02] active:scale-95'
                             : 'bg-white/10 hover:bg-white/20 text-white hover:scale-[1.02] active:scale-95'

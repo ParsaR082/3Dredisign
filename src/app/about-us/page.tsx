@@ -25,16 +25,16 @@ import {
   MotionBadge,
 } from '@/components/ui/motion';
 import { MeshGradient } from '@/components/ui/MeshGradient';
-const ParticleMorph = dynamic(
-  () => import('@/components/3d/ParticleMorph').then((m) => m.ParticleMorph),
-  {
-    ssr: false,
-    loading: () => <div className="w-full h-full min-h-[300px] flex items-center justify-center bg-transparent" />,
-  }
-);
 import { TiltCard } from '@/components/ui/TiltCard';
 import { KineticTypography } from '@/components/ui/KineticTypography';
 import { TextScramble } from '@/components/ui/TextScramble';
+
+const ParticleMorph = dynamic(
+  () => import('@/components/3d/ParticleMorph').then((m) => m.ParticleMorph),
+  {
+    loading: () => <div className="h-[400px] w-full rounded-3xl bg-white/5 animate-pulse" />,
+  }
+);
 
 export const metadata = generatePageMetadata({
   title: 'درباره ما | هویت، استانداردها و فناوری‌های اروم سیما',
