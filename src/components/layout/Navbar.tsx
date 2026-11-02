@@ -40,6 +40,7 @@ export default function Navbar({ settings, services }: NavbarProps) {
 
   const navLinks = [
     { label: 'صفحه اصلی', href: '/' },
+    { label: 'پردیس ۳D', href: '/campus-3d' },
     {
       label: 'خدمات تخصصی',
       href: '/services/',

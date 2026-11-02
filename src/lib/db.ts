@@ -14,6 +14,7 @@ import type {
   PricingPlan,
   PricingSettings,
   LandingData,
+  LiveLandingFullData,
   TechLead,
   AboutSettings,
 } from '@/types/content';
@@ -1208,6 +1209,266 @@ export async function getLiveTeamData(): Promise<{ settings: AboutSettings; lead
     return fallback;
   }
 }
+
+/**
+ * Fetch full live landing data for the classic landing page template
+ */
+export async function getLiveLandingFull(): Promise<LiveLandingFullData> {
+  const [
+    landingRow,
+    tickerItems,
+    whyItems,
+    counters,
+    growthStats,
+    processSteps,
+    roiConfigRow,
+    reelsConfigRow,
+    reels,
+    testimonials,
+    services,
+    allProjects,
+    pricing,
+  ] = await Promise.all([
+    prisma.publicLandingpage.findFirst({ where: { is_active: true } }).catch(() => null),
+    prisma.publicLandingtickeritem.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+    prisma.publicLandingwhyitem.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+    prisma.publicLandingcounter.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+    prisma.publicLandinggrowthstat.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+    prisma.publicLandingprocessstep.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+    prisma.publicLandingroiconfig.findFirst({ where: { is_active: true } }).catch(() => null),
+    prisma.publicInstagramreelsconfig.findFirst().catch(() => null),
+    prisma.publicInstagramreel.findMany({ where: { is_active: true }, orderBy: { order: 'asc' }, take: 8 }).catch(() => []),
+    prisma.publicLandingtestimonial.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+    getLiveServices(),
+    getLiveProjects(),
+    getLivePricing(),
+  ]);
+
+  // Featured projects
+  const featuredProjects = allProjects.filter((p) => p.featured).slice(0, 6);
+
+  // Map projects
+  const mapProjects = allProjects
+    .filter((p) => p.latitude && p.longitude)
+    .map((p) => ({
+      id: p.id,
+      title: p.title,
+      slug: p.slug,
+      lat: p.latitude!,
+      lng: p.longitude!,
+      category: p.category,
+    }));
+
+  // Before/After candidate
+  let beforeAfterProject: { title: string; slug: string; before_url: string; after_url: string } | null = null;
+  const baCandidate = allProjects.find(
+    (p) => p.featured && p.thumbnail_image && p.mockups?.desktop && p.thumbnail_image !== p.mockups.desktop
+  );
+  if (baCandidate) {
+    beforeAfterProject = {
+      title: baCandidate.title,
+      slug: baCandidate.slug,
+      before_url: baCandidate.thumbnail_image,
+      after_url: baCandidate.mockups!.desktop!,
+    };
+  }
+
+  // Fallbacks if tables are empty
+  const landingFallback = {
+    site_title: 'اروم سیما',
+    hero_badge: 'آژانس دیجیتال مارکتینگ و معماری وب',
+    hero_title: 'اروم سیما؛ آژانس دیجیتال مارکتینگ در ارومیه',
+    hero_highlight: 'طراحی سایت، سئو و تولید محتوا',
+    hero_description:
+      'تیمی از متخصصان طراحی سایت، سئو و تولید محتوا در ارومیه؛ از ایده تا اجرا، با خلاقیت و شناخت عمیق بازار کنار شما هستیم تا برندتان دیده شود.',
+    primary_cta_text: 'دریافت مشاوره رایگان',
+    primary_cta_url: '/contact/',
+    secondary_cta_text: 'مشاهده خدمات',
+    secondary_cta_url: '/services/',
+    services_section_title: 'خدمات دیجیتال مارکتینگ اروم سیما',
+    services_section_subtitle: 'راهکارهای جامع برای طراحی سایت، سئو، برندینگ و بازاریابی دیجیتال در ارومیه',
+    services_section_desc: 'از طراحی تا اجرا، تمام نیازهای دیجیتال کسب‌وکار شما را پوشش می‌دهیم',
+    why_section_title: 'چرا اروم سیما؟',
+    why_section_subtitle: 'تفاوت ما در تعهد، تخصص محلی و نتایج measurable',
+    portfolio_section_title: 'نمونه کارهای موفق ما',
+    portfolio_section_subtitle: 'پروژه‌هایی که واقعاً فروش و برند شما را رشد دادند',
+    portfolio_section_desc: 'نگاهی به برخی از پروژه‌های برجسته‌ای که با موفقیت اجرا کرده‌ایم',
+    process_section_title: 'روند همکاری با اروم سیما',
+    process_section_subtitle: 'از مشاوره اولیه تا تحویل پروژه و پشتیبانی مداوم — در ۵ مرحله ساده',
+    process_section_desc: 'از مشاوره اولیه تا اجرا و پشتیبانی، در کنار شما هستیم',
+    testimonial_section_title: 'نظرات مشتریان ما',
+    testimonial_section_subtitle: 'آنچه کسب‌وکارهای ارومیه و آذربایجان غربی درباره ما می‌گویند',
+    pricing_section_title: 'آماده رشد هستید؟',
+    pricing_section_subtitle: 'مشاوره رایگان بگیرید و پکیج مناسب کسب‌وکارتان را دریافت کنید',
+    pricing_section_desc: 'پکیج‌های متنوع برای هر نوع کسب‌وکاری، از استارتاپ تا شرکت‌های بزرگ',
+    growth_section_badge: 'رشد و موفقیت',
+    growth_section_title: 'مسیر رشد مشتریان اروم سیما',
+    growth_section_desc: 'نمودار واقعی رشد کسب و کار مشتریان پس از دریافت خدمات سئو، طراحی سایت و تبلیغات',
+    bottom_cta_badge: 'مشاوره رایگان',
+    bottom_cta_title: 'آماده رشد کسب‌وکارتان هستید؟',
+    bottom_cta_text: 'برای مشاوره رایگان دیجیتال مارکتینگ، طراحی سایت، سئو و تولید محتوا با کارشناسان اروم سیما تماس بگیرید.',
+    bottom_cta_primary_label: 'دریافت مشاوره رایگان',
+    bottom_cta_primary_url: '/contact/',
+    bottom_cta_secondary_label: 'مشاهده نمونه‌کارها',
+    bottom_cta_secondary_url: '/portfolio/',
+    hero_service_1_title: 'طراحی سایت',
+    hero_service_2_title: 'سئو حرفه‌ای',
+    hero_service_3_title: 'تبلیغات دیجیتال',
+    hero_service_4_title: 'تولید محتوا',
+    hero_trust_1: 'پشتیبانی ۲۴/۷',
+    hero_trust_2: 'تحویل به‌موقع',
+    hero_trust_3: 'ضمانت کیفیت',
+    hero_trust_4: 'مشاوره رایگان',
+    show_ticker: true,
+    show_services: true,
+    show_why: true,
+    show_counters: true,
+    show_portfolio: true,
+    show_growth: true,
+    show_process: true,
+    show_testimonials: true,
+    show_pricing: true,
+  };
+
+  return {
+    landingPage: {
+      site_title: landingRow?.site_title || landingFallback.site_title,
+      meta_title: landingRow?.meta_description ? undefined : landingRow?.site_title,
+      meta_description: landingRow?.meta_description || undefined,
+      og_title: landingRow?.og_title || undefined,
+      og_description: landingRow?.og_description || undefined,
+      canonical_url: landingRow?.canonical_url || undefined,
+      meta_robots: landingRow?.meta_robots || undefined,
+      og_image: resolveMediaUrl(landingRow?.og_image) || undefined,
+      hero_badge: landingRow?.hero_badge || landingFallback.hero_badge,
+      hero_title: landingRow?.hero_title || landingFallback.hero_title,
+      hero_highlight: landingRow?.hero_highlight || landingFallback.hero_highlight,
+      hero_description: landingRow?.hero_description || landingFallback.hero_description,
+      primary_cta_text: landingRow?.primary_cta_text || landingFallback.primary_cta_text,
+      primary_cta_url: landingRow?.primary_cta_url ? resolveMediaUrl(landingRow.primary_cta_url) : landingFallback.primary_cta_url,
+      secondary_cta_text: landingRow?.secondary_cta_text || landingFallback.secondary_cta_text,
+      secondary_cta_url: landingRow?.secondary_cta_url || landingFallback.secondary_cta_url,
+      services_section_title: landingRow?.services_section_title || landingFallback.services_section_title,
+      services_section_subtitle: landingRow?.services_section_subtitle || landingFallback.services_section_subtitle,
+      services_section_desc: landingRow?.services_section_desc || landingFallback.services_section_desc,
+      why_section_title: landingRow?.why_section_title || landingFallback.why_section_title,
+      why_section_subtitle: landingRow?.why_section_subtitle || landingFallback.why_section_subtitle,
+      why_side_image: resolveMediaUrl(landingRow?.why_side_image) || '/images/team-photo.png',
+      why_side_image_alt: landingRow?.why_side_image_alt || 'تیم اروم سیما',
+      why_side_image_link: landingRow?.why_side_image_link || '',
+      portfolio_section_title: landingRow?.portfolio_section_title || landingFallback.portfolio_section_title,
+      portfolio_section_subtitle: landingRow?.portfolio_section_subtitle || landingFallback.portfolio_section_subtitle,
+      portfolio_section_desc: landingRow?.portfolio_section_desc || landingFallback.portfolio_section_desc,
+      process_section_title: landingRow?.process_section_title || landingFallback.process_section_title,
+      process_section_subtitle: landingRow?.process_section_subtitle || landingFallback.process_section_subtitle,
+      process_section_desc: landingRow?.process_section_desc || landingFallback.process_section_desc,
+      testimonial_section_title: landingRow?.testimonial_section_title || landingFallback.testimonial_section_title,
+      testimonial_section_subtitle: landingRow?.testimonial_section_subtitle || landingFallback.testimonial_section_subtitle,
+      pricing_section_title: landingRow?.pricing_section_title || landingFallback.pricing_section_title,
+      pricing_section_subtitle: landingRow?.pricing_section_subtitle || landingFallback.pricing_section_subtitle,
+      pricing_section_desc: landingRow?.pricing_section_desc || landingFallback.pricing_section_desc,
+      growth_section_badge: landingRow?.growth_section_badge || landingFallback.growth_section_badge,
+      growth_section_title: landingRow?.growth_section_title || landingFallback.growth_section_title,
+      growth_section_desc: landingRow?.growth_section_desc || landingFallback.growth_section_desc,
+      bottom_cta_badge: landingRow?.bottom_cta_badge || landingFallback.bottom_cta_badge,
+      bottom_cta_title: landingRow?.bottom_cta_title || landingFallback.bottom_cta_title,
+      bottom_cta_text: landingRow?.bottom_cta_text || landingFallback.bottom_cta_text,
+      bottom_cta_primary_label: landingRow?.bottom_cta_primary_label || landingFallback.bottom_cta_primary_label,
+      bottom_cta_primary_url: landingRow?.bottom_cta_primary_url || landingFallback.bottom_cta_primary_url,
+      bottom_cta_secondary_label: landingRow?.bottom_cta_secondary_label || landingFallback.bottom_cta_secondary_label,
+      bottom_cta_secondary_url: landingRow?.bottom_cta_secondary_url || landingFallback.bottom_cta_secondary_url,
+      hero_service_1_title: landingRow?.hero_service_1_title || landingFallback.hero_service_1_title,
+      hero_service_2_title: landingRow?.hero_service_2_title || landingFallback.hero_service_2_title,
+      hero_service_3_title: landingRow?.hero_service_3_title || landingFallback.hero_service_3_title,
+      hero_service_4_title: landingRow?.hero_service_4_title || landingFallback.hero_service_4_title,
+      hero_trust_1: landingRow?.hero_trust_1 || landingFallback.hero_trust_1,
+      hero_trust_2: landingRow?.hero_trust_2 || landingFallback.hero_trust_2,
+      hero_trust_3: landingRow?.hero_trust_3 || landingFallback.hero_trust_3,
+      hero_trust_4: landingRow?.hero_trust_4 || landingFallback.hero_trust_4,
+      show_ticker: landingRow?.show_ticker ?? true,
+      show_services: landingRow?.show_services ?? true,
+      show_why: landingRow?.show_why ?? true,
+      show_counters: landingRow?.show_counters ?? true,
+      show_portfolio: landingRow?.show_portfolio ?? true,
+      show_growth: landingRow?.show_growth ?? true,
+      show_process: landingRow?.show_process ?? true,
+      show_testimonials: landingRow?.show_testimonials ?? true,
+      show_pricing: landingRow?.show_pricing ?? true,
+    },
+    tickerItems: tickerItems.map((t) => ({ id: t.id, text: t.text })),
+    whyItems: whyItems.map((w, idx) => ({
+      id: w.id,
+      number: w.number || String(idx + 1),
+      title: w.title,
+      description: w.description,
+    })),
+    counters: counters.map((c) => ({
+      id: c.id,
+      icon: c.icon || '🏆',
+      value: c.value,
+      suffix: c.suffix || '',
+      label: c.label,
+    })),
+    growthStats: growthStats.map((g) => ({
+      id: g.id,
+      icon: g.icon || '📈',
+      value: g.value,
+      label: g.label,
+    })),
+    processSteps: processSteps.map((p) => ({
+      id: p.id,
+      step_number: p.step_number,
+      title: p.title,
+      description: p.description,
+    })),
+    testimonials: testimonials.map((t) => ({
+      id: t.id,
+      name: t.name,
+      role: t.role || '',
+      company: t.company || '',
+      text: t.text || '',
+      stars: t.stars || 5,
+      is_video: t.media_type === 'video' || Boolean(t.video_file || t.embed_url),
+      video_url: t.video_file ? resolveMediaUrl(t.video_file) : (t.embed_url || undefined),
+      video_thumbnail: resolveMediaUrl(t.video_thumbnail) || undefined,
+      avatar_text: t.avatar_text || undefined,
+    })),
+    roiConfig: {
+      is_active: roiConfigRow ? Boolean(roiConfigRow.is_active) : true,
+      title: roiConfigRow?.title || 'رشد کسب‌وکار شما با دیجیتال مارکتینگ',
+      subtitle: roiConfigRow?.subtitle || 'در ۴ مرحله ساده، برآورد تقریبی رشد را ببینید',
+      disclaimer: roiConfigRow?.disclaimer || 'برآورد تقریبی بر اساس میانگین پروژه‌های مشابه — برای تحلیل دقیق‌تر مشاوره رایگان بگیرید.',
+      web_seo_min: roiConfigRow?.web_seo_min || 15,
+      web_seo_max: roiConfigRow?.web_seo_max || 35,
+      content_min: roiConfigRow?.content_min || 20,
+      content_max: roiConfigRow?.content_max || 50,
+      ads_min: roiConfigRow?.ads_min || 10,
+      ads_max: roiConfigRow?.ads_max || 25,
+      sales_min: roiConfigRow?.sales_slider_min || 50000000,
+      sales_max: roiConfigRow?.sales_slider_max || 5000000000,
+    },
+    reelsConfig: {
+      is_active: reelsConfigRow ? Boolean(reelsConfigRow.is_active) : true,
+      title: reelsConfigRow?.title || 'آخرین Reels ما',
+      subtitle: reelsConfigRow?.subtitle || 'محتوای کوتاه و کاربردی از اینستاگرام اروم سیما',
+      placeholder_text: reelsConfigRow?.placeholder_text || 'به‌زودی',
+      follow_cta_text: reelsConfigRow?.follow_cta_text || 'ما را در اینستاگرام دنبال کنید',
+    },
+    reels: reels.map((r) => ({
+      id: r.id,
+      reel_url: r.reel_url,
+      thumbnail: resolveMediaUrl(r.thumbnail) || '/images/urumsima3.jpg',
+      caption: r.caption || '',
+    })),
+    mapProjectsCount: mapProjects.length,
+    mapProjects,
+    beforeAfterProject,
+    featuredProjects,
+    services: services.slice(0, 6),
+    pricingPlans: pricing.plans,
+  };
+}
+
 
 
 

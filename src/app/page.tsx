@@ -1,36 +1,39 @@
 import React from 'react';
-import HomeView from '@/components/home/HomeView';
-import { getLiveLandingData, getLiveServices, getLiveProjects, getLiveSiteSettings } from '@/lib/data-loaders';
+import ClassicLandingView from '@/components/landing/ClassicLandingView';
+import { getLiveLandingFull, getLiveSiteSettings } from '@/lib/data-loaders';
 import { generatePageMetadata } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export const metadata = generatePageMetadata({
-  title: 'آژانس دیجیتال مارکتینگ و معماری وب ۳D اروم سیما | ارومیه',
-  description: 'تجربه تعاملی و سه‌بعدی اروم‌سیما؛ طراحی سایت اختصاصی، سئو تکنیکال رتبه یک، تولید محتوای ویدیویی صنعتی و تبلیغات محیطی در ارومیه.',
-  path: '/',
-});
+export async function generateMetadata() {
+  const landing = await getLiveLandingFull();
+  const settings = await getLiveSiteSettings();
+
+  const title =
+    landing.landingPage.meta_title ||
+    landing.landingPage.og_title ||
+    'آژانس دیجیتال مارکتینگ اروم سیما | طراحی سایت، سئو و تولید محتوا در ارومیه';
+
+  const description =
+    landing.landingPage.meta_description ||
+    landing.landingPage.og_description ||
+    settings.meta_description_default ||
+    'اروم سیما؛ آژانس جامع دیجیتال مارکتینگ در ارومیه. ارائه خدمات طراحی سایت اختصاصی، سئو تکنیکال رتبه یک، تولید محتوای ویدیویی صنعتی و تبلیغات هدفمند.';
+
+  return generatePageMetadata({
+    title,
+    description,
+    path: '/',
+    ogImage: landing.landingPage.og_image || settings.default_og_image,
+  });
+}
 
 export default async function HomePage() {
-  const [landing, services, allProjects, settings] = await Promise.all([
-    getLiveLandingData(),
-    getLiveServices(),
-    getLiveProjects(),
+  const [landing, settings] = await Promise.all([
+    getLiveLandingFull(),
     getLiveSiteSettings(),
   ]);
-  
-  // Featured projects first (ordered), then fallback to other active projects to fill all 4 3D TV stations
-  const featured = allProjects.filter((p) => p.featured);
-  const nonFeatured = allProjects.filter((p) => !p.featured);
-  const displayProjects = [...featured, ...nonFeatured].slice(0, 4);
 
-  return (
-    <HomeView
-      landing={landing}
-      services={services}
-      projects={displayProjects}
-      settings={settings}
-    />
-  );
+  return <ClassicLandingView data={landing} settings={settings} />;
 }

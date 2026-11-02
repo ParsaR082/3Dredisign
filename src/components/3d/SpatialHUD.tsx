@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Compass, Layers, ShieldCheck, Trophy, Sparkles, Send, ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
+import { Compass, Layers, ShieldCheck, Trophy, Sparkles, Send, ChevronLeft, ChevronRight, Home } from 'lucide-react';
 
 interface SpatialHUDProps {
   activeSector: number;
@@ -30,6 +31,14 @@ export default function SpatialHUD({
 
   return (
     <>
+      {/* ── دکمه بازگشت به سایت اصلی ── */}
+      <Link
+        href="/"
+        className="fixed top-5 left-5 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#030712]/85 hover:bg-[#070E1B] border border-brand-500/30 hover:border-brand-400 text-white text-xs font-bold backdrop-blur-xl shadow-2xl transition-all duration-300 hover:scale-105 group"
+      >
+        <Home className="w-4 h-4 text-brand-400 group-hover:text-brand-300 transition-colors" />
+        <span className="text-gray-200 group-hover:text-white transition-colors">بازگشت به سایت اصلی</span>
+      </Link>
       {/* ── دکمه فلش‌طور سمت چپ (حالت عادی بسته) ── */}
       {isPastHero && !isOverlayVisible && onToggleOverlay && (
         <button

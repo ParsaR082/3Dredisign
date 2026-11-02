@@ -29,6 +29,7 @@ export {
   getLiveBlogData,
   getLiveBlogPostBySlug,
   getLiveLandingData,
+  getLiveLandingFull,
   getLiveTeamData,
 } from './db';
 

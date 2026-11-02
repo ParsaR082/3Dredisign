@@ -290,3 +290,133 @@ export interface BlogPost {
   cover_image: string;
   tags: string[];
 }
+
+export interface LiveLandingFullData {
+  landingPage: {
+    site_title: string;
+    meta_title?: string;
+    meta_description?: string;
+    og_title?: string;
+    og_description?: string;
+    canonical_url?: string;
+    meta_robots?: string;
+    og_image?: string;
+    hero_badge: string;
+    hero_title: string;
+    hero_highlight: string;
+    hero_description: string;
+    primary_cta_text: string;
+    primary_cta_url: string;
+    secondary_cta_text: string;
+    secondary_cta_url: string;
+    services_section_title: string;
+    services_section_subtitle: string;
+    services_section_desc: string;
+    why_section_title: string;
+    why_section_subtitle: string;
+    why_side_image?: string;
+    why_side_image_alt?: string;
+    why_side_image_link?: string;
+    portfolio_section_title: string;
+    portfolio_section_subtitle: string;
+    portfolio_section_desc: string;
+    process_section_title: string;
+    process_section_subtitle: string;
+    process_section_desc: string;
+    testimonial_section_title: string;
+    testimonial_section_subtitle: string;
+    pricing_section_title: string;
+    pricing_section_subtitle: string;
+    pricing_section_desc: string;
+    growth_section_badge: string;
+    growth_section_title: string;
+    growth_section_desc: string;
+    bottom_cta_badge: string;
+    bottom_cta_title: string;
+    bottom_cta_text: string;
+    bottom_cta_primary_label: string;
+    bottom_cta_primary_url: string;
+    bottom_cta_secondary_label: string;
+    bottom_cta_secondary_url: string;
+    hero_service_1_title: string;
+    hero_service_2_title: string;
+    hero_service_3_title: string;
+    hero_service_4_title: string;
+    hero_trust_1: string;
+    hero_trust_2: string;
+    hero_trust_3: string;
+    hero_trust_4: string;
+    show_ticker: boolean;
+    show_services: boolean;
+    show_why: boolean;
+    show_counters: boolean;
+    show_portfolio: boolean;
+    show_growth: boolean;
+    show_process: boolean;
+    show_testimonials: boolean;
+    show_pricing: boolean;
+  };
+  tickerItems: { id: number; text: string }[];
+  whyItems: { id: number; number: string; title: string; description: string }[];
+  counters: { id: number; icon: string; value: number; suffix: string; label: string }[];
+  growthStats: { id: number; icon: string; value: string; label: string }[];
+  processSteps: { id: number; step_number: string; title: string; description: string }[];
+  testimonials: {
+    id: number;
+    name: string;
+    role: string;
+    company: string;
+    text: string;
+    stars: number;
+    is_video: boolean;
+    video_url?: string;
+    video_thumbnail?: string;
+    avatar_text?: string;
+  }[];
+  roiConfig: {
+    is_active: boolean;
+    title: string;
+    subtitle: string;
+    disclaimer: string;
+    web_seo_min: number;
+    web_seo_max: number;
+    content_min: number;
+    content_max: number;
+    ads_min: number;
+    ads_max: number;
+    sales_min: number;
+    sales_max: number;
+  };
+  reelsConfig: {
+    is_active: boolean;
+    title: string;
+    subtitle: string;
+    placeholder_text: string;
+    follow_cta_text: string;
+  };
+  reels: {
+    id: number;
+    reel_url: string;
+    thumbnail: string;
+    caption: string;
+  }[];
+  mapProjectsCount: number;
+  mapProjects: {
+    id: string;
+    title: string;
+    slug: string;
+    lat: number;
+    lng: number;
+    category?: string;
+  }[];
+  beforeAfterProject: {
+    title: string;
+    slug: string;
+    before_url: string;
+    after_url: string;
+  } | null;
+  featuredProjects: Project[];
+  services: Service[];
+  pricingPlans: PricingPlan[];
+}
+
