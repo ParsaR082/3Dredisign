@@ -176,6 +176,9 @@ export default function HomeView({
   const isInterstellarFlyingRef = useRef(false);
   const [targetStationIndex, setTargetStationIndex] = useState(initialStationIndex);
 
+  const targetProgressRef = useRef(
+    initialTarget ? initialTarget.stagingProgress : STATION_WAYPOINTS[0]
+  );
   const scrollProgressRef = useRef(
     initialTarget ? initialTarget.stagingProgress : STATION_WAYPOINTS[0]
   );
@@ -240,6 +243,7 @@ export default function HomeView({
           setActiveDiveTarget(targetConfig);
           setScrollProgress(targetConfig.stagingProgress);
           scrollProgressRef.current = targetConfig.stagingProgress;
+          targetProgressRef.current = targetConfig.stagingProgress;
           let matchedStationIdx = 0;
           let minD = 999;
           for (let i = 0; i < STATION_WAYPOINTS.length; i++) {
@@ -302,57 +306,57 @@ export default function HomeView({
     return () => window.removeEventListener('pageshow', onPageShow);
   }, [projects]);
 
-  // ── CINEMATIC INTERSTELLAR FLIGHT TRANSITION & INPUT LOCK CONTROLLER ──
+  // ── CONTINUOUS SCROLL-DRIVEN CINEMATIC CONTROLLER & INERTIAL DAMPING ──
   const triggerFlightToStation = useCallback((targetIndex: number) => {
-    // Lock: if already flying or performing a screen dive, block all new inputs!
-    if (
-      isInterstellarFlyingRef.current ||
-      isTransitioningRef.current ||
-      !isExperienceLoadedRef.current
-    ) {
-      return;
-    }
-
+    if (isTransitioningRef.current || !isExperienceLoadedRef.current) return;
     const clampedTarget = Math.max(0, Math.min(STATION_WAYPOINTS.length - 1, targetIndex));
-    if (clampedTarget === currentStationIndexRef.current) return;
-
-    const startP = scrollProgressRef.current;
-    const endP = STATION_WAYPOINTS[clampedTarget];
-    const startTime = performance.now();
-    const stationDistance = Math.abs(clampedTarget - currentStationIndexRef.current);
-    // 2800ms for 1 station jump, or 3300ms for multi-station jumps across sectors
-    const FLIGHT_DURATION = stationDistance === 1 ? 2800 : 3300;
-
-    isInterstellarFlyingRef.current = true;
-    setIsInterstellarFlying(true);
+    targetProgressRef.current = STATION_WAYPOINTS[clampedTarget];
     setTargetStationIndex(clampedTarget);
+  }, []);
 
+  // Continuous smooth render loop for scrubbable, reversible scroll tracking
+  useEffect(() => {
     let frameId: number;
-    const step = () => {
-      const elapsed = performance.now() - startTime;
-      const progress = Math.min(1, Math.max(0, elapsed / FLIGHT_DURATION));
-      // Quintic ease: slow departure -> high-speed cosmic flight -> smooth arrival
-      const ease = progress < 0.5
-        ? 16 * Math.pow(progress, 5)
-        : 1 - Math.pow(-2 * progress + 2, 5) / 2;
+    let lastTime = performance.now();
 
-      const currentP = startP + (endP - startP) * ease;
-      scrollProgressRef.current = currentP;
-      setScrollProgress(currentP);
+    const updateScrollLoop = () => {
+      const now = performance.now();
+      const dt = Math.min(0.08, (now - lastTime) / 1000);
+      lastTime = now;
 
-      if (progress < 1) {
-        frameId = requestAnimationFrame(step);
-      } else {
-        scrollProgressRef.current = endP;
-        setScrollProgress(endP);
-        currentStationIndexRef.current = clampedTarget;
-        setCurrentStationIndex(clampedTarget);
-        isInterstellarFlyingRef.current = false;
-        setIsInterstellarFlying(false);
+      const targetP = targetProgressRef.current;
+      const currentP = scrollProgressRef.current;
+      const diff = targetP - currentP;
+
+      if (Math.abs(diff) > 0.00003) {
+        // Smooth exponential catch-up with cinematic inertia
+        const dampingSpeed = 6.5;
+        const step = diff * (1 - Math.exp(-dampingSpeed * dt));
+        const nextP = Math.max(0, Math.min(1, currentP + step));
+        scrollProgressRef.current = nextP;
+        setScrollProgress(nextP);
+
+        // Update nearest station index
+        let nearestIdx = 0;
+        let minDiff = 999;
+        for (let i = 0; i < STATION_WAYPOINTS.length; i++) {
+          const d = Math.abs(nextP - STATION_WAYPOINTS[i]);
+          if (d < minDiff) {
+            minDiff = d;
+            nearestIdx = i;
+          }
+        }
+        if (nearestIdx !== currentStationIndexRef.current) {
+          currentStationIndexRef.current = nearestIdx;
+          setCurrentStationIndex(nearestIdx);
+        }
       }
+
+      frameId = requestAnimationFrame(updateScrollLoop);
     };
 
-    frameId = requestAnimationFrame(step);
+    frameId = requestAnimationFrame(updateScrollLoop);
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   // Update activeSector based on scrollProgress
@@ -371,55 +375,41 @@ export default function HomeView({
     triggerFlightToStation(target);
   }, [triggerFlightToStation]);
 
-  // Mouse Wheel listener: Prevents standard window scroll, triggers automated flight
+  // Mouse Wheel listener: 100% Scroll-Scrubbable & Reversible Control
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
-      // Lock input completely during flight or screen dive
-      if (
-        isInterstellarFlyingRef.current ||
-        isTransitioningRef.current ||
-        !isExperienceLoadedRef.current
-      ) {
+      if (isTransitioningRef.current || !isExperienceLoadedRef.current) {
         e.preventDefault();
-        e.stopPropagation();
         return;
       }
 
       // Allow internal scrolling inside docked card containers and interactive panels
       const target = e.target as HTMLElement | null;
       const scrollable = target?.closest('.allow-card-scroll, [data-prevent-3d-scroll], [data-lenis-prevent]');
-      if (scrollable) {
-        return;
-      }
+      if (scrollable) return;
 
       e.preventDefault();
 
-      // Trigger automatic jump on wheel scroll
-      if (Math.abs(e.deltaY) > 15) {
-        if (e.deltaY > 0) {
-          triggerFlightToStation(currentStationIndexRef.current + 1);
-        } else {
-          triggerFlightToStation(currentStationIndexRef.current - 1);
-        }
-      }
+      // Deliberate cinematic scroll pacing:
+      // ~0.00018 per pixel delta means a typical 100px wheel click advances ~0.018 (about 1/5 of a station).
+      // Taking ~5-6 clicks between stations allows full control to pause in the rift, accelerate, or reverse!
+      const SENSITIVITY = 0.00018;
+      const delta = e.deltaY * SENSITIVITY;
+      targetProgressRef.current = Math.max(0, Math.min(1, targetProgressRef.current + delta));
     };
 
     window.addEventListener('wheel', onWheel, { passive: false });
     return () => window.removeEventListener('wheel', onWheel);
-  }, [triggerFlightToStation]);
+  }, []);
 
-  // Touch listener for mobile devices / trackpad swipe
+  // Touch listener for mobile devices & trackpads
   useEffect(() => {
-    let startY = 0;
+    let touchStartY = 0;
     const onTouchStart = (e: TouchEvent) => {
-      if (e.touches[0]) startY = e.touches[0].clientY;
+      if (e.touches[0]) touchStartY = e.touches[0].clientY;
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (
-        isInterstellarFlyingRef.current ||
-        isTransitioningRef.current ||
-        !isExperienceLoadedRef.current
-      ) {
+      if (isTransitioningRef.current || !isExperienceLoadedRef.current) {
         if (e.cancelable) e.preventDefault();
         return;
       }
@@ -427,19 +417,17 @@ export default function HomeView({
       const target = e.target as HTMLElement | null;
       if (target?.closest('.allow-card-scroll, [data-prevent-3d-scroll], [data-lenis-prevent]')) return;
 
-      if (e.cancelable) {
-        e.preventDefault();
-      }
+      if (e.cancelable) e.preventDefault();
 
-      const deltaY = startY - e.touches[0].clientY;
-      if (Math.abs(deltaY) > 30) {
-        startY = e.touches[0].clientY;
-        if (deltaY > 0) {
-          triggerFlightToStation(currentStationIndexRef.current + 1);
-        } else {
-          triggerFlightToStation(currentStationIndexRef.current - 1);
-        }
-      }
+      const currentY = e.touches[0].clientY;
+      const deltaY = touchStartY - currentY;
+      touchStartY = currentY;
+
+      const TOUCH_SENSITIVITY = 0.00035;
+      targetProgressRef.current = Math.max(
+        0,
+        Math.min(1, targetProgressRef.current + deltaY * TOUCH_SENSITIVITY)
+      );
     };
 
     window.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -448,12 +436,33 @@ export default function HomeView({
       window.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
     };
-  }, [triggerFlightToStation]);
+  }, []);
+
+  // Gentle magnetic snap when scroll settles near a station
+  useEffect(() => {
+    const snapTimer = setTimeout(() => {
+      const cur = targetProgressRef.current;
+      let nearestWaypoint = STATION_WAYPOINTS[0];
+      let minDiff = 999;
+      for (let i = 0; i < STATION_WAYPOINTS.length; i++) {
+        const d = Math.abs(cur - STATION_WAYPOINTS[i]);
+        if (d < minDiff) {
+          minDiff = d;
+          nearestWaypoint = STATION_WAYPOINTS[i];
+        }
+      }
+      if (minDiff < 0.022 && minDiff > 0.0001) {
+        targetProgressRef.current = nearestWaypoint;
+      }
+    }, 600);
+
+    return () => clearTimeout(snapTimer);
+  }, [scrollProgress]);
 
   // Keyboard navigation (Arrow keys and PageUp/PageDown)
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (isInterstellarFlyingRef.current || isTransitioningRef.current) {
+      if (isTransitioningRef.current) {
         e.preventDefault();
         return;
       }

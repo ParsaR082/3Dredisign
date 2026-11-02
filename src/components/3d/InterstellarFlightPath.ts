@@ -397,11 +397,24 @@ export interface CameraStateResult {
   velocity: THREE.Vector3;
   speed: number;
   tangent: THREE.Vector3;
+  normalVector: THREE.Vector3;
+  binormalVector: THREE.Vector3;
   warpIntensity: number;
   activeStationIndex: number;
+  fromStationIndex: number;
+  toStationIndex: number;
   isTransitioning: boolean;
-  transitionProgress: number;
+  transitionProgress: number; // rawU 0 to 1 between stations
+  stage: 1 | 2 | 3 | 4 | 5;
+  anticipationWeight: number;
+  collapseWeight: number;
+  riftWeight: number;
+  revealWeight: number;
+  arrivalWeight: number;
+  bankAngle: number;
 }
+
+export { BUILT_TRANSITIONS };
 
 const cachedResult: CameraStateResult = {
   position: new THREE.Vector3(),
@@ -411,10 +424,21 @@ const cachedResult: CameraStateResult = {
   velocity: new THREE.Vector3(),
   speed: 0,
   tangent: new THREE.Vector3(0, 0, -1),
+  normalVector: new THREE.Vector3(0, 1, 0),
+  binormalVector: new THREE.Vector3(1, 0, 0),
   warpIntensity: 0,
   activeStationIndex: 0,
+  fromStationIndex: 0,
+  toStationIndex: 0,
   isTransitioning: false,
   transitionProgress: 0,
+  stage: 5,
+  anticipationWeight: 0,
+  collapseWeight: 0,
+  riftWeight: 0,
+  revealWeight: 0,
+  arrivalWeight: 1,
+  bankAngle: 0,
 };
 
 function quinticEaseInOut(x: number): number {
@@ -444,17 +468,46 @@ export function getInterstellarCameraState(
   for (let i = 0; i < BUILT_TRANSITIONS.length; i++) {
     const t = BUILT_TRANSITIONS[i];
     // A small buffer around endpoints determines if we are dwelling or actively flying
-    if (p > t.config.tRange[0] + 0.0005 && p < t.config.tRange[1] - 0.0005) {
+    if (p > t.config.tRange[0] + 0.0003 && p < t.config.tRange[1] - 0.0003) {
       activeTrans = t;
       break;
     }
   }
 
-  // ── CASE A: IN-FLIGHT INTERSTELLAR JOURNEY ──
+  // ── CASE A: IN-FLIGHT INTERSTELLAR JOURNEY (COSMIC RIFT SEQUENCE) ──
   if (activeTrans) {
     const [tStart, tEnd] = activeTrans.config.tRange;
     const rawU = Math.max(0, Math.min(1, (p - tStart) / (tEnd - tStart)));
     const easedU = quinticEaseInOut(rawU);
+
+    // Compute the 5 Signature Transition Stages
+    // Stage 1: Cosmic Anticipation [0.00 to 0.16]
+    const anticipationWeight =
+      rawU <= 0.16 ? Math.sin((rawU / 0.16) * Math.PI) : 0;
+
+    // Stage 2: Space-Time Collapse [0.12 to 0.38]
+    const collapseWeight =
+      rawU >= 0.12 && rawU <= 0.38
+        ? Math.sin(((rawU - 0.12) / 0.26) * Math.PI)
+        : 0;
+
+    // Stage 3: The Cosmic Rift [0.28 to 0.76]
+    const riftWeight =
+      rawU >= 0.28 && rawU <= 0.76
+        ? Math.pow(Math.sin(((rawU - 0.28) / 0.48) * Math.PI), 1.25)
+        : 0;
+
+    // Stage 4: The Reveal [0.68 to 0.92]
+    const revealWeight =
+      rawU >= 0.68 && rawU <= 0.92
+        ? Math.sin(((rawU - 0.68) / 0.24) * Math.PI)
+        : 0;
+
+    // Stage 5: Arrival [0.85 to 1.00]
+    const arrivalWeight = smoothstep(0.85, 1.0, rawU);
+
+    const stage: 1 | 2 | 3 | 4 | 5 =
+      rawU < 0.14 ? 1 : rawU < 0.35 ? 2 : rawU < 0.72 ? 3 : rawU < 0.90 ? 4 : 5;
 
     // Sample Catmull-Rom curve
     activeTrans.curve.getPoint(easedU, _scratchPos);
@@ -473,9 +526,9 @@ export function getInterstellarCameraState(
     const turnX = _scratchForward.x;
     let bankAngle = -turnX * activeTrans.config.maxBank * 1.5;
 
-    // Optional barrel-roll or corkscrew in mid-flight
-    if (activeTrans.config.corkscrewRotations && rawU > 0.20 && rawU < 0.80) {
-      const corkU = (rawU - 0.20) / 0.60;
+    // Optional barrel-roll or corkscrew in mid-flight (inside Stage 3 Cosmic Rift)
+    if (activeTrans.config.corkscrewRotations && rawU > 0.30 && rawU < 0.74) {
+      const corkU = (rawU - 0.30) / 0.44;
       const rollAmount =
         Math.sin(corkU * Math.PI) *
         Math.sin(corkU * Math.PI) *
@@ -527,19 +580,27 @@ export function getInterstellarCameraState(
     _scratchRotMatrix.lookAt(toCam, toLook, _scratchUp);
     _scratchEndQuat.setFromRotationMatrix(_scratchRotMatrix);
 
-    // Smooth Hermite blend
-    const blendIn = smoothstep(0.0, 0.22, rawU);
-    const blendOut = smoothstep(0.78, 1.0, rawU);
+    // Smooth Hermite blend between departure station, dynamic flight path, and destination station
+    const blendIn = smoothstep(0.0, 0.20, rawU);
+    const blendOut = smoothstep(0.80, 1.0, rawU);
 
     _scratchFinalQuat.copy(_scratchStartQuat);
     _scratchFinalQuat.slerp(_scratchFlightQuat, blendIn);
     _scratchFinalQuat.slerp(_scratchEndQuat, blendOut);
 
-    _scratchLookAt.copy(_scratchPos).addScaledVector(_scratchForward, 10);
+    _scratchLookAt.copy(_scratchPos).addScaledVector(_scratchForward, 12);
 
     // Warp intensity bell curve
-    const warpIntensity = Math.pow(Math.sin(rawU * Math.PI), 1.4);
-    const fov = 45 + warpIntensity * (isMobile ? 8 : 15);
+    const warpIntensity = Math.pow(Math.sin(rawU * Math.PI), 1.35);
+
+    // Cinematic FOV modulation across the 5 stages
+    // Base 45 -> 48 (anticipation) -> 58 (collapse) -> 65 (cosmic rift) -> 49 (reveal) -> 45 (arrival)
+    const fovBoost =
+      anticipationWeight * 3 +
+      collapseWeight * 12 +
+      riftWeight * (isMobile ? 12 : 20) +
+      revealWeight * 5;
+    const fov = 45 + fovBoost;
 
     cachedResult.position.copy(_scratchPos);
     cachedResult.quaternion.copy(_scratchFinalQuat);
@@ -548,10 +609,21 @@ export function getInterstellarCameraState(
     cachedResult.velocity.copy(_scratchVelocity);
     cachedResult.speed = warpIntensity;
     cachedResult.tangent.copy(_scratchForward);
+    cachedResult.normalVector.copy(trueUp);
+    cachedResult.binormalVector.copy(_scratchRight);
     cachedResult.warpIntensity = warpIntensity;
     cachedResult.activeStationIndex = rawU < 0.5 ? activeTrans.config.fromIndex : activeTrans.config.toIndex;
+    cachedResult.fromStationIndex = activeTrans.config.fromIndex;
+    cachedResult.toStationIndex = activeTrans.config.toIndex;
     cachedResult.isTransitioning = true;
     cachedResult.transitionProgress = rawU;
+    cachedResult.stage = stage;
+    cachedResult.anticipationWeight = anticipationWeight;
+    cachedResult.collapseWeight = collapseWeight;
+    cachedResult.riftWeight = riftWeight;
+    cachedResult.revealWeight = revealWeight;
+    cachedResult.arrivalWeight = arrivalWeight;
+    cachedResult.bankAngle = bankAngle;
 
     return cachedResult;
   }
@@ -592,10 +664,21 @@ export function getInterstellarCameraState(
   cachedResult.velocity.set(0, 0, 0);
   cachedResult.speed = 0;
   cachedResult.tangent.set(0, 0, -1);
+  cachedResult.normalVector.set(0, 1, 0);
+  cachedResult.binormalVector.set(1, 0, 0);
   cachedResult.warpIntensity = 0;
   cachedResult.activeStationIndex = stationIndex;
+  cachedResult.fromStationIndex = stationIndex;
+  cachedResult.toStationIndex = stationIndex;
   cachedResult.isTransitioning = false;
   cachedResult.transitionProgress = 0;
+  cachedResult.stage = 5;
+  cachedResult.anticipationWeight = 0;
+  cachedResult.collapseWeight = 0;
+  cachedResult.riftWeight = 0;
+  cachedResult.revealWeight = 0;
+  cachedResult.arrivalWeight = 1;
+  cachedResult.bankAngle = 0;
 
   return cachedResult;
 }

@@ -11,9 +11,11 @@ import {
 import {
   getInterstellarCameraState,
   STATIONS_3D,
+  CameraStateResult,
 } from './InterstellarFlightPath';
 import CosmicDeepSpace from './CosmicDeepSpace';
 import CosmicSectorShowcase from './CosmicSectorShowcase';
+import CosmicRiftTunnel from './CosmicRiftTunnel';
 
 export interface CampusProps {
   scrollProgress: number; // 0.0 to 1.0
@@ -48,7 +50,7 @@ function InterstellarFlightCamera({
   activeDiveTarget?: DiveTargetConfig | null;
   divePhase?: DivePhase;
   onDiveReachedTarget?: () => void;
-  onFlightMetricsUpdate?: (tangent: THREE.Vector3, warp: number) => void;
+  onFlightMetricsUpdate?: (flight: CameraStateResult) => void;
 }) {
   const { camera, pointer, size } = useThree();
   const hasTriggeredDiveReached = useRef(false);
@@ -94,9 +96,9 @@ function InterstellarFlightCamera({
     // 1. Calculate procedural interstellar flight transform
     const flight = getInterstellarCameraState(scrollProgress, pointer, isMobile);
 
-    // Notify parent for star streak alignment
+    // Notify parent for star streak and cosmic rift alignment
     if (onFlightMetricsUpdate) {
-      onFlightMetricsUpdate(flight.tangent, flight.warpIntensity);
+      onFlightMetricsUpdate(flight);
     }
 
     // ── CASE 1: CINEMATIC DIVE ONTO 3D SCREEN ──
@@ -223,25 +225,26 @@ export default function DigitalArchitectureCampus({
 }: CampusProps) {
   const isDiving = divePhase !== 'idle';
 
-  // Live flight metrics for starfield streaks
-  const cameraTangentRef = useRef(new THREE.Vector3(0, 0, -1));
-  const warpIntensityRef = useRef(0);
+  // Live flight state for Cosmic Rift Tunnel & starfield streaks
+  const flightStateRef = useRef<CameraStateResult>(
+    getInterstellarCameraState(scrollProgress)
+  );
 
-  const handleFlightMetricsUpdate = (tangent: THREE.Vector3, warp: number) => {
-    cameraTangentRef.current.copy(tangent);
-    warpIntensityRef.current = warp;
+  const handleFlightMetricsUpdate = (flight: CameraStateResult) => {
+    flightStateRef.current = flight;
   };
 
   return (
     <>
       {/* Deep Cosmic Void Background & Atmospheric Space Fog */}
       <color attach="background" args={['#030712']} />
-      <fog attach="fog" args={['#030712', 45, 650]} />
+      <fog attach="fog" args={['#030712', 45, 680]} />
 
-      {/* Studio Cosmic Deep Space Ambient & Directional Lighting */}
+      {/* Cinematic Cosmic Rift Studio Lighting */}
       <ambientLight intensity={1.4} color="#E0F2FE" />
-      <directionalLight position={[10, 20, 15]} intensity={2.5} color="#F0FDF4" />
-      <directionalLight position={[-10, 12, 10]} intensity={1.8} color="#38BDF8" />
+      <directionalLight position={[10, 20, 15]} intensity={2.6} color="#00f5ff" />
+      <directionalLight position={[-10, 12, 10]} intensity={2.0} color="#7928ca" />
+      <pointLight position={[0, 0, 0]} intensity={1.0} color="#ff0080" distance={80} />
 
       {/* Procedural Interstellar Flight Camera Controller */}
       <InterstellarFlightCamera
@@ -252,12 +255,23 @@ export default function DigitalArchitectureCampus({
         onFlightMetricsUpdate={handleFlightMetricsUpdate}
       />
 
+      {/* Signature 3D Cosmic Rift Space-Time Tunnel & Vortex */}
+      <CosmicRiftTunnel
+        cameraState={flightStateRef.current}
+        scrollProgress={scrollProgress}
+        isDiving={isDiving}
+      />
+
       {/* Motion-Harmonized Deep Space Starfield & Directional Warp Streaks */}
       <CosmicDeepSpace
         scrollProgress={scrollProgress}
         activeSector={activeSector}
-        cameraTangent={cameraTangentRef.current}
-        warpIntensity={warpIntensityRef.current}
+        cameraTangent={flightStateRef.current.tangent}
+        warpIntensity={flightStateRef.current.warpIntensity}
+        anticipationWeight={flightStateRef.current.anticipationWeight}
+        collapseWeight={flightStateRef.current.collapseWeight}
+        riftWeight={flightStateRef.current.riftWeight}
+        revealWeight={flightStateRef.current.revealWeight}
       />
 
       {/* Photorealistic 3D Galactic Showcase at Distinct 3D Station Coordinates */}
