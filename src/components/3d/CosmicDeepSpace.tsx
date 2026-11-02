@@ -9,25 +9,24 @@ interface CosmicDeepSpaceProps {
   activeSector: number;
 }
 
-export default function CosmicDeepSpace({ scrollProgress, activeSector }: CosmicDeepSpaceProps) {
+export default function CosmicDeepSpace({ scrollProgress }: CosmicDeepSpaceProps) {
   const { camera } = useThree();
   const starsRef = useRef<THREE.Points>(null!);
   const warpLinesRef = useRef<THREE.LineSegments>(null!);
   const nebulaeRef = useRef<THREE.Group>(null!);
 
   const prevProgressRef = useRef(scrollProgress);
-  const prevCamPosRef = useRef(new THREE.Vector3());
   const velocityRef = useRef(0);
   const warpIntensityRef = useRef(0);
 
-  // 1. Generate 3,600 ambient twinkling cosmic stars filling the full galactic volume
+  // 1. Generate 3,200 ambient twinkling cosmic stars in deep space tunnel
   const { starPositions, starColors, starSizes } = useMemo(() => {
-    const count = 3600;
+    const count = 3200;
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
 
-    const brandColors = [
+    const palette = [
       new THREE.Color('#5ef0c4'), // Neon mint
       new THREE.Color('#0E946E'), // Emerald
       new THREE.Color('#38bdf8'), // Sky cyan
@@ -38,111 +37,124 @@ export default function CosmicDeepSpace({ scrollProgress, activeSector }: Cosmic
 
     for (let i = 0; i < count; i++) {
       const i3 = i * 3;
-      // Spread across deep space volume
-      positions[i3] = (Math.random() - 0.5) * 160;
-      positions[i3 + 1] = (Math.random() - 0.5) * 120;
-      positions[i3 + 2] = -Math.random() * 880 + 40;
+      const angle = Math.random() * Math.PI * 2;
+      const radius = 2.5 + Math.random() * 26;
+      positions[i3] = Math.cos(angle) * radius;
+      positions[i3 + 1] = Math.sin(angle) * radius * 0.8;
+      // Stretched along Z space
+      positions[i3 + 2] = (Math.random() - 0.5) * 80;
 
-      const col = brandColors[Math.floor(Math.random() * brandColors.length)];
+      const col = palette[Math.floor(Math.random() * palette.length)];
       colors[i3] = col.r;
       colors[i3 + 1] = col.g;
       colors[i3 + 2] = col.b;
 
-      sizes[i] = 1.0 + Math.random() * 2.5;
+      sizes[i] = 1.0 + Math.random() * 2.6;
     }
 
     return { starPositions: positions, starColors: colors, starSizes: sizes };
   }, []);
 
-  // 2. Generate Warp Streak Lines for Hyper-drive transition (surrounding camera)
-  const { warpPositions, warpColors } = useMemo(() => {
-    const lineCount = 420;
-    const positions = new Float32Array(lineCount * 6);
-    const colors = new Float32Array(lineCount * 6);
+  // 2. Generate Hyper-Speed Warp Streak Lines directed along the forward Z vector
+  const { warpPositions, warpColors, lineCount } = useMemo(() => {
+    const count = 480;
+    const positions = new Float32Array(count * 6);
+    const colors = new Float32Array(count * 6);
 
     const cyanCol = new THREE.Color('#5ef0c4');
     const emeraldCol = new THREE.Color('#0E946E');
     const skyCol = new THREE.Color('#38bdf8');
 
-    for (let i = 0; i < lineCount; i++) {
+    for (let i = 0; i < count; i++) {
       const idx = i * 6;
       const angle = Math.random() * Math.PI * 2;
-      const radius = 2.5 + Math.random() * 22;
+      const radius = 1.8 + Math.random() * 18;
       const x = Math.cos(angle) * radius;
-      const y = Math.sin(angle) * radius * 0.75 + (Math.random() - 0.5) * 6;
-      const z = (Math.random() - 0.5) * 60;
-      const streakLength = 10 + Math.random() * 24;
+      const y = Math.sin(angle) * radius * 0.75;
+      const z = -Math.random() * 45 + 5;
+      const streakLength = 6 + Math.random() * 16;
 
-      // Start vertex
+      // Start vertex (deep Z)
       positions[idx] = x;
       positions[idx + 1] = y;
       positions[idx + 2] = z;
 
-      // End vertex (stretched in Z)
+      // End vertex (near Z - forward streak)
       positions[idx + 3] = x;
       positions[idx + 4] = y;
       positions[idx + 5] = z + streakLength;
 
       const col = i % 3 === 0 ? cyanCol : i % 3 === 1 ? emeraldCol : skyCol;
-      // Head vertex
+      // Head vertex (bright tip)
       colors[idx] = col.r;
       colors[idx + 1] = col.g;
       colors[idx + 2] = col.b;
       // Tail vertex (smooth fade)
-      colors[idx + 3] = col.r * 0.12;
-      colors[idx + 4] = col.g * 0.12;
-      colors[idx + 5] = col.b * 0.12;
+      colors[idx + 3] = col.r * 0.08;
+      colors[idx + 4] = col.g * 0.08;
+      colors[idx + 5] = col.b * 0.08;
     }
 
-    return { warpPositions: positions, warpColors: colors };
+    return { warpPositions: positions, warpColors: colors, lineCount: count };
   }, []);
 
   useFrame((state, delta) => {
-    // Measure camera travel speed in 3D
-    const camDist = camera.position.distanceTo(prevCamPosRef.current);
-    prevCamPosRef.current.copy(camera.position);
-
+    // Instantaneous scroll speed calculation
     const progressDiff = Math.abs(scrollProgress - prevProgressRef.current);
     prevProgressRef.current = scrollProgress;
 
-    // Smooth velocity calculation based on camera flight and scroll input
-    const currentSpeed = Math.max(camDist * 18, progressDiff * 45);
-    velocityRef.current = THREE.MathUtils.lerp(velocityRef.current, currentSpeed, delta * 10);
+    // Smooth velocity
+    const targetVel = progressDiff * 80;
+    velocityRef.current = THREE.MathUtils.lerp(velocityRef.current, targetVel, delta * 14);
 
     // Warp intensity target
-    const targetWarp = Math.min(1.0, velocityRef.current * 1.8);
-    warpIntensityRef.current = THREE.MathUtils.lerp(warpIntensityRef.current, targetWarp, delta * 8);
+    const targetWarp = Math.min(1.0, velocityRef.current * 1.6);
+    warpIntensityRef.current = THREE.MathUtils.lerp(warpIntensityRef.current, targetWarp, delta * 10);
 
-    // Dynamic Warp FOV expansion during hyper-speed travel
+    // Dynamic Warp FOV expansion during travel
     if (camera instanceof THREE.PerspectiveCamera) {
-      const targetFov = 45 + warpIntensityRef.current * 16;
-      camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, delta * 6);
+      const targetFov = 45 + warpIntensityRef.current * 14;
+      camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, delta * 8);
       camera.updateProjectionMatrix();
     }
 
-    // Keep warp lines tightly anchored around the moving camera
+    // Update Warp Lines visibility & stretch
     if (warpLinesRef.current) {
       const mat = warpLinesRef.current.material as THREE.LineBasicMaterial;
-      mat.opacity = THREE.MathUtils.lerp(mat.opacity, warpIntensityRef.current * 0.88, delta * 12);
-      warpLinesRef.current.visible = mat.opacity > 0.01;
+      mat.opacity = THREE.MathUtils.lerp(mat.opacity, warpIntensityRef.current * 0.95, delta * 12);
+      warpLinesRef.current.visible = mat.opacity > 0.02;
 
-      // Position warp tunnel relative to camera
-      warpLinesRef.current.position.copy(camera.position);
-      warpLinesRef.current.position.z -= 10;
+      // Dynamically stretch lines during fast scroll
+      const scaleZ = 1.0 + warpIntensityRef.current * 1.5;
+      warpLinesRef.current.scale.set(1, 1, scaleZ);
     }
 
-    // Slow ambient cosmic rotation
+    // Gentle star drift along Z to give continuous forward space flight sensation
     if (starsRef.current) {
-      starsRef.current.rotation.z += 0.0002;
+      const attr = starsRef.current.geometry.attributes.position as THREE.BufferAttribute;
+      const array = attr.array as Float32Array;
+      const speed = 0.05 + warpIntensityRef.current * 1.8;
+
+      for (let i = 2; i < array.length; i += 3) {
+        array[i] += speed;
+        // Wrap around when star passes camera
+        if (array[i] > 10) {
+          array[i] = -60;
+        }
+      }
+      attr.needsUpdate = true;
+      starsRef.current.rotation.z += 0.0003;
     }
+
+    // Ambient nebula breathing
     if (nebulaeRef.current) {
-      nebulaeRef.current.rotation.z += 0.00015;
+      nebulaeRef.current.rotation.z += 0.0002;
     }
   });
 
   return (
     <group name="CosmicDeepSpace">
-      {/* 1. Ambient Twinkling Cosmic Starfield */}
+      {/* 1. Forward-Drifting Twinkling Starfield */}
       <points ref={starsRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -155,7 +167,7 @@ export default function CosmicDeepSpace({ scrollProgress, activeSector }: Cosmic
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.16}
+          size={0.15}
           vertexColors
           transparent
           opacity={0.88}
@@ -186,11 +198,10 @@ export default function CosmicDeepSpace({ scrollProgress, activeSector }: Cosmic
         />
       </lineSegments>
 
-      {/* 3. Deep Space Planetary Nebulae Clouds at Sector Regions */}
+      {/* 3. Deep Space Atmospheric Cosmic Nebulae */}
       <group ref={nebulaeRef}>
-        {/* Origin / Sector 0 Glow */}
-        <mesh position={[0, 0, 0]}>
-          <sphereGeometry args={[18, 16, 16]} />
+        <mesh position={[0, 0, -10]}>
+          <sphereGeometry args={[22, 16, 16]} />
           <meshBasicMaterial
             color="#0E946E"
             transparent
@@ -201,65 +212,24 @@ export default function CosmicDeepSpace({ scrollProgress, activeSector }: Cosmic
           />
         </mesh>
 
-        {/* Sector 1 Upper-Left Sapphire Nebula */}
-        <mesh position={[-14, 8, -60]}>
-          <sphereGeometry args={[26, 16, 16]} />
+        <mesh position={[4, 2, -25]}>
+          <sphereGeometry args={[28, 16, 16]} />
           <meshBasicMaterial
             color="#0284c7"
             transparent
-            opacity={0.07}
+            opacity={0.05}
             blending={THREE.AdditiveBlending}
             side={THREE.BackSide}
             depthWrite={false}
           />
         </mesh>
 
-        {/* Sector 1 Lower-Right Crimson/Purple Cloud */}
-        <mesh position={[16, -8, -120]}>
-          <sphereGeometry args={[28, 16, 16]} />
+        <mesh position={[-4, -2, -40]}>
+          <sphereGeometry args={[32, 16, 16]} />
           <meshBasicMaterial
             color="#7c3aed"
             transparent
-            opacity={0.06}
-            blending={THREE.AdditiveBlending}
-            side={THREE.BackSide}
-            depthWrite={false}
-          />
-        </mesh>
-
-        {/* Sector 2 Masterworks Deep Nebula */}
-        <mesh position={[0, 4, -320]}>
-          <sphereGeometry args={[38, 16, 16]} />
-          <meshBasicMaterial
-            color="#0f766e"
-            transparent
-            opacity={0.08}
-            blending={THREE.AdditiveBlending}
-            side={THREE.BackSide}
-            depthWrite={false}
-          />
-        </mesh>
-
-        {/* Sector 3 Collaboration Orbital Belt */}
-        <mesh position={[0, -6, -600]}>
-          <sphereGeometry args={[42, 16, 16]} />
-          <meshBasicMaterial
-            color="#064e3b"
-            transparent
-            opacity={0.07}
-            blending={THREE.AdditiveBlending}
-            side={THREE.BackSide}
-            depthWrite={false}
-          />
-        </mesh>
-
-        {/* Sector 4 Galactic Core Sovereign Glow */}
-        <mesh position={[0, 4, -790]}>
-          <sphereGeometry args={[32, 16, 16]} />
-          <meshBasicMaterial
-            color="#10b981"
-            transparent
-            opacity={0.09}
+            opacity={0.045}
             blending={THREE.AdditiveBlending}
             side={THREE.BackSide}
             depthWrite={false}
