@@ -29,10 +29,9 @@ export interface CampusProps {
   onExploreProjects?: () => void;
 }
 
-// ── CHOREOGRAPHED CAMERA TRAJECTORY & DYNAMIC ITEM GAZE ──
-// Each waypoint defines an exact scroll progress (t), camera position, and gaze lookAt target.
-// When reaching an item, the camera turns to look directly at it.
-// When traveling between sectors, the camera faces straight ahead down the central warp runway.
+// ── CINEMATIC 3D GALACTIC TRAJECTORY & HYPER-SPACE WARP WAYPOINTS ──
+// Each station is situated in a distinct celestial quadrant of deep space.
+// Between stations, the camera performs sweeping 3D orbital curves with dynamic banking and FOV acceleration.
 
 export interface ChoreographedWaypoint {
   t: number;
@@ -41,134 +40,184 @@ export interface ChoreographedWaypoint {
 }
 
 export const CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
-  // ── Sector 0: Grand Cosmic Welcome & Metallic 3D Logo ──
-  { t: 0.0, pos: new THREE.Vector3(0, 4.3, 16.5), target: new THREE.Vector3(0, 3.4, 0.0) },
-  { t: 0.16, pos: new THREE.Vector3(0, 4.3, 16.5), target: new THREE.Vector3(0, 3.4, 0.0) },
-  { t: 0.18, pos: new THREE.Vector3(0, 2.4, -14.0), target: new THREE.Vector3(0, 2.0, -25.0) },
+  // ── Sector 0: Grand Cosmic Welcome & Metallic Logo Core (Z = 0) ──
+  { t: 0.0, pos: new THREE.Vector3(0, 3.2, 7.5), target: new THREE.Vector3(0, 2.0, 0.0) },
+  { t: 0.16, pos: new THREE.Vector3(0, 3.2, 7.5), target: new THREE.Vector3(0, 2.0, 0.0) },
+  // Hyperspace Warp Launch toward Station 1.1 (Up-Left Arc)
+  { t: 0.19, pos: new THREE.Vector3(-5.0, 5.0, -18.0), target: new THREE.Vector3(-10.0, 6.5, -35.0) },
 
-  // ── Sector 1: Services Concourse (5 Floating HQ Hero Models) ──
-  // Station 1: Curved Monitor (Web Architecture - Left)
-  { t: 0.22, pos: new THREE.Vector3(0.2, 2.2, -19.2), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
-  { t: 0.24, pos: new THREE.Vector3(0.2, 2.2, -19.2), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
-  // Station 2: iPhone 18 Pro Max (Content & Social - Right)
-  { t: 0.27, pos: new THREE.Vector3(-0.2, 2.2, -24.2), target: new THREE.Vector3(2.2, 1.55, -27.0) },
-  { t: 0.29, pos: new THREE.Vector3(-0.2, 2.2, -24.2), target: new THREE.Vector3(2.2, 1.55, -27.0) },
-  // Station 3: Canon Retro Camera (Teaser & Video - Left)
-  { t: 0.32, pos: new THREE.Vector3(0.2, 2.2, -29.2), target: new THREE.Vector3(-2.1, 1.3, -32.0) },
-  { t: 0.34, pos: new THREE.Vector3(0.2, 2.2, -29.2), target: new THREE.Vector3(-2.1, 1.3, -32.0) },
-  // Station 4: iPad Pro & Stylus (Branding & Identity - Right)
-  { t: 0.37, pos: new THREE.Vector3(-0.2, 2.2, -34.2), target: new THREE.Vector3(2.2, 1.25, -37.0) },
-  { t: 0.39, pos: new THREE.Vector3(-0.2, 2.2, -34.2), target: new THREE.Vector3(2.2, 1.25, -37.0) },
-  // Station 5: Billboard (Outdoor Media - Left)
-  { t: 0.42, pos: new THREE.Vector3(0.3, 2.4, -39.0), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
-  { t: 0.44, pos: new THREE.Vector3(0.3, 2.4, -39.0), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
+  // ── Sector 1: Services Constellation (5 Distinct Cosmic Quadrants) ──
+  // Station 1.1: Web Design (Curved OLED Display - Upper-Left Sapphire Nebula)
+  { t: 0.22, pos: new THREE.Vector3(-10.2, 7.4, -36.5), target: new THREE.Vector3(-12.0, 7.0, -40.0) },
+  { t: 0.24, pos: new THREE.Vector3(-10.2, 7.4, -36.5), target: new THREE.Vector3(-12.0, 7.0, -40.0) },
+  // Hyperspace Warp Jump: Cross-galaxy swoop down-right toward Station 1.2
+  { t: 0.255, pos: new THREE.Vector3(2.0, 1.0, -60.0), target: new THREE.Vector3(15.0, -5.5, -85.0) },
 
-  // ── Inter-Sector Warp 1 -> 2: Straighten camera facing forward into Sector 2 ──
-  { t: 0.47, pos: new THREE.Vector3(0, 2.4, -48.0), target: new THREE.Vector3(0, 2.0, -62.0) },
+  // Station 1.2: Content & Social (Titanium iPhone 18 Pro Max - Lower-Right Crimson Sector)
+  { t: 0.27, pos: new THREE.Vector3(13.4, -5.0, -81.5), target: new THREE.Vector3(15.0, -5.5, -85.0) },
+  { t: 0.29, pos: new THREE.Vector3(13.4, -5.0, -81.5), target: new THREE.Vector3(15.0, -5.5, -85.0) },
+  // Hyperspace Warp Jump: Down-left deep dive toward Station 1.3
+  { t: 0.305, pos: new THREE.Vector3(-1.0, -7.0, -108.0), target: new THREE.Vector3(-16.0, -7.0, -130.0) },
 
-  // ── Sector 2: Masterworks Exhibition (Curved Displays & Case Studies) ──
-  // Project 1: Araz Metal (Left)
-  { t: 0.5, pos: new THREE.Vector3(0.2, 2.2, -52.5), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
-  { t: 0.52, pos: new THREE.Vector3(0.2, 2.2, -52.5), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
-  // Project 2: Dr Sadeghi (Right)
-  { t: 0.54, pos: new THREE.Vector3(-0.2, 2.2, -59.5), target: new THREE.Vector3(2.4, 1.5, -63.0) },
-  { t: 0.56, pos: new THREE.Vector3(-0.2, 2.2, -59.5), target: new THREE.Vector3(2.4, 1.5, -63.0) },
-  // Project 3: Sepid Kooh (Left)
-  { t: 0.58, pos: new THREE.Vector3(0.2, 2.2, -66.5), target: new THREE.Vector3(-2.4, 1.6, -70.0) },
-  { t: 0.6, pos: new THREE.Vector3(0.2, 2.2, -66.5), target: new THREE.Vector3(-2.4, 1.6, -70.0) },
-  // Project 4: Baran Leather (Right)
-  { t: 0.62, pos: new THREE.Vector3(-0.2, 2.2, -73.5), target: new THREE.Vector3(2.4, 1.5, -77.0) },
-  { t: 0.64, pos: new THREE.Vector3(-0.2, 2.2, -73.5), target: new THREE.Vector3(2.4, 1.5, -77.0) },
+  // Station 1.3: Cinema Video & Teasers (Canon Retro Camera - Deep-Left Solar Crater)
+  { t: 0.32, pos: new THREE.Vector3(-14.4, -6.5, -126.5), target: new THREE.Vector3(-16.0, -7.0, -130.0) },
+  { t: 0.34, pos: new THREE.Vector3(-14.4, -6.5, -126.5), target: new THREE.Vector3(-16.0, -7.0, -130.0) },
+  // Hyperspace Warp Jump: Upward climb toward Station 1.4
+  { t: 0.355, pos: new THREE.Vector3(0.0, 2.0, -152.0), target: new THREE.Vector3(14.0, 11.0, -175.0) },
 
-  // ── Inter-Sector Warp 2 -> 3: Straighten camera facing forward into Sector 3 ──
-  { t: 0.67, pos: new THREE.Vector3(0, 2.4, -84.0), target: new THREE.Vector3(0, 2.0, -98.0) },
+  // Station 1.4: Branding & Identity (iPad Pro & Stylus - Zenith Starfield)
+  { t: 0.37, pos: new THREE.Vector3(12.4, 11.4, -171.5), target: new THREE.Vector3(14.0, 11.0, -175.0) },
+  { t: 0.39, pos: new THREE.Vector3(12.4, 11.4, -171.5), target: new THREE.Vector3(14.0, 11.0, -175.0) },
+  // Hyperspace Warp Jump: Arc toward Station 1.5
+  { t: 0.405, pos: new THREE.Vector3(2.0, 9.0, -198.0), target: new THREE.Vector3(-8.0, 6.0, -220.0) },
 
-  // ── Sector 3: Collaboration Workflow (5 Sequential Milestones) ──
-  // Step 1: Discovery & Research (Left)
-  { t: 0.7, pos: new THREE.Vector3(0.2, 2.2, -90.5), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
-  { t: 0.73, pos: new THREE.Vector3(0.2, 2.2, -90.5), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
-  // Step 2: Architecture & UI/UX (Right)
-  { t: 0.75, pos: new THREE.Vector3(-0.2, 2.2, -97.5), target: new THREE.Vector3(2.6, 1.5, -101.0) },
-  { t: 0.78, pos: new THREE.Vector3(-0.2, 2.2, -97.5), target: new THREE.Vector3(2.6, 1.5, -101.0) },
-  // Step 3: Production & Code (Left)
-  { t: 0.8, pos: new THREE.Vector3(0.2, 2.2, -104.5), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
-  { t: 0.83, pos: new THREE.Vector3(0.2, 2.2, -104.5), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
-  // Step 4: Quality & Testing (Right)
-  { t: 0.85, pos: new THREE.Vector3(-0.2, 2.2, -111.5), target: new THREE.Vector3(2.6, 1.5, -115.0) },
-  { t: 0.88, pos: new THREE.Vector3(-0.2, 2.2, -111.5), target: new THREE.Vector3(2.6, 1.5, -115.0) },
-  // Step 5: Launch & Scaling (Left)
-  { t: 0.9, pos: new THREE.Vector3(0.2, 2.2, -118.5), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
-  { t: 0.93, pos: new THREE.Vector3(0.2, 2.2, -118.5), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
+  // Station 1.5: Billboard & City Media (Floating Space Monolith)
+  { t: 0.42, pos: new THREE.Vector3(-6.4, 6.5, -216.0), target: new THREE.Vector3(-8.0, 6.0, -220.0) },
+  { t: 0.44, pos: new THREE.Vector3(-6.4, 6.5, -216.0), target: new THREE.Vector3(-8.0, 6.0, -220.0) },
 
-  // ── Inter-Sector Warp 3 -> 4: Straighten camera facing forward into Executive Room ──
-  { t: 0.94, pos: new THREE.Vector3(0, 2.4, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
+  // ── Inter-Sector Warp 1 -> 2: Deep space acceleration into Masterworks Nebula ──
+  { t: 0.47, pos: new THREE.Vector3(5.0, -1.0, -248.0), target: new THREE.Vector3(18.0, -8.0, -275.0) },
 
-  // ── Sector 4: Executive Consultation & Reception (Room 4) ──
-  // Executive Desk Phone & 24/7 Hotline (Left)
-  { t: 0.955, pos: new THREE.Vector3(0.2, 2.2, -142.0), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
-  { t: 0.97, pos: new THREE.Vector3(0.2, 2.2, -142.0), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
-  // Strategic Consultation Station (Right)
-  { t: 0.98, pos: new THREE.Vector3(-0.2, 2.2, -143.0), target: new THREE.Vector3(2.8, 1.4, -146.0) },
-  { t: 0.992, pos: new THREE.Vector3(-0.2, 2.2, -143.0), target: new THREE.Vector3(2.8, 1.4, -146.0) },
-  // Terminal Celestial Monolith & Brand Crest
-  { t: 1.0, pos: new THREE.Vector3(0.0, 2.4, -148.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
+  // ── Sector 2: Masterworks Exhibition (4 Constellations Across the Nebula) ──
+  // Project 2.1: Araz Metal Industrial Portal
+  { t: 0.5, pos: new THREE.Vector3(16.2, -7.5, -271.0), target: new THREE.Vector3(18.0, -8.0, -275.0) },
+  { t: 0.52, pos: new THREE.Vector3(16.2, -7.5, -271.0), target: new THREE.Vector3(18.0, -8.0, -275.0) },
+  // Warp Jump to Project 2.2
+  { t: 0.53, pos: new THREE.Vector3(0.0, 2.0, -302.0), target: new THREE.Vector3(-18.0, 12.0, -330.0) },
+
+  // Project 2.2: Dr. Sadeghi Medical Branding
+  { t: 0.54, pos: new THREE.Vector3(-16.2, 11.5, -326.0), target: new THREE.Vector3(-18.0, 12.0, -330.0) },
+  { t: 0.56, pos: new THREE.Vector3(-16.2, 11.5, -326.0), target: new THREE.Vector3(-18.0, 12.0, -330.0) },
+  // Warp Jump to Project 2.3
+  { t: 0.57, pos: new THREE.Vector3(-1.0, 14.0, -358.0), target: new THREE.Vector3(15.0, 14.0, -385.0) },
+
+  // Project 2.3: Sepid Kooh Outdoor Campaign
+  { t: 0.58, pos: new THREE.Vector3(13.2, 13.5, -381.0), target: new THREE.Vector3(15.0, 14.0, -385.0) },
+  { t: 0.6, pos: new THREE.Vector3(13.2, 13.5, -381.0), target: new THREE.Vector3(15.0, 14.0, -385.0) },
+  // Warp Jump to Project 2.4
+  { t: 0.61, pos: new THREE.Vector3(-1.0, 0.0, -412.0), target: new THREE.Vector3(-16.0, -12.0, -440.0) },
+
+  // Project 2.4: Baran Leather E-Commerce
+  { t: 0.62, pos: new THREE.Vector3(-14.2, -11.5, -436.0), target: new THREE.Vector3(-16.0, -12.0, -440.0) },
+  { t: 0.64, pos: new THREE.Vector3(-14.2, -11.5, -436.0), target: new THREE.Vector3(-16.0, -12.0, -440.0) },
+
+  // ── Inter-Sector Warp 2 -> 3: Entering Collaboration Orbital Chain ──
+  { t: 0.67, pos: new THREE.Vector3(-2.0, -1.0, -470.0), target: new THREE.Vector3(12.0, 9.0, -500.0) },
+
+  // ── Sector 3: Collaboration Hyper-Trajectory (5 Orbital Waypoints) ──
+  // Step 3.1: Discovery & Strategy (Realistic Executive Clipboard)
+  { t: 0.7, pos: new THREE.Vector3(10.4, 9.4, -496.0), target: new THREE.Vector3(12.0, 9.0, -500.0) },
+  { t: 0.73, pos: new THREE.Vector3(10.4, 9.4, -496.0), target: new THREE.Vector3(12.0, 9.0, -500.0) },
+  // Warp to Step 3.2
+  { t: 0.74, pos: new THREE.Vector3(-1.0, 8.0, -528.0), target: new THREE.Vector3(-14.0, 5.0, -555.0) },
+
+  // Step 3.2: Architecture & UI/UX (Quantum Beacon 1)
+  { t: 0.75, pos: new THREE.Vector3(-12.4, 5.4, -551.0), target: new THREE.Vector3(-14.0, 5.0, -555.0) },
+  { t: 0.78, pos: new THREE.Vector3(-12.4, 5.4, -551.0), target: new THREE.Vector3(-14.0, 5.0, -555.0) },
+  // Warp to Step 3.3
+  { t: 0.79, pos: new THREE.Vector3(-2.0, -4.0, -582.0), target: new THREE.Vector3(10.0, -12.0, -610.0) },
+
+  // Step 3.3: Production & Development (Quantum Beacon 2)
+  { t: 0.8, pos: new THREE.Vector3(8.4, -11.5, -606.0), target: new THREE.Vector3(10.0, -12.0, -610.0) },
+  { t: 0.83, pos: new THREE.Vector3(8.4, -11.5, -606.0), target: new THREE.Vector3(10.0, -12.0, -610.0) },
+  // Warp to Step 3.4
+  { t: 0.84, pos: new THREE.Vector3(-1.0, -12.0, -638.0), target: new THREE.Vector3(-12.0, -10.0, -665.0) },
+
+  // Step 3.4: Quality & Testing (Quantum Beacon 3)
+  { t: 0.85, pos: new THREE.Vector3(-10.4, -9.5, -661.0), target: new THREE.Vector3(-12.0, -10.0, -665.0) },
+  { t: 0.88, pos: new THREE.Vector3(-10.4, -9.5, -661.0), target: new THREE.Vector3(-12.0, -10.0, -665.0) },
+  // Warp to Step 3.5
+  { t: 0.89, pos: new THREE.Vector3(1.0, -1.0, -692.0), target: new THREE.Vector3(14.0, 7.0, -720.0) },
+
+  // Step 3.5: Launch & Support (Quantum Beacon 4)
+  { t: 0.9, pos: new THREE.Vector3(12.4, 7.4, -716.0), target: new THREE.Vector3(14.0, 7.0, -720.0) },
+  { t: 0.93, pos: new THREE.Vector3(12.4, 7.4, -716.0), target: new THREE.Vector3(14.0, 7.0, -720.0) },
+
+  // ── Inter-Sector Warp 3 -> 4: Hyper-drive approach to Galactic Core ──
+  { t: 0.94, pos: new THREE.Vector3(7.0, 5.0, -750.0), target: new THREE.Vector3(0.0, 3.0, -780.0) },
+
+  // ── Sector 4: Executive Command Nexus & Consultation Portal ──
+  { t: 0.955, pos: new THREE.Vector3(0.0, 3.4, -772.0), target: new THREE.Vector3(0.0, 3.0, -780.0) },
+  { t: 0.995, pos: new THREE.Vector3(0.0, 3.4, -772.0), target: new THREE.Vector3(0.0, 3.0, -780.0) },
+  // Final Celestial Infinity Landmark
+  { t: 1.0, pos: new THREE.Vector3(0.0, 3.6, -776.0), target: new THREE.Vector3(0.0, 5.0, -792.0) },
 ];
 
 export const MOBILE_CHOREOGRAPHED_CAMERA_WAYPOINTS: ChoreographedWaypoint[] = [
-  // ── Sector 0: Welcome ──
-  { t: 0.0, pos: new THREE.Vector3(0, 3.8, 16.5), target: new THREE.Vector3(0, 3.2, 0.0) },
-  { t: 0.16, pos: new THREE.Vector3(0, 3.8, 16.5), target: new THREE.Vector3(0, 3.2, 0.0) },
-  { t: 0.18, pos: new THREE.Vector3(0, 2.8, -13.0), target: new THREE.Vector3(0, 2.0, -25.0) },
+  // ── Sector 0 ──
+  { t: 0.0, pos: new THREE.Vector3(0, 3.5, 8.5), target: new THREE.Vector3(0, 2.0, 0.0) },
+  { t: 0.16, pos: new THREE.Vector3(0, 3.5, 8.5), target: new THREE.Vector3(0, 2.0, 0.0) },
+  { t: 0.19, pos: new THREE.Vector3(-4.5, 5.5, -18.0), target: new THREE.Vector3(-10.0, 6.5, -35.0) },
 
-  // ── Sector 1: Services ──
-  { t: 0.22, pos: new THREE.Vector3(0.3, 2.5, -18.8), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
-  { t: 0.24, pos: new THREE.Vector3(0.3, 2.5, -18.8), target: new THREE.Vector3(-2.2, 1.35, -22.0) },
-  { t: 0.27, pos: new THREE.Vector3(-0.3, 2.5, -23.8), target: new THREE.Vector3(2.2, 1.55, -27.0) },
-  { t: 0.29, pos: new THREE.Vector3(-0.3, 2.5, -23.8), target: new THREE.Vector3(2.2, 1.55, -27.0) },
-  { t: 0.32, pos: new THREE.Vector3(0.3, 2.5, -28.8), target: new THREE.Vector3(-2.1, 1.3, -32.0) },
-  { t: 0.34, pos: new THREE.Vector3(0.3, 2.5, -28.8), target: new THREE.Vector3(-2.1, 1.3, -32.0) },
-  { t: 0.37, pos: new THREE.Vector3(-0.3, 2.5, -33.8), target: new THREE.Vector3(2.2, 1.25, -37.0) },
-  { t: 0.39, pos: new THREE.Vector3(-0.3, 2.5, -33.8), target: new THREE.Vector3(2.2, 1.25, -37.0) },
-  { t: 0.42, pos: new THREE.Vector3(0.4, 2.7, -38.5), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
-  { t: 0.44, pos: new THREE.Vector3(0.4, 2.7, -38.5), target: new THREE.Vector3(-2.6, 3.2, -43.0) },
+  // ── Sector 1 ──
+  { t: 0.22, pos: new THREE.Vector3(-9.8, 7.8, -35.5), target: new THREE.Vector3(-12.0, 7.0, -40.0) },
+  { t: 0.24, pos: new THREE.Vector3(-9.8, 7.8, -35.5), target: new THREE.Vector3(-12.0, 7.0, -40.0) },
+  { t: 0.255, pos: new THREE.Vector3(2.5, 1.5, -60.0), target: new THREE.Vector3(15.0, -5.5, -85.0) },
+
+  { t: 0.27, pos: new THREE.Vector3(13.0, -4.6, -80.5), target: new THREE.Vector3(15.0, -5.5, -85.0) },
+  { t: 0.29, pos: new THREE.Vector3(13.0, -4.6, -80.5), target: new THREE.Vector3(15.0, -5.5, -85.0) },
+  { t: 0.305, pos: new THREE.Vector3(-0.5, -6.5, -108.0), target: new THREE.Vector3(-16.0, -7.0, -130.0) },
+
+  { t: 0.32, pos: new THREE.Vector3(-14.0, -6.1, -125.5), target: new THREE.Vector3(-16.0, -7.0, -130.0) },
+  { t: 0.34, pos: new THREE.Vector3(-14.0, -6.1, -125.5), target: new THREE.Vector3(-16.0, -7.0, -130.0) },
+  { t: 0.355, pos: new THREE.Vector3(0.5, 2.5, -152.0), target: new THREE.Vector3(14.0, 11.0, -175.0) },
+
+  { t: 0.37, pos: new THREE.Vector3(12.0, 11.8, -170.5), target: new THREE.Vector3(14.0, 11.0, -175.0) },
+  { t: 0.39, pos: new THREE.Vector3(12.0, 11.8, -170.5), target: new THREE.Vector3(14.0, 11.0, -175.0) },
+  { t: 0.405, pos: new THREE.Vector3(2.5, 9.5, -198.0), target: new THREE.Vector3(-8.0, 6.0, -220.0) },
+
+  { t: 0.42, pos: new THREE.Vector3(-6.0, 6.9, -215.0), target: new THREE.Vector3(-8.0, 6.0, -220.0) },
+  { t: 0.44, pos: new THREE.Vector3(-6.0, 6.9, -215.0), target: new THREE.Vector3(-8.0, 6.0, -220.0) },
 
   // ── Inter-Sector Warp 1 -> 2 ──
-  { t: 0.47, pos: new THREE.Vector3(0, 2.8, -48.0), target: new THREE.Vector3(0, 2.0, -62.0) },
+  { t: 0.47, pos: new THREE.Vector3(5.5, -0.5, -248.0), target: new THREE.Vector3(18.0, -8.0, -275.0) },
 
-  // ── Sector 2: Exhibition ──
-  { t: 0.5, pos: new THREE.Vector3(0.3, 2.6, -52.0), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
-  { t: 0.52, pos: new THREE.Vector3(0.3, 2.6, -52.0), target: new THREE.Vector3(-2.4, 1.45, -56.0) },
-  { t: 0.54, pos: new THREE.Vector3(-0.3, 2.6, -59.0), target: new THREE.Vector3(2.4, 1.5, -63.0) },
-  { t: 0.56, pos: new THREE.Vector3(-0.3, 2.6, -59.0), target: new THREE.Vector3(2.4, 1.5, -63.0) },
-  { t: 0.58, pos: new THREE.Vector3(0.3, 2.6, -66.0), target: new THREE.Vector3(-2.4, 1.6, -70.0) },
-  { t: 0.6, pos: new THREE.Vector3(0.3, 2.6, -66.0), target: new THREE.Vector3(-2.4, 1.6, -70.0) },
-  { t: 0.62, pos: new THREE.Vector3(-0.3, 2.6, -73.0), target: new THREE.Vector3(2.4, 1.5, -77.0) },
-  { t: 0.64, pos: new THREE.Vector3(-0.3, 2.6, -73.0), target: new THREE.Vector3(2.4, 1.5, -77.0) },
+  // ── Sector 2 ──
+  { t: 0.5, pos: new THREE.Vector3(15.8, -7.1, -270.0), target: new THREE.Vector3(18.0, -8.0, -275.0) },
+  { t: 0.52, pos: new THREE.Vector3(15.8, -7.1, -270.0), target: new THREE.Vector3(18.0, -8.0, -275.0) },
+  { t: 0.53, pos: new THREE.Vector3(0.5, 2.5, -302.0), target: new THREE.Vector3(-18.0, 12.0, -330.0) },
+
+  { t: 0.54, pos: new THREE.Vector3(-15.8, 11.9, -325.0), target: new THREE.Vector3(-18.0, 12.0, -330.0) },
+  { t: 0.56, pos: new THREE.Vector3(-15.8, 11.9, -325.0), target: new THREE.Vector3(-18.0, 12.0, -330.0) },
+  { t: 0.57, pos: new THREE.Vector3(-0.5, 14.5, -358.0), target: new THREE.Vector3(15.0, 14.0, -385.0) },
+
+  { t: 0.58, pos: new THREE.Vector3(12.8, 13.9, -380.0), target: new THREE.Vector3(15.0, 14.0, -385.0) },
+  { t: 0.6, pos: new THREE.Vector3(12.8, 13.9, -380.0), target: new THREE.Vector3(15.0, 14.0, -385.0) },
+  { t: 0.61, pos: new THREE.Vector3(-0.5, 0.5, -412.0), target: new THREE.Vector3(-16.0, -12.0, -440.0) },
+
+  { t: 0.62, pos: new THREE.Vector3(-13.8, -11.1, -435.0), target: new THREE.Vector3(-16.0, -12.0, -440.0) },
+  { t: 0.64, pos: new THREE.Vector3(-13.8, -11.1, -435.0), target: new THREE.Vector3(-16.0, -12.0, -440.0) },
 
   // ── Inter-Sector Warp 2 -> 3 ──
-  { t: 0.67, pos: new THREE.Vector3(0, 2.8, -84.0), target: new THREE.Vector3(0, 2.0, -98.0) },
+  { t: 0.67, pos: new THREE.Vector3(-1.5, -0.5, -470.0), target: new THREE.Vector3(12.0, 9.0, -500.0) },
 
-  // ── Sector 3: Workflow ──
-  { t: 0.7, pos: new THREE.Vector3(0.3, 2.6, -90.0), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
-  { t: 0.73, pos: new THREE.Vector3(0.3, 2.6, -90.0), target: new THREE.Vector3(-2.6, 1.5, -94.0) },
-  { t: 0.75, pos: new THREE.Vector3(-0.3, 2.6, -97.0), target: new THREE.Vector3(2.6, 1.5, -101.0) },
-  { t: 0.78, pos: new THREE.Vector3(-0.3, 2.6, -97.0), target: new THREE.Vector3(2.6, 1.5, -101.0) },
-  { t: 0.8, pos: new THREE.Vector3(0.3, 2.6, -104.0), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
-  { t: 0.83, pos: new THREE.Vector3(0.3, 2.6, -104.0), target: new THREE.Vector3(-2.6, 1.5, -108.0) },
-  { t: 0.85, pos: new THREE.Vector3(-0.3, 2.6, -111.0), target: new THREE.Vector3(2.6, 1.5, -115.0) },
-  { t: 0.88, pos: new THREE.Vector3(-0.3, 2.6, -111.0), target: new THREE.Vector3(2.6, 1.5, -115.0) },
-  { t: 0.9, pos: new THREE.Vector3(0.3, 2.6, -118.0), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
-  { t: 0.93, pos: new THREE.Vector3(0.3, 2.6, -118.0), target: new THREE.Vector3(-2.6, 1.5, -122.0) },
+  // ── Sector 3 ──
+  { t: 0.7, pos: new THREE.Vector3(10.0, 9.8, -495.0), target: new THREE.Vector3(12.0, 9.0, -500.0) },
+  { t: 0.73, pos: new THREE.Vector3(10.0, 9.8, -495.0), target: new THREE.Vector3(12.0, 9.0, -500.0) },
+  { t: 0.74, pos: new THREE.Vector3(-0.5, 8.5, -528.0), target: new THREE.Vector3(-14.0, 5.0, -555.0) },
+
+  { t: 0.75, pos: new THREE.Vector3(-12.0, 5.8, -550.0), target: new THREE.Vector3(-14.0, 5.0, -555.0) },
+  { t: 0.78, pos: new THREE.Vector3(-12.0, 5.8, -550.0), target: new THREE.Vector3(-14.0, 5.0, -555.0) },
+  { t: 0.79, pos: new THREE.Vector3(-1.5, -3.5, -582.0), target: new THREE.Vector3(10.0, -12.0, -610.0) },
+
+  { t: 0.8, pos: new THREE.Vector3(8.0, -11.1, -605.0), target: new THREE.Vector3(10.0, -12.0, -610.0) },
+  { t: 0.83, pos: new THREE.Vector3(8.0, -11.1, -605.0), target: new THREE.Vector3(10.0, -12.0, -610.0) },
+  { t: 0.84, pos: new THREE.Vector3(-0.5, -11.5, -638.0), target: new THREE.Vector3(-12.0, -10.0, -665.0) },
+
+  { t: 0.85, pos: new THREE.Vector3(-10.0, -9.1, -660.0), target: new THREE.Vector3(-12.0, -10.0, -665.0) },
+  { t: 0.88, pos: new THREE.Vector3(-10.0, -9.1, -660.0), target: new THREE.Vector3(-12.0, -10.0, -665.0) },
+  { t: 0.89, pos: new THREE.Vector3(1.5, -0.5, -692.0), target: new THREE.Vector3(14.0, 7.0, -720.0) },
+
+  { t: 0.9, pos: new THREE.Vector3(12.0, 7.8, -715.0), target: new THREE.Vector3(14.0, 7.0, -720.0) },
+  { t: 0.93, pos: new THREE.Vector3(12.0, 7.8, -715.0), target: new THREE.Vector3(14.0, 7.0, -720.0) },
 
   // ── Inter-Sector Warp 3 -> 4 ──
-  { t: 0.94, pos: new THREE.Vector3(0, 2.8, -132.0), target: new THREE.Vector3(0, 2.0, -146.0) },
+  { t: 0.94, pos: new THREE.Vector3(7.5, 5.5, -750.0), target: new THREE.Vector3(0.0, 3.0, -780.0) },
 
-  // ── Sector 4: Executive ──
-  { t: 0.955, pos: new THREE.Vector3(0.3, 2.6, -141.5), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
-  { t: 0.97, pos: new THREE.Vector3(0.3, 2.6, -141.5), target: new THREE.Vector3(-2.8, 1.4, -146.0) },
-  { t: 0.98, pos: new THREE.Vector3(-0.3, 2.6, -142.5), target: new THREE.Vector3(2.8, 1.4, -146.0) },
-  { t: 0.992, pos: new THREE.Vector3(-0.3, 2.6, -142.5), target: new THREE.Vector3(2.8, 1.4, -146.0) },
-  { t: 1.0, pos: new THREE.Vector3(0.0, 2.8, -147.5), target: new THREE.Vector3(0.0, 4.8, -165.0) },
+  // ── Sector 4 ──
+  { t: 0.955, pos: new THREE.Vector3(0.0, 3.8, -770.0), target: new THREE.Vector3(0.0, 3.0, -780.0) },
+  { t: 0.995, pos: new THREE.Vector3(0.0, 3.8, -770.0), target: new THREE.Vector3(0.0, 3.0, -780.0) },
+  { t: 1.0, pos: new THREE.Vector3(0.0, 4.0, -774.0), target: new THREE.Vector3(0.0, 5.0, -792.0) },
 ];
 
 const _splinePos = new THREE.Vector3();
@@ -204,7 +253,7 @@ function getSplinePoint(t: number, isMobile: boolean): { pos: THREE.Vector3; tar
   const span = pB.t - pA.t;
   const fraction = span > 0 ? (t - pA.t) / span : 0;
 
-  // Ken Perlin's Smootherstep curve for stabilized reading plateaus
+  // Ken Perlin's Smootherstep curve for stabilized reading plateaus and sweeping warp arcs
   const smooth = fraction * fraction * fraction * (fraction * (fraction * 6 - 15) + 10);
 
   _splinePos.lerpVectors(pA.pos, pB.pos, smooth);
@@ -264,10 +313,10 @@ function SmoothScrollCamera({
     }
   }, [divePhase]);
 
-  // Responsive FOV adjustment on narrow portrait viewports
+  // Responsive FOV adjustment on portrait viewports
   useEffect(() => {
     if (!(camera instanceof THREE.PerspectiveCamera)) return;
-    const targetFov = aspect < 0.55 ? 62 : aspect < 0.75 ? 56 : aspect < 1.0 ? 50 : 45;
+    const targetFov = aspect < 0.55 ? 60 : aspect < 0.75 ? 54 : aspect < 1.0 ? 49 : 45;
     if (camera.fov !== targetFov) {
       camera.fov = targetFov;
       camera.updateProjectionMatrix();
@@ -339,12 +388,12 @@ function SmoothScrollCamera({
       return;
     }
 
-    // ── 4. STANDARD CENTERLINE SPLINE TRACKING WITH SMOOTH EASING ──
+    // ── 4. 3D GALACTIC TRAJECTORY TRACKING WITH SMOOTH DAMPING & PARALLAX ──
     const { pos, target } = getSplinePoint(scrollProgress, isMobile);
 
-    const parallaxMult = isMobile ? 0.2 : 0.65;
+    const parallaxMult = isMobile ? 0.18 : 0.6;
     const parallaxX = pointer.x * parallaxMult;
-    const parallaxY = pointer.y * (parallaxMult * 0.55);
+    const parallaxY = pointer.y * (parallaxMult * 0.5);
 
     desiredPosRef.current.set(
       pos.x + parallaxX,
@@ -352,7 +401,7 @@ function SmoothScrollCamera({
       pos.z
     );
 
-    const dampSpeed = divePhase === 'staging' ? 0.26 : 0.42;
+    const dampSpeed = divePhase === 'staging' ? 0.24 : 0.38;
     easing.damp3(camera.position, desiredPosRef.current, dampSpeed, delta);
     easing.damp3(currentTarget.current, target, dampSpeed, delta);
 
@@ -383,16 +432,18 @@ export default function DigitalArchitectureCampus({
     <>
       {/* Deep Cosmic Void Background & Atmospheric Horizon Fog */}
       <color attach="background" args={['#030712']} />
-      <fog attach="fog" args={['#030712', 45, 190]} />
+      <fog attach="fog" args={['#030712', 60, 260]} />
 
       {/* Cinematic Deep Space Lighting Setup */}
-      <ambientLight intensity={1.1} color="#E0F2FE" />
-      <directionalLight position={[15, 25, 15]} intensity={2.2} color="#F0FDF4" />
-      <directionalLight position={[-15, 20, -35]} intensity={1.5} color="#38BDF8" />
-      <pointLight position={[0, 4, 0]} intensity={2.0} distance={25} color="#10B981" />
-      <pointLight position={[-2, 4, -28]} intensity={1.8} distance={30} color="#5EEAD4" />
-      <pointLight position={[0, 4, -68]} intensity={1.8} distance={35} color="#38BDF8" />
-      <pointLight position={[0, 4, -146]} intensity={2.2} distance={30} color="#10B981" />
+      <ambientLight intensity={1.2} color="#E0F2FE" />
+      <directionalLight position={[25, 35, 15]} intensity={2.2} color="#F0FDF4" />
+      <directionalLight position={[-25, 25, -60]} intensity={1.5} color="#38BDF8" />
+      <pointLight position={[0, 4, 0]} intensity={2.0} distance={30} color="#10B981" />
+      <pointLight position={[-12, 8, -40]} intensity={2.2} distance={35} color="#38BDF8" />
+      <pointLight position={[15, -5, -85]} intensity={2.2} distance={35} color="#C084FC" />
+      <pointLight position={[-16, -6, -130]} intensity={2.2} distance={35} color="#FBBF24" />
+      <pointLight position={[14, 12, -175]} intensity={2.2} distance={35} color="#34D399" />
+      <pointLight position={[0, 4, -780]} intensity={2.5} distance={45} color="#10B981" />
 
       {/* Dynamic Camera Trajectory & Gaze Orientation */}
       <SmoothScrollCamera
@@ -405,7 +456,7 @@ export default function DigitalArchitectureCampus({
       {/* Cosmic Deep Space Environment: Starfield, Hyper-Speed Warp Streaks, Nebulae & Gateways */}
       <CosmicDeepSpace scrollProgress={scrollProgress} activeSector={activeSector} />
 
-      {/* Photorealistic Compressed 3D Models Showcase (Draco Decoded, 60fps) */}
+      {/* Photorealistic Compressed 3D Models Showcase in 3D Galaxy (Draco Decoded, 60fps) */}
       <CosmicSectorShowcase
         scrollProgress={scrollProgress}
         hoveredServiceSlug={hoveredServiceSlug}

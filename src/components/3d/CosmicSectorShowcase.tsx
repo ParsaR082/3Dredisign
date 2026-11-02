@@ -2,18 +2,15 @@
 
 import React, { useRef, useMemo, useState } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
-import { Float, Html, useGLTF, RoundedBox, Center } from '@react-three/drei';
+import { Float, Html, useGLTF, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   ExternalLink,
   ChevronLeft,
   Sparkles,
   PhoneCall,
-  CheckCircle2,
-  TrendingUp,
   Layers,
   Compass,
-  ArrowRight,
 } from 'lucide-react';
 import {
   PORTFOLIO_TVS_CONFIG,
@@ -50,9 +47,8 @@ function useClonedHqGLTF(path: string) {
               stdMat.map.colorSpace = THREE.SRGBColorSpace;
               stdMat.map.anisotropy = 4;
             }
-            // Enhance metallic and roughness PBR response in deep space
             if (stdMat.roughness !== undefined) {
-              stdMat.roughness = Math.min(0.85, stdMat.roughness * 0.9);
+              stdMat.roughness = Math.min(0.85, stdMat.roughness * 0.88);
             }
           });
         }
@@ -66,8 +62,8 @@ function useClonedHqGLTF(path: string) {
 function CosmicProximityBadge({
   position = [0, 0, 0],
   children,
-  minDist = 3.2,
-  maxDist = 18.0,
+  minDist = 1.6,
+  maxDist = 16.0,
 }: {
   position?: [number, number, number];
   children: React.ReactNode;
@@ -83,7 +79,7 @@ function CosmicProximityBadge({
     if (dist > maxDist || dist < minDist) {
       if (opacity !== 0) setOpacity(0);
     } else {
-      const alpha = THREE.MathUtils.clamp((maxDist - dist) / (maxDist - minDist - 2), 0, 1);
+      const alpha = THREE.MathUtils.clamp((maxDist - dist) / (maxDist - minDist - 1.5), 0, 1);
       if (Math.abs(opacity - alpha) > 0.05) setOpacity(alpha);
     }
   });
@@ -94,7 +90,7 @@ function CosmicProximityBadge({
     <Html
       position={position}
       center
-      distanceFactor={18}
+      distanceFactor={16}
       zIndexRange={[100, 0]}
       style={{
         opacity,
@@ -104,6 +100,44 @@ function CosmicProximityBadge({
     >
       <div className="dir-rtl select-none">{children}</div>
     </Html>
+  );
+}
+
+// Planetary Celestial Orbit Halo around each station
+function StationCelestialHalo({
+  color = '#5ef0c4',
+  radius = 2.0,
+}: {
+  color?: string;
+  radius?: number;
+}) {
+  return (
+    <group rotation={[-Math.PI / 2.5, 0, 0]}>
+      {/* Outer energy ring */}
+      <mesh>
+        <ringGeometry args={[radius, radius + 0.04, 48]} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={0.35}
+          blending={THREE.AdditiveBlending}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+      {/* Soft inner glow disc */}
+      <mesh>
+        <ringGeometry args={[0.01, radius * 0.85, 32]} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={0.04}
+          blending={THREE.AdditiveBlending}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+    </group>
   );
 }
 
@@ -130,7 +164,7 @@ export default function CosmicSectorShowcase({
   onHoverProject,
   isDiving = false,
 }: CosmicSectorShowcaseProps) {
-  // Load Models
+  // Load Cloned Draco Models
   const logoScene = useClonedHqGLTF('/3Dmodels/logo3d.glb');
   const monitorScene = useClonedHqGLTF('/3Dmodels/hq/curved_monitor.glb');
   const iphoneScene = useClonedHqGLTF('/3Dmodels/hq/apple_iphone_18_pro_max_burgundy_2026.glb');
@@ -145,63 +179,59 @@ export default function CosmicSectorShowcase({
   return (
     <group name="CosmicSectorShowcase">
       {/* ──────────────────────────────────────────────────────────── */}
-      {/* SECTOR 0: WELCOME NEXUS & METALLIC LOGO EMBLM (Z = 0)        */}
+      {/* SECTOR 0: WELCOME NEXUS & METALLIC LOGO CORE (Z = 0)         */}
       {/* ──────────────────────────────────────────────────────────── */}
-      {(isDiving || scrollProgress <= 0.25) && (
-        <group position={[0, 2.4, 0]}>
-          <Float speed={1.8} rotationIntensity={0.2} floatIntensity={0.4}>
-            <group scale={1.2}>
-              <primitive object={logoScene} />
+      {(isDiving || scrollProgress <= 0.22) && (
+        <group position={[0, 2.0, 0]}>
+          <Float speed={1.8} rotationIntensity={0.2} floatIntensity={0.35}>
+            <group scale={3.8}>
+              <Center>
+                <primitive object={logoScene} />
+              </Center>
             </group>
           </Float>
 
           {/* Luminous Energy Halo */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.6, 0]}>
-            <ringGeometry args={[2.8, 3.0, 48]} />
-            <meshBasicMaterial
-              color="#5ef0c4"
-              transparent
-              opacity={0.35}
-              blending={THREE.AdditiveBlending}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
+          <StationCelestialHalo color="#5ef0c4" radius={2.2} />
 
-          <CosmicProximityBadge position={[0, 2.6, 1.2]} minDist={2.0} maxDist={24.0}>
+          <CosmicProximityBadge position={[0, 2.2, 0.8]} minDist={1.5} maxDist={20.0}>
             <div className="bg-[#050C0A]/85 backdrop-blur-xl border border-emerald-500/40 px-6 py-4 rounded-2xl shadow-[0_0_35px_rgba(14,148,110,0.35)] text-center text-white min-w-[280px]">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs font-bold mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-                <span>پردیس فناوری اروم‌سیما</span>
+                <span>پردیس معماری دیجیتال اروم‌سیما</span>
               </div>
-              <h2 className="text-xl font-black text-white">معماری دیجیتال در جهان سه‌بعدی</h2>
-              <p className="text-xs text-gray-300 mt-1">با اسکرول، وارد ایستگاه‌های کیهانی خدمات و پروژه‌ها شوید</p>
+              <h2 className="text-xl font-black text-white">سفر سینماتیک در منظومه خلاقیت</h2>
+              <p className="text-xs text-gray-300 mt-1">با اسکرول، به سمت کهکشان‌های خدمات و پروژه‌ها سفر کنید</p>
             </div>
           </CosmicProximityBadge>
         </group>
       )}
 
       {/* ──────────────────────────────────────────────────────────── */}
-      {/* SECTOR 1: SERVICES HUB (5 FLOATING HQ HERO MODELS)          */}
+      {/* SECTOR 1: SERVICES CELESTIAL STATIONS (DISTINCT GALAXY ZONES) */}
       {/* ──────────────────────────────────────────────────────────── */}
-      {(isDiving || (scrollProgress >= 0.12 && scrollProgress <= 0.52)) && (
+      {(isDiving || (scrollProgress >= 0.14 && scrollProgress <= 0.50)) && (
         <group name="Sector1_Services">
-          {/* 1.1 Web Architecture (Curved OLED Display) */}
+          {/* 1.1 Web Architecture (Curved OLED Display) -> Upper-Left Sapphire Nebula */}
           <group
-            position={[-2.4, 2.0, -22]}
+            position={[-12.0, 7.0, -40.0]}
             onClick={() => onSelectService?.('corporate-industrial-web-design')}
             onPointerOver={() => onHoverService?.('corporate-industrial-web-design')}
             onPointerOut={() => onHoverService?.(null)}
           >
-            <Float speed={2.0} rotationIntensity={0.25} floatIntensity={0.35}>
-              <group scale={1.8} rotation={[0, Math.PI * 0.18, 0]}>
-                <primitive object={monitorScene} />
+            <Float speed={2.0} rotationIntensity={0.2} floatIntensity={0.3}>
+              <group scale={0.115} rotation={[0.08, Math.PI * 0.18, 0]}>
+                <Center>
+                  <primitive object={monitorScene} />
+                </Center>
               </group>
             </Float>
-            <CosmicProximityBadge position={[0, 2.2, 0]}>
-              <div className="bg-[#050C0A]/85 backdrop-blur-xl border border-emerald-500/40 p-4 rounded-2xl shadow-xl min-w-[260px] cursor-pointer hover:border-emerald-300 transition-all">
-                <div className="text-xs font-bold text-emerald-400 mb-1">۰۱ • طراحی و معماری وب‌سایت</div>
+            <StationCelestialHalo color="#38bdf8" radius={1.7} />
+            <CosmicProximityBadge position={[0, 1.8, 0]}>
+              <div className="bg-[#050C0A]/85 backdrop-blur-xl border border-cyan-500/40 p-4 rounded-2xl shadow-xl min-w-[260px] cursor-pointer hover:border-cyan-300 transition-all">
+                <div className="text-xs font-bold text-cyan-400 mb-1">۰۱ • طراحی و معماری وب‌سایت</div>
                 <div className="text-sm font-black text-white">توسعه پلتفرم‌های مدرن Next.js و ۳D</div>
-                <div className="text-[11px] text-gray-400 mt-1 flex items-center gap-1 text-emerald-300">
+                <div className="text-[11px] text-gray-400 mt-1 flex items-center gap-1 text-cyan-300">
                   <span>کلیک جهت مشاهده جزئیات</span>
                   <ChevronLeft className="w-3 h-3" />
                 </div>
@@ -209,23 +239,26 @@ export default function CosmicSectorShowcase({
             </CosmicProximityBadge>
           </group>
 
-          {/* 1.2 Content & Social (Titanium iPhone 18 Pro Max) */}
+          {/* 1.2 Content & Social (Titanium iPhone 18 Pro Max) -> Lower-Right Crimson Sector */}
           <group
-            position={[2.4, 2.0, -27]}
+            position={[15.0, -5.5, -85.0]}
             onClick={() => onSelectService?.('instagram-content-creation-management')}
             onPointerOver={() => onHoverService?.('instagram-content-creation-management')}
             onPointerOut={() => onHoverService?.(null)}
           >
-            <Float speed={2.2} rotationIntensity={0.35} floatIntensity={0.4}>
-              <group scale={0.45} rotation={[0.2, -Math.PI * 0.2, 0]}>
-                <primitive object={iphoneScene} />
+            <Float speed={2.2} rotationIntensity={0.25} floatIntensity={0.35}>
+              <group scale={4.2} rotation={[0.15, -Math.PI * 0.22, 0]}>
+                <Center>
+                  <primitive object={iphoneScene} />
+                </Center>
               </group>
             </Float>
-            <CosmicProximityBadge position={[0, 2.2, 0]}>
-              <div className="bg-[#050C0A]/85 backdrop-blur-xl border border-emerald-500/40 p-4 rounded-2xl shadow-xl min-w-[260px] cursor-pointer hover:border-emerald-300 transition-all">
-                <div className="text-xs font-bold text-emerald-400 mb-1">۰۲ • تولید محتوا و اینستاگرام</div>
+            <StationCelestialHalo color="#c084fc" radius={1.6} />
+            <CosmicProximityBadge position={[0, 1.8, 0]}>
+              <div className="bg-[#050C0A]/85 backdrop-blur-xl border border-purple-500/40 p-4 rounded-2xl shadow-xl min-w-[260px] cursor-pointer hover:border-purple-300 transition-all">
+                <div className="text-xs font-bold text-purple-400 mb-1">۰۲ • تولید محتوا و اینستاگرام</div>
                 <div className="text-sm font-black text-white">سناریونویسی، ریلز وایرال و هویت بصری</div>
-                <div className="text-[11px] text-gray-400 mt-1 flex items-center gap-1 text-emerald-300">
+                <div className="text-[11px] text-gray-400 mt-1 flex items-center gap-1 text-purple-300">
                   <span>کلیک جهت مشاهده جزئیات</span>
                   <ChevronLeft className="w-3 h-3" />
                 </div>
@@ -233,23 +266,26 @@ export default function CosmicSectorShowcase({
             </CosmicProximityBadge>
           </group>
 
-          {/* 1.3 Cinema Video & Teaser (Canon Retro Camera) */}
+          {/* 1.3 Cinema Video & Teaser (Canon Retro Camera) -> Deep-Left Solar Crater */}
           <group
-            position={[-2.4, 2.0, -32]}
+            position={[-16.0, -7.0, -130.0]}
             onClick={() => onSelectService?.('industrial-commercial-video-production')}
             onPointerOver={() => onHoverService?.('industrial-commercial-video-production')}
             onPointerOut={() => onHoverService?.(null)}
           >
-            <Float speed={2.0} rotationIntensity={0.3} floatIntensity={0.35}>
-              <group scale={0.12} rotation={[0.1, Math.PI * 0.22, 0]}>
-                <primitive object={cameraScene} />
+            <Float speed={2.0} rotationIntensity={0.25} floatIntensity={0.3}>
+              <group scale={4.5} rotation={[0.08, Math.PI * 0.2, 0]}>
+                <Center>
+                  <primitive object={cameraScene} />
+                </Center>
               </group>
             </Float>
-            <CosmicProximityBadge position={[0, 2.2, 0]}>
-              <div className="bg-[#050C0A]/85 backdrop-blur-xl border border-emerald-500/40 p-4 rounded-2xl shadow-xl min-w-[260px] cursor-pointer hover:border-emerald-300 transition-all">
-                <div className="text-xs font-bold text-emerald-400 mb-1">۰۳ • تیزر تبلیغاتی و فیلمبرداری</div>
+            <StationCelestialHalo color="#fbbf24" radius={1.6} />
+            <CosmicProximityBadge position={[0, 1.8, 0]}>
+              <div className="bg-[#050C0A]/85 backdrop-blur-xl border border-amber-500/40 p-4 rounded-2xl shadow-xl min-w-[260px] cursor-pointer hover:border-amber-300 transition-all">
+                <div className="text-xs font-bold text-amber-400 mb-1">۰۳ • تیزر تبلیغاتی و فیلمبرداری</div>
                 <div className="text-sm font-black text-white">تصویربرداری هوایی، صنعتی و تدوین سینمایی</div>
-                <div className="text-[11px] text-gray-400 mt-1 flex items-center gap-1 text-emerald-300">
+                <div className="text-[11px] text-gray-400 mt-1 flex items-center gap-1 text-amber-300">
                   <span>کلیک جهت مشاهده جزئیات</span>
                   <ChevronLeft className="w-3 h-3" />
                 </div>
@@ -257,19 +293,22 @@ export default function CosmicSectorShowcase({
             </CosmicProximityBadge>
           </group>
 
-          {/* 1.4 Branding & Identity (iPad Pro & Stylus) */}
+          {/* 1.4 Branding & Identity (iPad Pro & Stylus) -> Zenith Starfield */}
           <group
-            position={[2.4, 2.0, -37]}
+            position={[14.0, 11.0, -175.0]}
             onClick={() => onSelectService?.('logo-corporate-identity-design')}
             onPointerOver={() => onHoverService?.('logo-corporate-identity-design')}
             onPointerOut={() => onHoverService?.(null)}
           >
-            <Float speed={2.1} rotationIntensity={0.25} floatIntensity={0.4}>
-              <group scale={0.42} rotation={[0.4, -Math.PI * 0.15, -0.2]}>
-                <primitive object={ipadScene} />
+            <Float speed={2.1} rotationIntensity={0.2} floatIntensity={0.35}>
+              <group scale={0.95} rotation={[0.3, -Math.PI * 0.15, -0.15]}>
+                <Center>
+                  <primitive object={ipadScene} />
+                </Center>
               </group>
             </Float>
-            <CosmicProximityBadge position={[0, 2.2, 0]}>
+            <StationCelestialHalo color="#34d399" radius={1.7} />
+            <CosmicProximityBadge position={[0, 1.8, 0]}>
               <div className="bg-[#050C0A]/85 backdrop-blur-xl border border-emerald-500/40 p-4 rounded-2xl shadow-xl min-w-[260px] cursor-pointer hover:border-emerald-300 transition-all">
                 <div className="text-xs font-bold text-emerald-400 mb-1">۰۴ • طراحی لوگو و برندینگ</div>
                 <div className="text-sm font-black text-white">هویت بصری یکپارچه، لوگوتایپ و برندبوک</div>
@@ -281,23 +320,26 @@ export default function CosmicSectorShowcase({
             </CosmicProximityBadge>
           </group>
 
-          {/* 1.5 Billboard & Media (Urban LED Billboard) */}
+          {/* 1.5 Billboard & Media (Urban LED Billboard) -> Deep-Space Floating Monolith */}
           <group
-            position={[-2.4, 2.2, -43]}
+            position={[-8.0, 6.0, -220.0]}
             onClick={() => onSelectService?.('billboard-outdoor-advertising-design')}
             onPointerOver={() => onHoverService?.('billboard-outdoor-advertising-design')}
             onPointerOut={() => onHoverService?.(null)}
           >
             <Float speed={1.6} rotationIntensity={0.15} floatIntensity={0.25}>
-              <group scale={0.007} rotation={[0, Math.PI * 0.5, 0]}>
-                <primitive object={billboardScene} />
+              <group scale={0.005} rotation={[0, Math.PI * 0.45, 0]}>
+                <Center>
+                  <primitive object={billboardScene} />
+                </Center>
               </group>
             </Float>
-            <CosmicProximityBadge position={[0, 2.4, 0]}>
-              <div className="bg-[#050C0A]/85 backdrop-blur-xl border border-emerald-500/40 p-4 rounded-2xl shadow-xl min-w-[260px] cursor-pointer hover:border-emerald-300 transition-all">
-                <div className="text-xs font-bold text-emerald-400 mb-1">۰۵ • بیلبورد و تبلیغات شهری</div>
+            <StationCelestialHalo color="#2dd4bf" radius={1.8} />
+            <CosmicProximityBadge position={[0, 2.0, 0]}>
+              <div className="bg-[#050C0A]/85 backdrop-blur-xl border border-teal-500/40 p-4 rounded-2xl shadow-xl min-w-[260px] cursor-pointer hover:border-teal-300 transition-all">
+                <div className="text-xs font-bold text-teal-400 mb-1">۰۵ • بیلبورد و تبلیغات شهری</div>
                 <div className="text-sm font-black text-white">اکران در پرترددترین نقاط ارومیه و تلویزیون شهری</div>
-                <div className="text-[11px] text-gray-400 mt-1 flex items-center gap-1 text-emerald-300">
+                <div className="text-[11px] text-gray-400 mt-1 flex items-center gap-1 text-teal-300">
                   <span>کلیک جهت مشاهده جزئیات</span>
                   <ChevronLeft className="w-3 h-3" />
                 </div>
@@ -308,34 +350,34 @@ export default function CosmicSectorShowcase({
       )}
 
       {/* ──────────────────────────────────────────────────────────── */}
-      {/* SECTOR 2: MASTERWORKS PORTFOLIO (4 FLOATING OLED MONITORS)   */}
+      {/* SECTOR 2: MASTERWORKS EXHIBITION (4 SCATTERED COSMIC SCREENS) */}
       {/* ──────────────────────────────────────────────────────────── */}
-      {(isDiving || (scrollProgress >= 0.44 && scrollProgress <= 0.74)) && (
+      {(isDiving || (scrollProgress >= 0.44 && scrollProgress <= 0.68)) && (
         <group name="Sector2_Masterworks">
           {tvProjects.slice(0, 4).map((tv, idx) => {
-            const isLeft = idx % 2 === 0;
-            const x = isLeft ? -2.5 : 2.5;
-            const z = -56 - idx * 7;
-            const rotY = isLeft ? Math.PI * 0.15 : -Math.PI * 0.15;
+            const rotY = idx % 2 === 0 ? -Math.PI / 6 : Math.PI / 6;
 
             return (
               <group
                 key={tv.slug}
-                position={[x, 2.0, z]}
+                position={tv.position}
                 onClick={() => onSelectProject?.(tv.slug)}
                 onPointerOver={() => onHoverProject?.(tv.slug)}
                 onPointerOut={() => onHoverProject?.(null)}
               >
-                <Float speed={1.8} rotationIntensity={0.18} floatIntensity={0.3}>
-                  <group scale={1.9} rotation={[0, rotY, 0]}>
-                    <primitive object={monitorScene.clone()} />
+                <Float speed={1.8} rotationIntensity={0.15} floatIntensity={0.25}>
+                  <group scale={0.115} rotation={[0, rotY, 0]}>
+                    <Center>
+                      <primitive object={monitorScene.clone()} />
+                    </Center>
                   </group>
                 </Float>
+                <StationCelestialHalo color="#38bdf8" radius={1.8} />
 
                 {/* Floating Project KPI Card */}
-                <CosmicProximityBadge position={[0, 2.3, 0]}>
-                  <div className="bg-[#050C0A]/90 backdrop-blur-xl border border-teal-500/40 p-4 rounded-2xl shadow-xl min-w-[280px] cursor-pointer hover:border-teal-300 transition-all">
-                    <div className="flex items-center justify-between text-xs text-teal-400 font-bold mb-1">
+                <CosmicProximityBadge position={[0, 1.8, 0]}>
+                  <div className="bg-[#050C0A]/90 backdrop-blur-xl border border-cyan-500/40 p-4 rounded-2xl shadow-xl min-w-[280px] cursor-pointer hover:border-cyan-300 transition-all">
+                    <div className="flex items-center justify-between text-xs text-cyan-400 font-bold mb-1">
                       <span>{tv.category}</span>
                       <span className="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full text-[10px]">
                         {tv.kpi}
@@ -343,8 +385,8 @@ export default function CosmicSectorShowcase({
                     </div>
                     <div className="text-sm font-black text-white">{tv.title}</div>
                     <div className="text-[11px] text-gray-400 mt-2 flex items-center justify-between">
-                      <span className="text-teal-300 font-medium">مشاهده پرونده کامل</span>
-                      <ExternalLink className="w-3.5 h-3.5 text-teal-300" />
+                      <span className="text-cyan-300 font-medium">مشاهده پرونده کامل</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-cyan-300" />
                     </div>
                   </div>
                 </CosmicProximityBadge>
@@ -355,27 +397,35 @@ export default function CosmicSectorShowcase({
       )}
 
       {/* ──────────────────────────────────────────────────────────── */}
-      {/* SECTOR 3: COLLABORATION WORKFLOW (5 HOLOGRAPHIC WAYPOINTS)   */}
+      {/* SECTOR 3: COLLABORATION ORBITAL WAYPOINTS (5 COSMIC STEPS)   */}
       {/* ──────────────────────────────────────────────────────────── */}
       {(isDiving || (scrollProgress >= 0.65 && scrollProgress <= 0.94)) && (
         <group name="Sector3_Workflow">
           {COLLABORATION_STATIONS_CONFIG.map((step, idx) => {
-            const isLeft = idx % 2 === 0;
-            const x = isLeft ? -2.5 : 2.5;
-            const z = -94 - idx * 7;
+            // Galaxy coordinates for the 5 workflow steps
+            const stepPositions: [number, number, number][] = [
+              [12.0, 9.0, -500.0],
+              [-14.0, 5.0, -555.0],
+              [10.0, -12.0, -610.0],
+              [-12.0, -10.0, -665.0],
+              [14.0, 7.0, -720.0],
+            ];
+            const pos = stepPositions[idx] || [0, 0, -500 - idx * 50];
 
             return (
-              <group key={step.id} position={[x, 2.0, z]}>
-                <Float speed={2.0} rotationIntensity={0.2} floatIntensity={0.35}>
+              <group key={step.id} position={pos}>
+                <Float speed={2.0} rotationIntensity={0.2} floatIntensity={0.3}>
                   {idx === 0 ? (
-                    <group scale={0.8} rotation={[0.4, isLeft ? 0.2 : -0.2, 0]}>
-                      <primitive object={clipboardScene} />
+                    <group scale={0.021} rotation={[0.4, 0.2, 0]}>
+                      <Center>
+                        <primitive object={clipboardScene} />
+                      </Center>
                     </group>
                   ) : (
-                    /* Holographic Quantum Waypoint Core */
+                    /* Holographic Quantum Beacon */
                     <group>
                       <mesh>
-                        <octahedronGeometry args={[0.7, 0]} />
+                        <octahedronGeometry args={[0.55, 0]} />
                         <meshStandardMaterial
                           color="#10B981"
                           emissive="#064e3b"
@@ -385,14 +435,15 @@ export default function CosmicSectorShowcase({
                         />
                       </mesh>
                       <mesh rotation={[Math.PI / 4, Math.PI / 4, 0]}>
-                        <torusGeometry args={[1.1, 0.03, 16, 48]} />
+                        <torusGeometry args={[0.85, 0.025, 16, 48]} />
                         <meshBasicMaterial color="#5ef0c4" transparent opacity={0.6} />
                       </mesh>
                     </group>
                   )}
                 </Float>
+                <StationCelestialHalo color="#10b981" radius={1.6} />
 
-                <CosmicProximityBadge position={[0, 2.2, 0]}>
+                <CosmicProximityBadge position={[0, 1.8, 0]}>
                   <div className="bg-[#050C0A]/90 backdrop-blur-xl border border-emerald-500/40 p-4 rounded-2xl shadow-xl min-w-[280px]">
                     <div className="flex items-center justify-between text-xs text-emerald-400 font-bold mb-1">
                       <span>{step.stepTag}</span>
@@ -409,19 +460,22 @@ export default function CosmicSectorShowcase({
       )}
 
       {/* ──────────────────────────────────────────────────────────── */}
-      {/* SECTOR 4: EXECUTIVE CONTACT HUB (EXECUTIVE REALISTIC PHONE)  */}
+      {/* SECTOR 4: EXECUTIVE COMMAND NEXUS (CORE OF THE GALAXY)       */}
       {/* ──────────────────────────────────────────────────────────── */}
       {(isDiving || scrollProgress >= 0.88) && (
-        <group name="Sector4_Contact">
-          {/* Executive Direct Phone (Right) */}
-          <group position={[2.2, 2.0, -146]}>
-            <Float speed={2.2} rotationIntensity={0.3} floatIntensity={0.4}>
-              <group scale={0.08} rotation={[0.3, -Math.PI * 0.25, 0]}>
-                <primitive object={phoneScene} />
+        <group name="Sector4_Contact" position={[0, 0, -780.0]}>
+          {/* Executive Direct Phone (Left Station) */}
+          <group position={[-3.2, 2.6, 0]}>
+            <Float speed={2.2} rotationIntensity={0.25} floatIntensity={0.35}>
+              <group scale={0.038} rotation={[0.3, -Math.PI * 0.22, 0]}>
+                <Center>
+                  <primitive object={phoneScene} />
+                </Center>
               </group>
             </Float>
-            <CosmicProximityBadge position={[0, 2.3, 0]}>
-              <div className="bg-[#050C0A]/95 backdrop-blur-xl border border-emerald-500/50 p-5 rounded-2xl shadow-[0_0_40px_rgba(14,148,110,0.4)] min-w-[300px] text-center">
+            <StationCelestialHalo color="#5ef0c4" radius={1.6} />
+            <CosmicProximityBadge position={[0, 1.9, 0]}>
+              <div className="bg-[#050C0A]/95 backdrop-blur-xl border border-emerald-500/50 p-5 rounded-2xl shadow-[0_0_40px_rgba(14,148,110,0.4)] min-w-[280px] text-center">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold mb-2">
                   <PhoneCall className="w-3.5 h-3.5 text-emerald-400" />
                   <span>پایانه ارتباط مستقیم مدیریت</span>
@@ -439,11 +493,11 @@ export default function CosmicSectorShowcase({
             </CosmicProximityBadge>
           </group>
 
-          {/* Consultation Terminal Portal (Left) */}
-          <group position={[-2.2, 2.0, -146]}>
+          {/* Consultation Terminal Portal (Right Station) */}
+          <group position={[3.2, 2.6, 0]}>
             <Float speed={1.8} rotationIntensity={0.2} floatIntensity={0.3}>
               <mesh>
-                <cylinderGeometry args={[1.2, 1.2, 0.1, 32]} />
+                <cylinderGeometry args={[0.9, 0.9, 0.08, 32]} />
                 <meshStandardMaterial
                   color="#0E946E"
                   metalness={0.9}
@@ -451,18 +505,32 @@ export default function CosmicSectorShowcase({
                   emissive="#064e3b"
                 />
               </mesh>
-              <mesh rotation={[Math.PI / 2, 0, 0]}>
-                <ringGeometry args={[1.4, 1.45, 36]} />
-                <meshBasicMaterial color="#5ef0c4" transparent opacity={0.6} side={THREE.DoubleSide} />
+              <mesh position={[0, 0.05, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                <ringGeometry args={[0.82, 0.88, 32]} />
+                <meshBasicMaterial color="#5ef0c4" />
               </mesh>
             </Float>
-            <CosmicProximityBadge position={[0, 2.2, 0]}>
+            <StationCelestialHalo color="#38bdf8" radius={1.6} />
+            <CosmicProximityBadge position={[0, 1.9, 0]}>
               <div className="bg-[#050C0A]/90 backdrop-blur-xl border border-teal-500/40 p-4 rounded-2xl shadow-xl min-w-[260px] text-center">
-                <div className="text-xs font-bold text-teal-400 mb-1">دفتر مرکزی اروم‌سیما</div>
-                <div className="text-sm font-black text-white">ارومیه • پارک علم و فناوری</div>
-                <div className="text-xs text-gray-400 mt-1">پذیرش جلسات حضوری با هماهنگی قبلی</div>
+                <div className="text-xs font-bold text-teal-400 mb-1">دسترسی VIP کارفرمایان</div>
+                <div className="text-sm font-black text-white">رزرو آنلاین جلسات استراتژی</div>
+                <div className="text-xs text-gray-400 mt-1">مشاوره حضوری در ارومیه یا آنلاین</div>
               </div>
             </CosmicProximityBadge>
+          </group>
+
+          {/* Terminal Celestial Brand Landmark Crest */}
+          <group position={[0, 4.8, -12.0]}>
+            <Float speed={1.5} rotationIntensity={0.15} floatIntensity={0.25}>
+              <group scale={4.5}>
+                <Center>
+                  <primitive object={logoScene.clone()} />
+                </Center>
+              </group>
+            </Float>
+            <pointLight color="#10B981" intensity={2.5} distance={15} />
+            <StationCelestialHalo color="#5ef0c4" radius={2.8} />
           </group>
         </group>
       )}
