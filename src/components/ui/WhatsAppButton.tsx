@@ -12,7 +12,7 @@ interface WhatsAppButtonProps {
 
 export default function WhatsAppButton({ number }: WhatsAppButtonProps) {
   const pathname = usePathname();
-  if (pathname?.startsWith('/admin') || pathname?.startsWith('/campus-3d')) {
+  if (pathname?.startsWith('/admin')) {
     return null;
   }
 

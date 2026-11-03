@@ -152,7 +152,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
             className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-semibold transition-all border border-white/5"
           >
             <ExternalLink className="w-3.5 h-3.5 text-brand-400" />
-            <span>مشاهده پردیس ۳D</span>
+            <span>مشاهده وب‌سایت</span>
           </Link>
 
           <button

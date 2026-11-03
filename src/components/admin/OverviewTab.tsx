@@ -37,7 +37,7 @@ export default function OverviewTab({ stats, recentContacts, onSelectTab, onMark
     {
       title: 'پروژه‌ها و نمونه‌کارها',
       value: stats?.totalProjects ?? 0,
-      subValue: 'پروژه‌های ثبت‌شده در پردیس ۳D',
+      subValue: 'پروژه‌های ثبت‌شده در وب‌سایت',
       icon: FolderGit2,
       color: 'from-brand-600 to-cyan-600',
       badgeColor: 'bg-brand-500/20 text-brand-300',

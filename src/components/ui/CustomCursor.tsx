@@ -1,15 +1,9 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { usePathname } from 'next/navigation';
 import { motion, useSpring, useMotionValue } from 'framer-motion';
 
 export function CustomCursor() {
-  const pathname = usePathname();
-  const is3DPage = Boolean(
-    pathname && (pathname === '/campus-3d' || pathname.startsWith('/campus-3d'))
-  );
-
   const [isVisible, setIsVisible] = useState(false);
   const [cursorType, setCursorType] = useState<'default' | 'pointer' | 'view' | 'play' | 'drag'>('default');
   const [cursorText, setCursorText] = useState('');
@@ -26,7 +20,7 @@ export function CustomCursor() {
     // Detect touch device or reduced motion
     const touchCheck = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (touchCheck || prefersReducedMotion || is3DPage) {
+    if (touchCheck || prefersReducedMotion) {
       setIsTouch(true);
       return;
     }
@@ -75,9 +69,9 @@ export function CustomCursor() {
       document.removeEventListener('mouseleave', handleMouseLeave);
       document.removeEventListener('mouseenter', handleMouseEnter);
     };
-  }, [cursorX, cursorY, is3DPage, isVisible]);
+  }, [cursorX, cursorY, isVisible]);
 
-  if (isTouch || is3DPage || !isVisible) {
+  if (isTouch || !isVisible) {
     return null;
   }
 

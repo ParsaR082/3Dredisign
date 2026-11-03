@@ -30,7 +30,7 @@ export default function NotFound() {
         </motion.div>
 
         <h1 className="text-lg sm:text-2xl font-bold text-white">
-          مسیر فراخوانی‌شده در پردیس دیجیتال وجود ندارد
+          مسیر فراخوانی‌شده در وب‌سایت اروم‌سیما وجود ندارد
         </h1>
 
         <p className="text-xs sm:text-sm text-gray-400 leading-relaxed">

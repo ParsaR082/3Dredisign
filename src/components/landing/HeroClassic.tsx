@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Sparkles, ArrowLeft, Check, Compass, Box, Play } from 'lucide-react';
+import { Sparkles, ArrowLeft, Check, Play } from 'lucide-react';
 
 interface HeroClassicProps {
   badge: string;
@@ -137,38 +137,6 @@ export default function HeroClassic({
                 <span>{secondaryCtaText}</span>
               </Link>
             )}
-          </div>
-
-          {/* ══════════════════════════════════════════════════════════════ */}
-          {/* SPECIAL 3D CAMPUS ENTRY CTA BANNER */}
-          {/* ══════════════════════════════════════════════════════════════ */}
-          <div className="w-full max-w-2xl my-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-teal-900/30 to-emerald-950/40 border border-emerald-500/30 shadow-[0_0_30px_rgba(14,148,110,0.15)] backdrop-blur-md transition-all duration-300 hover:border-emerald-400 hover:shadow-[0_0_40px_rgba(14,148,110,0.3)]">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3 text-right">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 shadow-[0_0_15px_rgba(14,148,110,0.3)]">
-                  <Box className="w-6 h-6 animate-pulse" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-white">پردیس ۳ بعدی و تعاملی اروم‌سیما</span>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">
-                      نسل آینده
-                    </span>
-                  </div>
-                  <p className="text-xs text-emerald-200/70 mt-0.5">
-                    گردش آزاد ۳۶۰ درجه در سالن پروژه‌ها، استودیو و تالار فناوری
-                  </p>
-                </div>
-              </div>
-
-              <Link
-                href="/campus-3d"
-                className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-l from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white text-xs font-bold shadow-lg shadow-emerald-500/25 transition-all duration-300 hover:scale-105 active:scale-95 group"
-              >
-                <Compass className="w-4 h-4 group-hover:rotate-45 transition-transform" />
-                <span>ورود به محیط ۳ بعدی</span>
-              </Link>
-            </div>
           </div>
 
           {/* Trust Bar */}

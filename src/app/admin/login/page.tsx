@@ -126,7 +126,7 @@ export default function AdminLoginPage() {
               className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>بازگشت به پردیس ۳بعدی وب‌سایت</span>
+              <span>بازگشت به وب‌سایت</span>
             </Link>
           </div>
         </div>

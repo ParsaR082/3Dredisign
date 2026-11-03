@@ -104,7 +104,7 @@ export default function CountersTab({ counters, onRefresh }: CountersTabProps) {
         <div>
           <h2 className="text-xl font-black text-white flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-brand-400" />
-            <span>شمارنده‌های آماری لندینگ و پردیس ۳D</span>
+            <span>شمارنده‌های آماری وب‌سایت</span>
           </h2>
           <p className="text-xs text-gray-400 mt-1">
             شمارنده‌های ثبت‌شده در جدول public_landingcounter که آمار رضایت، تعداد پروژه‌ها و سوابق را نشان می‌دهند.

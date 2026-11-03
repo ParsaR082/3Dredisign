@@ -82,14 +82,7 @@ export default function ContactUsView({ settings, services, contactPage }: Conta
         className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-4 pt-1 sm:pt-2"
       >
         <Link
-          href="/?returnFrom=contact-us"
-          onClick={() => {
-            if (typeof window !== 'undefined') {
-              try {
-                sessionStorage.setItem('last_dive_target', 'contact-us');
-              } catch (_) {}
-            }
-          }}
+          href="/"
           className="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-white/5 hover:bg-brand-600/25 border border-white/10 hover:border-brand-500/40 text-gray-300 hover:text-white text-xs sm:text-sm font-semibold transition-all group shadow-sm backdrop-blur-md"
         >
           <motion.span
@@ -98,8 +91,7 @@ export default function ContactUsView({ settings, services, contactPage }: Conta
             className="inline-flex items-center gap-2"
           >
             <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-400 group-hover:translate-x-1 transition-transform" />
-            <span className="hidden sm:inline">بازگشت به پردیس ۳بعدی (ایستگاه مشاوره حضوری)</span>
-            <span className="sm:hidden">بازگشت به پردیس ۳بعدی</span>
+            <span>بازگشت به صفحه اصلی</span>
           </motion.span>
         </Link>
 

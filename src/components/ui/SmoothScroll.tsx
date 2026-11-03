@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 import Lenis from 'lenis';
 
 interface SmoothScrollProps {
@@ -9,16 +8,10 @@ interface SmoothScrollProps {
 }
 
 export function SmoothScroll({ children }: SmoothScrollProps) {
-  const pathname = usePathname();
-  // Do not enable window smooth scroll on the 3D campus to avoid interfering with 3D canvas controls
-  const is3DPage = Boolean(
-    pathname && (pathname === '/campus-3d' || pathname.startsWith('/campus-3d'))
-  );
-
   useEffect(() => {
     // Check user preference for reduced motion
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion || is3DPage) {
+    if (prefersReducedMotion) {
       return;
     }
 
@@ -60,7 +53,7 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };
-  }, [is3DPage, pathname]);
+  }, []);
 
   return <>{children}</>;
 }
