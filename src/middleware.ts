@@ -60,3 +60,4 @@ export const config = {
     '/((?!_next/static|_next/image|favicon\\.ico|favicon\\.png|favicon\\.svg|manifest\\.json|google[a-zA-Z0-9]+\\.html|images/|media/|fonts/|3Dmodels/|draco/).*)',
   ],
 };
+

@@ -19,7 +19,7 @@ import {
   Share2,
 } from 'lucide-react';
 import { getLiveProjects, getLiveProjectBySlug, getLiveRelatedProjects } from '@/lib/db';
-import { generatePageMetadata } from '@/lib/seo';
+import { generatePageMetadata, generateVideoJsonLd } from '@/lib/seo';
 import ProjectDeviceShowcase from '@/components/portfolio/ProjectDeviceShowcase';
 import {
   MotionDiv,
@@ -85,8 +85,27 @@ export default async function ProjectDetailPage({ params }: Props) {
 
   const hasShowcase = hasLiveUrl || hasAnyMockup;
 
+  const firstVideo = project.videos && project.videos.length > 0 ? project.videos[0] : null;
+  const videoJsonLd = firstVideo
+    ? generateVideoJsonLd({
+        name: `${project.title} - ${firstVideo.title || 'ویدیو پروژه'}`,
+        description: project.subtitle || project.title,
+        thumbnailUrl: firstVideo.thumbnail || project.thumbnail_image,
+        contentUrl: firstVideo.video_file || undefined,
+        embedUrl: firstVideo.embed_url || undefined,
+      })
+    : null;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10 sm:space-y-16">
+      {videoJsonLd && (
+        <head>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }}
+          />
+        </head>
+      )}
       {/* ── 1. HEADER SECTION ── */}
       <MotionDiv variant="fade-up" className="space-y-5 sm:space-y-6">
         {/* Navigation Breadcrumb Links */}

@@ -135,6 +135,52 @@ export function generateWebSiteJsonLd() {
   };
 }
 
+export function generateVideoJsonLd({
+  name,
+  description,
+  thumbnailUrl,
+  uploadDate,
+  contentUrl,
+  embedUrl,
+  duration,
+}: {
+  name: string;
+  description: string;
+  thumbnailUrl: string;
+  uploadDate?: string;
+  contentUrl?: string;
+  embedUrl?: string;
+  duration?: string;
+}) {
+  const settings = getSiteSettings();
+  const cleanThumb = thumbnailUrl
+    ? (thumbnailUrl.startsWith('http') ? thumbnailUrl : `${BASE_URL}${thumbnailUrl.startsWith('/') ? '' : '/'}${thumbnailUrl}`)
+    : `${BASE_URL}/favicon.png`;
+  const cleanContent = contentUrl
+    ? (contentUrl.startsWith('http') ? contentUrl : `${BASE_URL}${contentUrl.startsWith('/') ? '' : '/'}${contentUrl}`)
+    : undefined;
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name,
+    description: description || name,
+    thumbnailUrl: [cleanThumb],
+    uploadDate: uploadDate || new Date().toISOString(),
+    duration: duration || 'PT1M',
+    ...(cleanContent && { contentUrl: cleanContent }),
+    ...(embedUrl && { embedUrl }),
+    publisher: {
+      '@type': 'Organization',
+      name: settings.site_name,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${BASE_URL}/favicon.png`,
+      },
+    },
+  };
+}
+
 export function generateServiceJsonLd(service: Service) {
   const settings = getSiteSettings();
   return {

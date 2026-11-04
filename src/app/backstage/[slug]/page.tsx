@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Film, Play, MapPin, Clock, Calendar, ChevronRight, Share2, Sparkles, ArrowLeft } from 'lucide-react';
-import { generatePageMetadata } from '@/lib/seo';
+import { generatePageMetadata, generateVideoJsonLd } from '@/lib/seo';
 import { getLiveBackstageItems, getLiveBackstageBySlug } from '@/lib/db';
 import {
   MotionDiv,
@@ -52,9 +52,23 @@ export default async function BackstageDetailPage({ params }: BackstagePageProps
 
   const allItems = await getLiveBackstageItems();
   const otherItems = allItems.filter((b) => b.id !== item.id).slice(0, 3);
+  const videoJsonLd = generateVideoJsonLd({
+    name: item.title,
+    description: item.excerpt || item.subtitle || item.title,
+    thumbnailUrl: item.cover_image,
+    uploadDate: item.published_at || undefined,
+    contentUrl: item.cover_video || undefined,
+    duration: item.duration_label ? undefined : 'PT1M',
+  });
 
   return (
     <div className="min-h-screen py-8 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto space-y-8 sm:space-y-12">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }}
+        />
+      </head>
       {/* Breadcrumb */}
       <MotionDiv variant="fade-up" className="flex items-center gap-2 text-xs text-gray-400">
         <Link href="/" className="hover:text-brand-400 transition-colors">خانه</Link>

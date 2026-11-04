@@ -9,6 +9,10 @@ import { MotionDiv, MotionBadge, transitionSpring } from '@/components/ui/motion
 export default function NotFound() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
+      <head>
+        <meta name="robots" content="noindex, follow" />
+        <title>صفحه مورد نظر یافت نشد (خطای ۴۰۴) | اروم سیما</title>
+      </head>
       <MotionDiv
         variant="scale-up"
         className="max-w-lg w-full text-center space-y-5 sm:space-y-6 glass-panel-dock p-6 sm:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden"
