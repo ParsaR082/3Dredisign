@@ -2,112 +2,157 @@ import type { MetadataRoute } from 'next';
 import {
   getLiveServices,
   getLiveProjects,
+  getLiveCategories,
   getLiveBlogData,
   getLiveWebsites,
   getLiveBackstageItems,
+  getLiveBackstageCategories,
 } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
 
 const BASE_URL = 'https://urumsima.ir';
 
+export const revalidate = 3600; // Revalidate every hour
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date();
+
+  // Core High-Priority Static & Dedicated Landing Routes
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${BASE_URL}/`, lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
-    { url: `${BASE_URL}/web-design-urmia/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.95 },
-    { url: `${BASE_URL}/content-production-urmia/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.95 },
-    { url: `${BASE_URL}/video-teaser-urmia/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.95 },
-    { url: `${BASE_URL}/billboard-urmia/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.95 },
-    { url: `${BASE_URL}/services/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${BASE_URL}/portfolio/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${BASE_URL}/portfolio/projects-map/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.85 },
-    { url: `${BASE_URL}/websites/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${BASE_URL}/backstage/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.85 },
-    { url: `${BASE_URL}/pricing/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.85 },
-    { url: `${BASE_URL}/abner/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${BASE_URL}/about-us/`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${BASE_URL}/contact-us/`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${BASE_URL}/blog/`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
-    { url: `${BASE_URL}/tools/seo-checklist/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${BASE_URL}/tools/health-check/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${BASE_URL}/privacy-policy/`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${BASE_URL}/`, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
+    { url: `${BASE_URL}/services/`, lastModified: now, changeFrequency: 'weekly', priority: 0.95 },
+    { url: `${BASE_URL}/web-design-urmia/`, lastModified: now, changeFrequency: 'weekly', priority: 0.95 },
+    { url: `${BASE_URL}/video-teaser-urmia/`, lastModified: now, changeFrequency: 'weekly', priority: 0.95 },
+    { url: `${BASE_URL}/content-production-urmia/`, lastModified: now, changeFrequency: 'weekly', priority: 0.95 },
+    { url: `${BASE_URL}/billboard-urmia/`, lastModified: now, changeFrequency: 'weekly', priority: 0.95 },
+    { url: `${BASE_URL}/portfolio/`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${BASE_URL}/portfolio/projects-map/`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
+    { url: `${BASE_URL}/websites/`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${BASE_URL}/backstage/`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
+    { url: `${BASE_URL}/pricing/`, lastModified: now, changeFrequency: 'weekly', priority: 0.85 },
+    { url: `${BASE_URL}/about-us/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE_URL}/contact-us/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${BASE_URL}/blog/`, lastModified: now, changeFrequency: 'daily', priority: 0.85 },
+    { url: `${BASE_URL}/abner/`, lastModified: now, changeFrequency: 'weekly', priority: 0.75 },
+    { url: `${BASE_URL}/tools/seo-checklist/`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${BASE_URL}/privacy-policy/`, lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
   ];
+
+  // Fetch all dynamic entities from database in parallel
+  const [
+    services,
+    projects,
+    portfolioCategories,
+    blogData,
+    websites,
+    backstageItems,
+    blogCategoriesFromDb,
+  ] = await Promise.all([
+    getLiveServices().catch(() => []),
+    getLiveProjects().catch(() => []),
+    getLiveCategories().catch(() => []),
+    getLiveBlogData().catch(() => ({ settings: {} as any, articles: [] })),
+    getLiveWebsites().catch(() => []),
+    getLiveBackstageItems().catch(() => []),
+    prisma.blogBlogcategory.findMany().catch(() => []),
+  ]);
+
+  // Dedicated Service Routes
+  const serviceRoutes: MetadataRoute.Sitemap = services
+    .filter((s) => s.slug)
+    .map((s) => {
+      const urlPath = s.dedicated_url ? s.dedicated_url : `/services/${s.slug}/`;
+      const fullUrl = urlPath.startsWith('http') ? urlPath : `${BASE_URL}${urlPath.startsWith('/') ? '' : '/'}${urlPath}`;
+      const normalizedUrl = fullUrl.endsWith('/') ? fullUrl : `${fullUrl}/`;
+
+      return {
+        url: normalizedUrl,
+        lastModified: now,
+        changeFrequency: 'weekly',
+        priority: 0.9,
+      };
+    });
 
   // Portfolio Categories
-  const portfolioCategories = [
-    'branding-graphic-design',
-    'integrated-digital-marketing-services',
-    'sanat-va-sakhteman',
-    'ecommerce-website-design-development',
-    'social-media-management-content-production',
-  ];
-  const portfolioCategoryRoutes: MetadataRoute.Sitemap = portfolioCategories.map((slug) => ({
-    url: `${BASE_URL}/portfolio/category/${slug}/`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.8,
-  }));
+  const portfolioCategoryRoutes: MetadataRoute.Sitemap = portfolioCategories
+    .filter((c) => c.slug)
+    .map((c) => ({
+      url: `${BASE_URL}/portfolio/category/${c.slug}/`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    }));
+
+  // Individual Projects
+  const projectRoutes: MetadataRoute.Sitemap = projects
+    .filter((p) => p.slug)
+    .map((p) => ({
+      url: `${BASE_URL}/portfolio/${p.slug}/`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    }));
 
   // Blog Categories
-  const blogCategories = ['digital-marketing', 'website-design', 'tolid-mohtava'];
-  const blogCategoryRoutes: MetadataRoute.Sitemap = blogCategories.map((slug) => ({
+  const blogCategoryRoutes: MetadataRoute.Sitemap = (
+    blogCategoriesFromDb.length > 0
+      ? blogCategoriesFromDb.map((c) => c.slug)
+      : ['digital-marketing', 'website-design', 'tolid-mohtava']
+  ).map((slug) => ({
     url: `${BASE_URL}/blog/category/${slug}/`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.8,
-  }));
-
-  // Dedicated services
-  const services = await getLiveServices();
-  const serviceRoutes: MetadataRoute.Sitemap = services.map((s) => ({
-    url: `${BASE_URL}${s.dedicated_url || `/services/${s.slug}/`}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.9,
-  }));
-
-  // Portfolio items
-  const projects = await getLiveProjects();
-  const projectRoutes: MetadataRoute.Sitemap = projects.map((p) => ({
-    url: `${BASE_URL}/portfolio/${p.slug}/`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly',
-    priority: 0.75,
-  }));
-
-  // Blog posts
-  const blogData = await getLiveBlogData();
-  const blogRoutes: MetadataRoute.Sitemap = blogData.articles.map((a) => ({
-    url: `${BASE_URL}/blog/${a.slug}/`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly',
-    priority: 0.7,
-  }));
-
-  // Showcase websites
-  const websites = await getLiveWebsites();
-  const websiteRoutes: MetadataRoute.Sitemap = websites.map((w) => ({
-    url: `${BASE_URL}/websites/${w.slug}/`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.8,
-  }));
-
-  // Backstage items
-  const backstage = await getLiveBackstageItems();
-  const backstageRoutes: MetadataRoute.Sitemap = backstage.map((b) => ({
-    url: `${BASE_URL}/backstage/${encodeURIComponent(b.slug)}/`,
-    lastModified: new Date(),
+    lastModified: now,
     changeFrequency: 'weekly',
     priority: 0.75,
   }));
 
-  return [
+  // Blog Articles
+  const blogRoutes: MetadataRoute.Sitemap = blogData.articles
+    .filter((a) => a.slug)
+    .map((a) => ({
+      url: `${BASE_URL}/blog/${a.slug}/`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.75,
+    }));
+
+  // Showcase Pre-built Websites
+  const websiteRoutes: MetadataRoute.Sitemap = websites
+    .filter((w) => w.slug)
+    .map((w) => ({
+      url: `${BASE_URL}/websites/${w.slug}/`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    }));
+
+  // Backstage Videos & Items
+  const backstageRoutes: MetadataRoute.Sitemap = backstageItems
+    .filter((b) => b.slug)
+    .map((b) => ({
+      url: `${BASE_URL}/backstage/${encodeURIComponent(b.slug)}/`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.75,
+    }));
+
+  // Deduplicate URLs to guarantee 100% valid XML sitemap
+  const urlMap = new Map<string, MetadataRoute.Sitemap[number]>();
+  const allEntries = [
     ...staticRoutes,
-    ...portfolioCategoryRoutes,
-    ...blogCategoryRoutes,
     ...serviceRoutes,
+    ...portfolioCategoryRoutes,
     ...projectRoutes,
+    ...blogCategoryRoutes,
     ...blogRoutes,
     ...websiteRoutes,
     ...backstageRoutes,
   ];
+
+  for (const entry of allEntries) {
+    if (!urlMap.has(entry.url)) {
+      urlMap.set(entry.url, entry);
+    }
+  }
+
+  return Array.from(urlMap.values());
 }

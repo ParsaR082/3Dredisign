@@ -5,14 +5,44 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
+        allow: [
+          '/',
+          '/images/',
+          '/media/',
+          '/fonts/',
+        ],
+        disallow: [
+          '/api/',
+          '/admin/',
+          '/_next/',
+          '/tools/health-check/',
+        ],
+      },
+      {
+        userAgent: [
+          'Googlebot',
+          'Bingbot',
+          'YandexBot',
+          'Baiduspider',
+          'DuckDuckBot',
+          'Twitterbot',
+          'facebookexternalhit',
+          'WhatsApp',
+          'TelegramBot',
+        ],
+        allow: '/',
+        disallow: [
+          '/api/',
+          '/admin/',
+        ],
+      },
+      {
+        userAgent: ['GPTBot', 'Google-Extended', 'PerplexityBot', 'ClaudeBot', 'Applebot-Extended'],
         allow: '/',
         disallow: ['/api/', '/admin/'],
       },
-      {
-        userAgent: ['GPTBot', 'Google-Extended', 'PerplexityBot', 'ClaudeBot'],
-        allow: '/',
-      },
     ],
     sitemap: 'https://urumsima.ir/sitemap.xml',
+    host: 'https://urumsima.ir',
   };
 }

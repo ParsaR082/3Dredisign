@@ -121,6 +121,20 @@ export function generateOrganizationJsonLd() {
   };
 }
 
+export function generateWebSiteJsonLd() {
+  const settings = getSiteSettings();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${BASE_URL}/#website`,
+    url: BASE_URL,
+    name: settings.site_name,
+    alternateName: ['Urum Sima', 'آژانس اروم سیما', 'urumsima', 'urumsima.ir'],
+    description: settings.meta_description_default,
+    inLanguage: 'fa-IR',
+  };
+}
+
 export function generateServiceJsonLd(service: Service) {
   const settings = getSiteSettings();
   return {
