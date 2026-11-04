@@ -382,7 +382,7 @@ function IsometricScene({
         intensity={2.4}
         color="#ffffff"
         castShadow
-        shadow-mapSize={[1024, 1024]}
+        shadow-mapSize={[512, 512]}
         shadow-bias={-0.0001}
       />
 
@@ -503,38 +503,57 @@ export function IsometricCreativeUniverse3D({
   className?: string;
 }) {
   const [activeItem, setActiveItem] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    // Delay Canvas mount slightly to let the page and kinetic typography animate first without frame drops
+    const timer = setTimeout(() => setMounted(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const activeData = activeItem ? DISCIPLINES[activeItem] : null;
 
   return (
     <div className={`relative w-full h-full min-h-[380px] select-none ${className}`}>
-      {/* 3D WebGL Canvas */}
-      <Canvas
-        shadows
-        gl={{
-          antialias: true,
-          powerPreference: 'high-performance',
-          alpha: true,
-          toneMapping: THREE.ACESFilmicToneMapping,
-          toneMappingExposure: 1.15,
-        }}
-        // Long focal-length perspective camera for authentic isometric composition
-        // 30-35 degree downward angle, three-quarter view
-        camera={{
-          position: [5.6, 4.2, 5.6],
-          fov: 27,
-          near: 0.1,
-          far: 50,
-        }}
-        className="cursor-grab active:cursor-grabbing"
-      >
-        <Suspense fallback={null}>
-          <IsometricScene
-            activeItem={activeItem}
-            setActiveItem={setActiveItem}
-          />
-        </Suspense>
-      </Canvas>
+      {/* 3D WebGL Canvas with smooth transition */}
+      <div className={`w-full h-full transition-opacity duration-700 ease-out ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+        {mounted && (
+          <Canvas
+            shadows
+            dpr={[1, 1.5]}
+            gl={{
+              antialias: true,
+              powerPreference: 'high-performance',
+              alpha: true,
+              toneMapping: THREE.ACESFilmicToneMapping,
+              toneMappingExposure: 1.15,
+            }}
+            // Long focal-length perspective camera for authentic isometric composition
+            // 30-35 degree downward angle, three-quarter view
+            camera={{
+              position: [5.6, 4.2, 5.6],
+              fov: 27,
+              near: 0.1,
+              far: 50,
+            }}
+            className="cursor-grab active:cursor-grabbing"
+          >
+            <Suspense fallback={null}>
+              <IsometricScene
+                activeItem={activeItem}
+                setActiveItem={setActiveItem}
+              />
+            </Suspense>
+          </Canvas>
+        )}
+      </div>
+
+      {/* Gentle placeholder glow while mounting */}
+      {!mounted && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full border-2 border-brand-500/20 border-t-brand-400 animate-spin" />
+        </div>
+      )}
 
       {/* Floating Interactive HUD / Badge */}
       <div className="pointer-events-none absolute bottom-4 inset-x-4 flex justify-between items-end gap-2 z-10">

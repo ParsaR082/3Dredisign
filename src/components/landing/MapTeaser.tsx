@@ -41,10 +41,13 @@ export default function MapTeaser({ projectsCount, projects = [] }: MapTeaserPro
           attributionControl: false,
         }).setView(defaultCenter, 12);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-          maxZoom: 16,
-          subdomains: 'abcd',
-        }).addTo(map);
+        L.tileLayer(
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+          {
+            maxZoom: 18,
+            attribution: 'Esri, HERE',
+          }
+        ).addTo(map);
 
         // Add markers for projects
         const defaultPins: [number, number][] = [

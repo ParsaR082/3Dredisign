@@ -56,17 +56,17 @@ export default function ContactOfficeMap({
           attributionControl: false,
         });
 
-        // Use reliable tile layer with dark styling
-        // CartoDB Dark Matter with automatic OSM fallback
-        const cartoTile = L.tileLayer(
-          'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        // Use Esri World Dark Gray (100% free, zero API key required, zero watermarks)
+        const esriDarkTile = L.tileLayer(
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
           {
-            maxZoom: 19,
-            subdomains: 'abcd',
+            maxZoom: 18,
+            attribution: 'Esri, HERE',
           }
         );
 
-        const osmTile = L.tileLayer(
+        // Fallback tile layer: OpenStreetMap with dark CSS filter
+        const osmFallback = L.tileLayer(
           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           {
             maxZoom: 19,
@@ -74,16 +74,15 @@ export default function ContactOfficeMap({
           }
         );
 
-        // Add CartoDB tile; if error occurs, add OSM
-        cartoTile.on('tileerror', () => {
-          if (!map.hasLayer(osmTile)) {
-            osmTile.addTo(map);
+        esriDarkTile.on('tileerror', () => {
+          if (!map.hasLayer(osmFallback)) {
+            osmFallback.addTo(map);
           }
         });
 
-        cartoTile.addTo(map);
+        esriDarkTile.addTo(map);
 
-        // Custom pulsing marker pin
+        // Custom pulsing emerald office pin
         const pinHtml = `
           <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; transform: translate(-50%, -50%);">
             <span style="position: absolute; width: 32px; height: 32px; border-radius: 50%; background: #10b981; opacity: 0.4; animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></span>
@@ -167,13 +166,13 @@ export default function ContactOfficeMap({
           filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
         }
         .leaflet-container {
-          background: #09121d !important;
+          background: #14171d !important;
           font-family: inherit;
         }
       `}</style>
 
       {/* Map Window */}
-      <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#09121d] h-60 sm:h-72 shadow-xl">
+      <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-[#14171d] h-60 sm:h-72 shadow-xl">
         <div
           ref={mapContainerRef}
           className="w-full h-full min-h-[240px] z-0"

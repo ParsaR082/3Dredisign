@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState('admin');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,9 +98,6 @@ export default function AdminLoginPage() {
                   className="w-full pr-10 pl-4 py-3 rounded-xl bg-dark-base border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-brand-500 transition-colors text-left dir-ltr"
                 />
               </div>
-              <p className="text-[11px] text-gray-500 pt-1">
-                رمز عبور پیش‌فرض: <code className="text-brand-300 font-mono">admin123</code> یا رمز ادمین دیتابیس
-              </p>
             </div>
 
             <button

@@ -124,12 +124,11 @@ export default function UrmiaInteractiveMap({ projects }: UrmiaInteractiveMapPro
           minZoom: FIXED_ZOOM,
         });
 
-        // CartoDB Dark Matter layer
+        // Esri World Dark Gray layer (keyless, zero watermark)
         const cartoLayer = L.tileLayer(
-          'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
           {
-            attribution: '&copy; CARTO &copy; OpenStreetMap',
-            subdomains: 'abcd',
+            attribution: 'Esri, HERE',
             maxZoom: FIXED_ZOOM,
             minZoom: FIXED_ZOOM,
           }

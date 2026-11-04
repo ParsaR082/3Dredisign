@@ -1283,10 +1283,10 @@ export async function getLiveTeamData(): Promise<{ settings: AboutSettings; lead
     ]);
 
     const settings: AboutSettings = {
-      title: settingsRow?.hero_title || fallback.settings.title,
-      subtitle: settingsRow?.hero_subtitle || fallback.settings.subtitle,
-      vision: settingsRow?.vision_text || fallback.settings.vision,
-      mission: settingsRow?.mission_text || fallback.settings.mission,
+      title: settingsRow?.hero_title?.trim() || fallback.settings.title,
+      subtitle: settingsRow?.hero_subtitle?.trim() || fallback.settings.subtitle,
+      vision: settingsRow?.vision_text?.trim() || fallback.settings.vision,
+      mission: settingsRow?.mission_text?.trim() || fallback.settings.mission,
       stats: fallback.settings.stats || [],
     };
 
