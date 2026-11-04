@@ -38,6 +38,7 @@ export default function ServicesTab({ services, onRefresh }: ServicesTabProps) {
     is_popular: false,
     is_featured: false,
     image: '',
+    why_us_bullets: 'تضمین بالاترین کیفیت\nپشتیبانی فنی اختصاصی\nتیم متخصص و کارآزموده',
   });
 
   const openCreateModal = () => {
@@ -54,6 +55,7 @@ export default function ServicesTab({ services, onRefresh }: ServicesTabProps) {
       is_popular: false,
       is_featured: false,
       image: '',
+      why_us_bullets: 'تضمین بالاترین کیفیت\nپشتیبانی فنی اختصاصی\nتیم متخصص و کارآزموده',
     });
     setError(null);
     setModalOpen(true);
@@ -73,6 +75,7 @@ export default function ServicesTab({ services, onRefresh }: ServicesTabProps) {
       is_popular: service.is_popular,
       is_featured: service.is_featured,
       image: service.image || '',
+      why_us_bullets: service.why_us_bullets || '',
     });
     setError(null);
     setModalOpen(true);
@@ -341,6 +344,19 @@ export default function ServicesTab({ services, onRefresh }: ServicesTabProps) {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500 resize-none"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-gray-300 font-semibold block">
+                  مزایای رقابتی این خدمت (چرا اوروم سیما - هر خط یک مورد)
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.why_us_bullets}
+                  onChange={(e) => setFormData({ ...formData, why_us_bullets: e.target.value })}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500 resize-none leading-relaxed"
+                  placeholder="تضمین کیفیت و پشتیبانی فنی..."
                 />
               </div>
 

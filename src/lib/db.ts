@@ -25,6 +25,7 @@ import blogFallback from '@/content/blog.json';
 import pricingFallback from '@/content/pricing.json';
 import landingFallback from '@/content/landing.json';
 import teamDataRaw from '@/content/team.json';
+import abnerFallback from '@/content/abner.json';
 
 export function resolveMediaUrl(path: string | null | undefined): string {
   if (!path) return '';
@@ -432,7 +433,7 @@ export async function getLiveProjects(): Promise<Project[]> {
         project_date: p.project_date?.trim() || '',
         website_url: cleanWebsiteUrl,
         pdf_url: p.pdf_url?.trim() && p.pdf_url.trim() !== 'null' ? resolveMediaUrl(p.pdf_url) : undefined,
-        thumbnail_image: resolveMediaUrl(p.thumbnail_image) || '/images/urumsima3.jpg',
+        thumbnail_image: resolveMediaUrl(p.thumbnail_image) || '/images/urumsima3.webp',
         thumbnail_video_url: p.thumbnail_video_url ? resolveMediaUrl(p.thumbnail_video_url) : undefined,
         mockups: hasAnyMockup
           ? {
@@ -485,6 +486,53 @@ export async function getLiveProjectBySlug(slug: string): Promise<Project | null
       p.id.toLowerCase() === decoded
   );
   return fallbackFound || null;
+}
+
+/**
+ * Fetch related projects for a given project.
+ * Checks manual relation table first (portfolio_project_related).
+ * If no manual relations are defined, falls back to automatic category / industry match.
+ */
+export async function getLiveRelatedProjects(
+  projectId: string | number,
+  categorySlug?: string,
+  industry?: string
+): Promise<Project[]> {
+  const allProjects = await getLiveProjects();
+  const numId = Number(projectId);
+
+  if (!isNaN(numId) && numId > 0) {
+    try {
+      const relatedRows = await prisma.portfolioProjectRelated.findMany({
+        where: { project_id: numId },
+        orderBy: { order: 'asc' },
+      });
+
+      if (relatedRows.length > 0) {
+        const manualProjects: Project[] = [];
+        for (const rel of relatedRows) {
+          const match = allProjects.find((p) => Number(p.id) === rel.related_project_id);
+          if (match && !manualProjects.some((m) => m.id === match.id)) {
+            manualProjects.push(match);
+          }
+        }
+        if (manualProjects.length > 0) {
+          return manualProjects;
+        }
+      }
+    } catch (e) {
+      console.warn('Error fetching manual related projects from DB:', e);
+    }
+  }
+
+  // Fallback to automatic category / industry match
+  return allProjects
+    .filter(
+      (p) =>
+        String(p.id) !== String(projectId) &&
+        ((categorySlug && p.category_slug === categorySlug) || (industry && p.industry === industry))
+    )
+    .slice(0, 3);
 }
 
 /**
@@ -723,7 +771,7 @@ const fallbackWebsites: ShowcaseWebsite[] = [
     subtitle: 'پلتفرم جامع کافه رستری، فروشگاه تخصصی قهوه و سفارش آنلاین',
     excerpt: 'پلتفرم یکپارچه نئو کافه شامل معرفی برند، فروشگاه قهوه تازه رست، ابزارهای تخصصی باریستا، منوی سفارش آنلاین و سیستم رزرواسیون VIP.',
     body: 'پلتفرم یکپارچه نئو کافه (Neo Cafe) با سبک طراحی سینمایی و دارک‌مود فاخر، تجربه‌ای منحصربه‌فرد برای شیفتگان قهوه و مشتریان وفادار خلق کرده است. این سامانه با تلفیق فروشگاه اینترنتی دانه‌های قهوه تک‌خاستگاه، منوی آنلاین بار گرم و سرد با جزئیات کاپینگ، و سیستم رزرواسیون میزها و رویدادهای اختصاصی، ارائه‌دهنده راه‌حلی نوین در صنعت کافه و رستری مدرن است.',
-    cover_image: '/media/websites/covers/neo-cafe.jpg',
+    cover_image: '/media/websites/covers/neo-cafe.webp',
     live_url: 'https://neo-cafe.vercel.app/',
     client_name: 'مجموعه کافه رستری نئو',
     industry: 'کافه، رستوران و فروشگاهی',
@@ -751,7 +799,7 @@ const fallbackWebsites: ShowcaseWebsite[] = [
     subtitle: 'پرتال سازمانی تسویه ارزی، مدیریت نقدینگی و خزانه‌داری بین‌المللی',
     excerpt: 'داشبورد تحلیلی و معاملاتی فین‌ماتریکس با قابلیت مانیتورینگ زنده نقدینگی، عمق بازار اوردربوک، تسویه برون‌مرزی و پشتیبانی کامل از چینش دوطرفه RTL و LTR.',
     body: 'سامانه و داشبورد مدیریتی فین‌ماتریکس (FinMatrix) با استفاده از به‌روزترین معماری مدرن وب در Next.js 16 و React 19 پیاده‌سازی شده است. این پلتفرم با ارائه چارت‌های بلادرنگ توازن نقدینگی، ماتریس رزرو ارزی چندگانه، ره‌گیری آنی دفتر کل تراکنش‌ها و ماژول ممیزی قانونی (Compliance Audit)، بستری در کلاس جهانی برای کنترل دارایی‌های مالی نهادی فراهم می‌آورد.',
-    cover_image: '/media/websites/covers/finmatrix-dashboard.jpg',
+    cover_image: '/media/websites/covers/finmatrix-dashboard.webp',
     live_url: 'https://digital-dashboard-beta.vercel.app/',
     client_name: 'هلدینگ فین‌تک فین‌ماتریکس',
     industry: 'فین‌تک و داشبورد سازمانی',
@@ -773,6 +821,61 @@ const fallbackWebsites: ShowcaseWebsite[] = [
     ],
   },
 ];
+
+export async function getLiveWebsitesPageSettings(): Promise<any> {
+  try {
+    const row = await prisma.websitesWebsitepagesettings.findFirst();
+    if (row) {
+      return {
+        hero_badge: 'ویترین وبسایت‌های آماده و اختصاصی',
+        hero_title: row.hero_title || 'برترین وبسایت‌های نمونه و پیش‌ساخته',
+        hero_description: row.hero_subtitle || 'مجموعه‌ای منتخب از طراحی‌های وب واکنش‌گرا، سریع و بهینه‌سازی‌شده برای سئو.',
+        meta_title: row.meta_title || 'وبسایت‌های نمونه و قالب‌های آماده مدرن | اروم سیما',
+        meta_description: row.meta_description || 'مجموعه وبسایت‌های مدرن، قالب‌های آماده و نمونه‌کارهای توسعه وب در ارومیه.',
+        cta_title: row.cta_title,
+        cta_text: row.cta_text,
+        cta_button_text: row.cta_button_text,
+        cta_url: row.cta_url,
+      };
+    }
+  } catch (e) {
+    console.warn('DB WebsitesPageSettings failed:', e);
+  }
+  return {
+    hero_badge: 'ویترین وبسایت‌های آماده و اختصاصی',
+    hero_title: 'برترین وبسایت‌های نمونه و پیش‌ساخته',
+    hero_description: 'مجموعه‌ای منتخب از طراحی‌های وب واکنش‌گرا، سریع و بهینه‌سازی‌شده برای سئو در اصناف مختلف از فروشگاهی تا شرکتی و لوکس.',
+    meta_title: 'وبسایت‌های نمونه و قالب‌های آماده مدرن | اروم سیما',
+    meta_description: 'مجموعه وبسایت‌های مدرن، قالب‌های آماده و نمونه‌کارهای توسعه وب در ارومیه با استانداردهای جهانی UI/UX و سئو.',
+  };
+}
+
+export async function getLiveBackstagePageSettings(): Promise<any> {
+  try {
+    const row = await prisma.backstageBackstagepagesettings.findFirst();
+    if (row) {
+      return {
+        hero_badge: 'روایت خلق محتوا و تولیدات میدانی',
+        hero_title: row.hero_title || 'پشت‌صحنه پروژه‌ها و استودیو تولید محتوا',
+        hero_description: row.hero_subtitle || 'نگاهی بی‌پرده به نحوه کارگردانی، فیلمبرداری هوایی، طراحی صحنه و چالش‌های ضبط ویدیوهای تبلیغاتی.',
+        meta_title: row.meta_title || 'پشت‌صحنه پروژه‌ها و استودیو تولید محتوا | اروم سیما',
+        meta_description: row.meta_description || 'روایت مستند و تصویری از پشت‌صحنه تولید تیزرهای تبلیغاتی، ساخت استند و مراحل اجرایی پروژه‌ها.',
+        cta_title: row.cta_title,
+        cta_text: row.cta_text,
+        cta_url: row.cta_url,
+      };
+    }
+  } catch (e) {
+    console.warn('DB BackstagePageSettings failed:', e);
+  }
+  return {
+    hero_badge: 'روایت خلق محتوا و تولیدات میدانی',
+    hero_title: 'پشت‌صحنه پروژه‌ها و استودیو تولید محتوا',
+    hero_description: 'نگاهی بی‌پرده به نحوه کارگردانی، فیلمبرداری هوایی، طراحی صحنه و چالش‌های ضبط ویدیوهای تبلیغاتی و تیزرهای صنعتی اروم سیما.',
+    meta_title: 'پشت‌صحنه پروژه‌ها و استودیو تولید محتوا | اروم سیما',
+    meta_description: 'روایت مستند و تصویری از پشت‌صحنه تولید تیزرهای تبلیغاتی، ساخت استند و مراحل اجرایی پروژه‌ها در ارومیه.',
+  };
+}
 
 export async function getLiveWebsites(): Promise<ShowcaseWebsite[]> {
   try {
@@ -972,7 +1075,7 @@ export async function getLiveBlogData(): Promise<{
         category: catName,
         published_at: publishedStr,
         reading_time: `${b.read_time || 5} دقیقه`,
-        cover_image: resolveMediaUrl(b.cover_image) || '/images/urumsima3.jpg',
+        cover_image: resolveMediaUrl(b.cover_image) || '/images/urumsima3.webp',
         tags,
       };
     });
@@ -1170,12 +1273,13 @@ export async function getLiveLandingData(): Promise<LandingData> {
 /**
  * Fetch live Team/About data from database, with fallback to team.json
  */
-export async function getLiveTeamData(): Promise<{ settings: AboutSettings; leads: TechLead[] }> {
+export async function getLiveTeamData(): Promise<{ settings: AboutSettings; leads: TechLead[]; coreValues: any[] }> {
   const fallback = teamDataRaw as { settings: AboutSettings; leads: TechLead[] };
   try {
-    const [settingsRow, members] = await Promise.all([
+    const [settingsRow, members, coreValues] = await Promise.all([
       prisma.aboutAboutpagesettings.findFirst().catch(() => null),
       prisma.aboutTechlead.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+      prisma.aboutCorevalue.findMany({ orderBy: { order: 'asc' } }).catch(() => []),
     ]);
 
     const settings: AboutSettings = {
@@ -1186,27 +1290,26 @@ export async function getLiveTeamData(): Promise<{ settings: AboutSettings; lead
       stats: fallback.settings.stats || [],
     };
 
-    if (!members || members.length === 0) {
-      return { settings, leads: fallback.leads };
-    }
+    const leads: TechLead[] =
+      members && members.length > 0
+        ? members.map((m) => ({
+            name: m.name,
+            role: m.role,
+            skills: m.skills_csv ? m.skills_csv.split(',').map((s) => s.trim()) : [],
+            years_experience: m.years_experience || 3,
+            total_projects: m.total_projects || 10,
+            accent_color: m.accent_color || '#10B981',
+            planet_type: (m.planet_type as any) || 'crystal',
+            tagline: m.tagline || '',
+            poster_image: resolveMediaUrl(m.poster_image) || '/images/team-hero.webp',
+            order: m.order || 1,
+          }))
+        : fallback.leads;
 
-    const leads: TechLead[] = members.map((m) => ({
-      name: m.name,
-      role: m.role,
-      skills: m.skills_csv ? m.skills_csv.split(',').map((s) => s.trim()) : [],
-      years_experience: m.years_experience || 3,
-      total_projects: m.total_projects || 10,
-      accent_color: m.accent_color || '#10B981',
-      planet_type: (m.planet_type as any) || 'crystal',
-      tagline: m.tagline || '',
-      poster_image: resolveMediaUrl(m.poster_image) || '/images/team-hero.webp',
-      order: m.order || 1,
-    }));
-
-    return { settings, leads };
+    return { settings, leads, coreValues };
   } catch (error) {
     console.warn('DB Team query failed, using static fallback:', error);
-    return fallback;
+    return { ...fallback, coreValues: [] };
   }
 }
 
@@ -1353,7 +1456,7 @@ export async function getLiveLandingFull(): Promise<LiveLandingFullData> {
       services_section_desc: landingRow?.services_section_desc || landingFallback.services_section_desc,
       why_section_title: landingRow?.why_section_title || landingFallback.why_section_title,
       why_section_subtitle: landingRow?.why_section_subtitle || landingFallback.why_section_subtitle,
-      why_side_image: resolveMediaUrl(landingRow?.why_side_image) || '/images/team-photo.png',
+      why_side_image: resolveMediaUrl(landingRow?.why_side_image) || '/images/team-photo.webp',
       why_side_image_alt: landingRow?.why_side_image_alt || 'تیم اروم سیما',
       why_side_image_link: landingRow?.why_side_image_link || '',
       portfolio_section_title: landingRow?.portfolio_section_title || landingFallback.portfolio_section_title,
@@ -1465,7 +1568,7 @@ export async function getLiveLandingFull(): Promise<LiveLandingFullData> {
     reels: reels.map((r) => ({
       id: r.id,
       reel_url: r.reel_url,
-      thumbnail: resolveMediaUrl(r.thumbnail) || '/images/urumsima3.jpg',
+      thumbnail: resolveMediaUrl(r.thumbnail) || '/images/urumsima3.webp',
       caption: r.caption || '',
     })),
     mapProjectsCount: mapProjects.length,
@@ -1475,6 +1578,66 @@ export async function getLiveLandingFull(): Promise<LiveLandingFullData> {
     services: services.slice(0, 6),
     pricingPlans: pricing.plans,
   };
+}
+
+/**
+ * Fetch live Abner page and model data from database, with fallback to abner.json
+ */
+export async function getLiveAbnerData(): Promise<any> {
+  const fallback = abnerFallback;
+  try {
+    const [page, features, cityTvModels, standModels] = await Promise.all([
+      prisma.abnerAbnerpage.findFirst().catch(() => null),
+      prisma.abnerAbnerfeature.findMany({ orderBy: { order: 'asc' } }).catch(() => []),
+      prisma.abnerAbnercitytvmodel.findMany({ orderBy: { order: 'asc' } }).catch(() => []),
+      prisma.abnerAbnerstandmodel.findMany({ orderBy: { order: 'asc' } }).catch(() => []),
+    ]);
+
+    return {
+      title: page?.hero_title || fallback.title,
+      subtitle: page?.hero_tagline || fallback.subtitle,
+      meta_title: page?.meta_title || fallback.meta_title,
+      meta_description: page?.meta_description || fallback.meta_description,
+      features:
+        features.length > 0
+          ? features.map((f) => ({
+              title: f.title,
+              description: f.description,
+              icon: f.icon || 'ShieldCheck',
+            }))
+          : fallback.features,
+      city_tv_models:
+        cityTvModels.length > 0
+          ? cityTvModels.map((m) => ({
+              model: m.name,
+              pixel_pitch: m.pixel_pitch,
+              brightness: m.brightness,
+              viewing_distance: 'استاندارد شهری',
+              ip_rating: m.ip_rating || 'IP65',
+              refresh_rate: m.refresh_rate || '3840 Hz',
+              application:
+                m.environment === 'Outdoor'
+                  ? 'فضای باز، میادین و بلوارها'
+                  : 'فضای بسته، تالارها و کنفرانس',
+            }))
+          : fallback.city_tv_models,
+      stands:
+        standModels.length > 0
+          ? standModels.map((s) => ({
+              model: s.name,
+              size: s.width && s.height ? `${s.width} × ${s.height}` : '55 inch',
+              os: s.wifi ? `WiFi: ${s.wifi}` : 'Android 11 / Windows 10',
+              resolution: s.resolution || '4K UHD',
+              touch_type: s.bezel || 'Capacitive 10-Point Touch',
+              body: s.body_material || 'آلومینیوم صنعتی',
+              application: 'مراکز خرید، هتل‌ها، بیمارستان‌ها، شعب بانکی',
+            }))
+          : fallback.stands,
+    };
+  } catch (e) {
+    console.warn('DB Abner query failed, using static fallback:', e);
+    return fallback;
+  }
 }
 
 

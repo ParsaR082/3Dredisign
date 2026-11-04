@@ -55,6 +55,9 @@ export default function ImageUpload({
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', folder);
+      if (value && (value.startsWith('/media/uploads/') || value.startsWith('media/uploads/'))) {
+        formData.append('previousUrl', value);
+      }
 
       const res = await fetch('/api/admin/upload/', {
         method: 'POST',
@@ -150,7 +153,21 @@ export default function ImageUpload({
               </button>
               <button
                 type="button"
-                onClick={() => onChange('')}
+                onClick={async () => {
+                  const toDelete = value;
+                  onChange('');
+                  if (toDelete && (toDelete.startsWith('/media/uploads/') || toDelete.startsWith('media/uploads/'))) {
+                    try {
+                      await fetch('/api/admin/upload/', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ url: toDelete }),
+                      });
+                    } catch {
+                      // ignore cleanup error
+                    }
+                  }
+                }}
                 className="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-[11px] font-medium transition-colors flex items-center gap-1"
               >
                 <X className="w-3 h-3" />

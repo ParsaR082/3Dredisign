@@ -39,7 +39,7 @@
       "accent_color": "#14B8A6",
       "planet_type": "gas_giant",
       "tagline": "امنیت و پایداری سنگ‌بنای هر امپراتوری دیجیتال است.",
-      "poster_image": "/images/team-photo.png",
+      "poster_image": "/images/team-photo.webp",
       "order": 2
     },
     {
@@ -56,7 +56,7 @@
       "accent_color": "#F59E0B",
       "planet_type": "ringed",
       "tagline": "سادگی نهایت پختگی در طراحی محصول است.",
-      "poster_image": "/images/urumsima3.jpg",
+      "poster_image": "/images/urumsima3.webp",
       "order": 3
     },
     {
@@ -73,7 +73,7 @@
       "accent_color": "#06B6D4",
       "planet_type": "lava",
       "tagline": "روایت داستانی با قاب‌های سینمایی که تا سال‌ها در ذهن می‌ماند.",
-      "poster_image": "/images/urumsima5.jpg",
+      "poster_image": "/images/urumsima5.webp",
       "order": 4
     }
   ]

@@ -31,7 +31,7 @@ export function generatePageMetadata({
     formattedPath = formattedPath + '/';
   }
   const canonicalUrl = `${BASE_URL}${formattedPath}`;
-  const image = ogImage || settings.default_og_image || '/images/urumsima3.jpg';
+  const image = ogImage || settings.default_og_image || '/images/urumsima3.webp';
 
   return {
     title: pageTitle,
@@ -82,7 +82,7 @@ export function generateOrganizationJsonLd() {
     name: settings.site_name,
     url: BASE_URL,
     logo: `${BASE_URL}/favicon.png`,
-    image: `${BASE_URL}/images/urumsima3.jpg`,
+    image: `${BASE_URL}/images/urumsima3.webp`,
     telephone: settings.phone_e164,
     priceRange: '$$$',
     address: {

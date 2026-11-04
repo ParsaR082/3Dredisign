@@ -9,7 +9,7 @@ export async function GET() {
   }
 
   try {
-    const [projects, categories, industries, additionalCats] = await Promise.all([
+    const [projects, categories, industries, additionalCats, relatedRows] = await Promise.all([
       prisma.portfolioProject.findMany({
         orderBy: [{ featured: 'desc' }, { order: 'asc' }],
       }),
@@ -18,6 +18,9 @@ export async function GET() {
       }),
       prisma.portfolioIndustry.findMany(),
       prisma.portfolioProjectAdditionalCategories.findMany(),
+      prisma.portfolioProjectRelated.findMany({
+        orderBy: { order: 'asc' },
+      }),
     ]);
 
     const addCatMap = new Map<number, number[]>();
@@ -27,14 +30,22 @@ export async function GET() {
       addCatMap.set(ac.project_id, list);
     }
 
-    const projectsWithAddCats = projects.map((p) => ({
+    const relatedMap = new Map<number, number[]>();
+    for (const rel of relatedRows) {
+      const list = relatedMap.get(rel.project_id) || [];
+      list.push(rel.related_project_id);
+      relatedMap.set(rel.project_id, list);
+    }
+
+    const projectsWithDetails = projects.map((p) => ({
       ...p,
       additional_category_ids: addCatMap.get(p.id) || [],
+      related_project_ids: relatedMap.get(p.id) || [],
     }));
 
     return NextResponse.json({
       success: true,
-      projects: projectsWithAddCats,
+      projects: projectsWithDetails,
       categories,
       industries,
     });
@@ -75,6 +86,7 @@ export async function POST(request: Request) {
       is_active = true,
       is_featured = false,
       additional_category_ids = [],
+      related_project_ids = [],
     } = body;
 
     if (type === 'category') {
@@ -240,6 +252,23 @@ export async function POST(request: Request) {
       }
     }
 
+    // Save manually selected related projects
+    if (Array.isArray(related_project_ids) && related_project_ids.length > 0) {
+      const validRelIds = related_project_ids
+        .map(Number)
+        .filter((rId) => !isNaN(rId) && rId !== newProject.id);
+
+      if (validRelIds.length > 0) {
+        await prisma.portfolioProjectRelated.createMany({
+          data: validRelIds.map((rId, idx) => ({
+            project_id: newProject.id,
+            related_project_id: rId,
+            order: idx,
+          })),
+        });
+      }
+    }
+
     return NextResponse.json({ success: true, project: newProject });
   } catch (error: any) {
     console.error('Error creating project:', error);
@@ -294,6 +323,7 @@ export async function PUT(request: Request) {
       cover_image,
       icon,
       additional_category_ids,
+      related_project_ids,
     } = body;
 
     if (!id) {
@@ -413,6 +443,27 @@ export async function PUT(request: Request) {
       }
     }
 
+    // Update manually selected related projects
+    if (related_project_ids !== undefined && Array.isArray(related_project_ids)) {
+      await prisma.portfolioProjectRelated.deleteMany({
+        where: { project_id: Number(id) },
+      });
+
+      const validRelIds = related_project_ids
+        .map(Number)
+        .filter((rId) => !isNaN(rId) && rId !== Number(id));
+
+      if (validRelIds.length > 0) {
+        await prisma.portfolioProjectRelated.createMany({
+          data: validRelIds.map((rId, idx) => ({
+            project_id: Number(id),
+            related_project_id: rId,
+            order: idx,
+          })),
+        });
+      }
+    }
+
     return NextResponse.json({ success: true, project: updated });
   } catch (error: any) {
     console.error('Error updating project:', error);
@@ -497,6 +548,15 @@ export async function DELETE(request: Request) {
     // Clean up junction rows before project deletion
     await prisma.portfolioProjectAdditionalCategories.deleteMany({
       where: { project_id: Number(id) },
+    });
+
+    await prisma.portfolioProjectRelated.deleteMany({
+      where: {
+        OR: [
+          { project_id: Number(id) },
+          { related_project_id: Number(id) },
+        ],
+      },
     });
 
     await prisma.portfolioProject.delete({

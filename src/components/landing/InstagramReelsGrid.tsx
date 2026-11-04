@@ -186,8 +186,8 @@ export default function InstagramReelsGrid({
                       height={480}
                       onError={(e) => {
                         const target = e.currentTarget;
-                        if (!target.src.includes('urumsima3.jpg')) {
-                          target.src = '/images/urumsima3.jpg';
+                        if (!target.src.includes('urumsima3.webp')) {
+                          target.src = '/images/urumsima3.webp';
                         }
                       }}
                     />

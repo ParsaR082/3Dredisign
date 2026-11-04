@@ -1,11 +1,11 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import ServiceDetailView from '@/components/ui/ServiceDetailView';
-import { getServiceBySlug } from '@/lib/data-loaders';
+import { getLiveServiceBySlug } from '@/lib/db';
 import { generatePageMetadata, generateServiceJsonLd, generateFaqJsonLd } from '@/lib/seo';
 
 export async function generateMetadata() {
-  const service = getServiceBySlug('billboard-advertising');
+  const service = await getLiveServiceBySlug('billboard-advertising') || await getLiveServiceBySlug('billboard');
   if (!service) return {};
 
   return generatePageMetadata({
@@ -15,8 +15,8 @@ export async function generateMetadata() {
   });
 }
 
-export default function DedicatedLandingPage() {
-  const service = getServiceBySlug('billboard-advertising');
+export default async function DedicatedLandingPage() {
+  const service = await getLiveServiceBySlug('billboard-advertising') || await getLiveServiceBySlug('billboard');
   if (!service) notFound();
 
   const serviceJsonLd = generateServiceJsonLd(service);

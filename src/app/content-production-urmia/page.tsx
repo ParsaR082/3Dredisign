@@ -1,11 +1,11 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
 import ServiceDetailView from '@/components/ui/ServiceDetailView';
-import { getServiceBySlug } from '@/lib/data-loaders';
+import { getLiveServiceBySlug } from '@/lib/db';
 import { generatePageMetadata, generateServiceJsonLd, generateFaqJsonLd } from '@/lib/seo';
 
 export async function generateMetadata() {
-  const service = getServiceBySlug('instagram-content');
+  const service = await getLiveServiceBySlug('content-production') || await getLiveServiceBySlug('instagram-content');
   if (!service) return {};
 
   return generatePageMetadata({
@@ -15,8 +15,8 @@ export async function generateMetadata() {
   });
 }
 
-export default function DedicatedLandingPage() {
-  const service = getServiceBySlug('instagram-content');
+export default async function DedicatedLandingPage() {
+  const service = await getLiveServiceBySlug('content-production') || await getLiveServiceBySlug('instagram-content');
   if (!service) notFound();
 
   const serviceJsonLd = generateServiceJsonLd(service);

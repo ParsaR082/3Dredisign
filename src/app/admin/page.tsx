@@ -58,7 +58,7 @@ const ALL_TABS = [
   { id: 'landing-elements', label: 'المان‌های لندینگ', icon: Layers },
   { id: 'testimonials', label: 'نظرات مشتریان', icon: Star },
   { id: 'counters', label: 'شمارنده‌ها', icon: BarChart3 },
-  { id: 'settings', label: 'تنظیمات و سئو', icon: Settings },
+  { id: 'settings', label: 'تنظیمات، فوتر و سئو', icon: Settings },
   { id: 'users', label: 'کاربران و مدیران', icon: UserCog },
 ];
 
@@ -118,11 +118,15 @@ function AdminDashboardContent() {
     whyItems: any[];
     growthStats: any[];
     tickerItems: any[];
+    reels: any[];
+    roiConfig?: any;
   }>({
     processSteps: [],
     whyItems: [],
     growthStats: [],
     tickerItems: [],
+    reels: [],
+    roiConfig: null,
   });
   const [usersData, setUsersData] = useState<{ users: any[] }>({ users: [] });
 
@@ -279,6 +283,8 @@ function AdminDashboardContent() {
               whyItems: data.whyItems || [],
               growthStats: data.growthStats || [],
               tickerItems: data.tickerItems || [],
+              reels: data.reels || [],
+              roiConfig: data.roiConfig || null,
             });
           }
           break;
@@ -583,6 +589,8 @@ function AdminDashboardContent() {
               whyItems={landingElementsData.whyItems}
               growthStats={landingElementsData.growthStats}
               tickerItems={landingElementsData.tickerItems}
+              reels={landingElementsData.reels || []}
+              roiConfig={landingElementsData.roiConfig}
               onRefresh={() => fetchTabData('landing-elements')}
             />
           )}

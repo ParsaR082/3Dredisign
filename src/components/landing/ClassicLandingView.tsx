@@ -55,7 +55,7 @@ export default function ClassicLandingView({ data, settings }: ClassicLandingVie
       <div className="nav-spacer h-20 sm:h-24" aria-hidden="true" />
 
       {/* 1. Team Banner */}
-      <TeamBanner />
+      <TeamBanner heroImage={landingPage.hero_image} />
 
       {/* 2. Marquee Ticker */}
       {landingPage.show_ticker && tickerItems.length > 0 && (

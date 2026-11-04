@@ -12,7 +12,7 @@ export default function WhyUsSection({
   title,
   subtitle,
   items,
-  sideImage = '/images/team-photo.png',
+  sideImage = '/images/team-photo.webp',
   sideImageAlt = 'تیم اروم سیما',
 }: WhyUsSectionProps) {
   if (!items || items.length === 0) return null;

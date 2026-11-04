@@ -294,6 +294,7 @@ export interface BlogPost {
 export interface LiveLandingFullData {
   landingPage: {
     site_title: string;
+    hero_image?: string | null;
     meta_title?: string;
     meta_description?: string;
     og_title?: string;

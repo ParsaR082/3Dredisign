@@ -3,6 +3,44 @@ import { getCurrentAdmin } from '@/lib/auth';
 import path from 'path';
 import fs from 'fs/promises';
 
+/**
+ * Safely removes a file from public/media/uploads if the path is valid and within bounds.
+ */
+async function safelyDeleteUploadedFile(fileUrl: string): Promise<boolean> {
+  if (!fileUrl || typeof fileUrl !== 'string') return false;
+
+  // Clean prefix if any
+  let normalized = fileUrl.trim();
+  if (normalized.startsWith('/')) {
+    normalized = normalized.slice(1);
+  }
+
+  // Only allow deleting files strictly inside media/uploads/
+  if (!normalized.startsWith('media/uploads/')) {
+    return false;
+  }
+
+  // Prevent directory traversal
+  const targetPath = path.resolve(process.cwd(), 'public', normalized);
+  const baseUploadsDir = path.resolve(process.cwd(), 'public', 'media', 'uploads');
+
+  if (!targetPath.startsWith(baseUploadsDir)) {
+    console.warn('Rejected attempt to delete outside uploads dir:', targetPath);
+    return false;
+  }
+
+  try {
+    await fs.unlink(targetPath);
+    console.log(`Cleaned up previous uploaded file: ${targetPath}`);
+    return true;
+  } catch (err: any) {
+    if (err.code !== 'ENOENT') {
+      console.warn(`Failed to delete previous file ${targetPath}:`, err.message);
+    }
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
   const admin = await getCurrentAdmin();
   if (!admin) {
@@ -13,6 +51,7 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const folder = (formData.get('folder') as string) || 'general';
+    const previousUrl = formData.get('previousUrl') as string | null;
 
     if (!file) {
       return NextResponse.json({ error: 'فایلی ارسال نشده است.' }, { status: 400 });
@@ -92,6 +131,11 @@ export async function POST(request: Request) {
 
     const publicUrl = `/media/uploads/${safeFolder}/${filename}`;
 
+    // If a previous uploaded file was provided, safely delete it to avoid disk clutter
+    if (previousUrl && previousUrl !== publicUrl) {
+      await safelyDeleteUploadedFile(previousUrl);
+    }
+
     return NextResponse.json({
       success: true,
       url: publicUrl,
@@ -105,6 +149,29 @@ export async function POST(request: Request) {
     console.error('Upload API error:', error);
     return NextResponse.json(
       { error: error.message || 'خطایی در پردازش و ذخیره تصویر رخ داد.' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  const admin = await getCurrentAdmin();
+  if (!admin) {
+    return NextResponse.json({ error: 'عدم دسترسی.' }, { status: 401 });
+  }
+
+  try {
+    const { url } = await request.json();
+    if (!url) {
+      return NextResponse.json({ error: 'آدرس فایل ارسال نشده است.' }, { status: 400 });
+    }
+
+    const deleted = await safelyDeleteUploadedFile(url);
+    return NextResponse.json({ success: true, deleted });
+  } catch (error: any) {
+    console.error('Delete uploaded file error:', error);
+    return NextResponse.json(
+      { error: error.message || 'خطا در حذف فایل.' },
       { status: 500 }
     );
   }

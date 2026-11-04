@@ -2,9 +2,19 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, Phone, Clock, Send, CheckCircle2, ExternalLink, ArrowRight, Sparkles } from 'lucide-react';
 import type { SiteSettings, Service } from '@/types/content';
+
+const ContactOfficeMap = dynamic(() => import('@/components/ui/ContactOfficeMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="rounded-2xl border border-white/10 h-52 sm:h-64 bg-dark-elevated flex items-center justify-center text-gray-400 text-xs">
+      در حال بارگذاری نقشه دفتر...
+    </div>
+  ),
+});
 import {
   MotionDiv,
   StaggerContainer,
@@ -281,52 +291,14 @@ export default function ContactUsView({ settings, services, contactPage }: Conta
               </div>
             </div>
 
-            {/* Map Preview & Direct Route Links */}
+            {/* Interactive Office Map & Direct Route Links */}
             <div className="pt-4 border-t border-white/5 space-y-3">
-              <div className="rounded-2xl overflow-hidden border border-white/10 h-36 sm:h-44 bg-dark-elevated relative flex items-center justify-center group">
-                <div className="absolute inset-0 bg-brand-500/5 group-hover:bg-brand-500/10 transition-colors" />
-                <div className="text-center p-4 space-y-2 relative z-10">
-                  <motion.div
-                    animate={{ y: [0, -4, 0] }}
-                    transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut' }}
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-brand-600/30 text-brand-400 flex items-center justify-center mx-auto shadow-lg shadow-brand-500/20"
-                  >
-                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </motion.div>
-                  <div className="text-xs font-bold text-white font-mono dir-ltr">
-                    مختصات: {settings.office_latitude || 37.5527} , {settings.office_longitude || 45.076}
-                  </div>
-                  <div className="text-[11px] text-gray-400 max-w-xs truncate mx-auto">
-                    {settings.office_address}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                <motion.a
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  href={`https://maps.google.com/?q=${settings.office_latitude || 37.5527},${settings.office_longitude || 45.076}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium text-center border border-white/5 flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  <span>مسیریابی در Google</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </motion.a>
-
-                <motion.a
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  href={`https://nshn.ir/?lat=${settings.office_latitude || 37.5527}&lng=${settings.office_longitude || 45.076}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium text-center border border-white/5 flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  <span>مسیریابی در نشان</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </motion.a>
-              </div>
+              <ContactOfficeMap
+                latitude={settings.office_latitude}
+                longitude={settings.office_longitude}
+                title="دفتر مرکزی کانون تبلیغات اوروم سیما"
+                address={settings.office_address}
+              />
             </div>
           </InteractiveCard>
         </MotionDiv>

@@ -52,7 +52,7 @@ export interface AdminIndustry {
   slug: string;
 }
 
-type ModalTab = 'base' | 'content' | 'media' | 'metrics' | 'seo_geo';
+type ModalTab = 'base' | 'content' | 'media' | 'metrics' | 'seo_geo' | 'related';
 
 export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
   const [activeSection, setActiveSection] = useState<'projects' | 'categories' | 'industries'>('projects');
@@ -139,6 +139,7 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
     meta_description: '',
     order: '1',
     additional_category_ids: [] as number[],
+    related_project_ids: [] as number[],
   });
 
   // Category Modal Handlers
@@ -341,6 +342,7 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
       meta_description: '',
       order: '1',
       additional_category_ids: [],
+      related_project_ids: [],
     });
     setError(null);
     setModalOpen(true);
@@ -381,6 +383,7 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
       meta_description: project.meta_description || '',
       order: String(project.order || 1),
       additional_category_ids: Array.isArray(project.additional_category_ids) ? project.additional_category_ids : [],
+      related_project_ids: Array.isArray(project.related_project_ids) ? project.related_project_ids : [],
     });
     setError(null);
     setModalOpen(true);
@@ -1026,6 +1029,17 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
               >
                 ۵. موقعیت و سئو
               </button>
+              <button
+                type="button"
+                onClick={() => setActiveModalTab('related')}
+                className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
+                  activeModalTab === 'related'
+                    ? 'bg-brand-600 text-white shadow-md'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                ۶. پروژه‌های مشابه و مرتبط
+              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5 text-xs">
@@ -1457,6 +1471,102 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
                         className="w-full px-3.5 py-2.5 rounded-xl bg-dark-surface border border-white/10 text-white text-xs focus:outline-none focus:border-brand-500 resize-none"
                       />
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── TAB 6: RELATED PROJECTS ── */}
+              {activeModalTab === 'related' && (
+                <div className="space-y-4">
+                  <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-gray-300 font-semibold flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-brand-400" />
+                        <span>انتخاب پروژه‌های مشابه و پیشنهادی</span>
+                      </label>
+                      <span className="text-[11px] text-brand-300 font-mono">
+                        {formData.related_project_ids.length > 0
+                          ? `${formData.related_project_ids.length} پروژه مرتبط انتخاب شده`
+                          : 'بدون انتخاب دستی (پیش‌فرض هوشمند بر اساس دسته‌بندی)'}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-gray-400 leading-relaxed">
+                      پروژه‌هایی که در اینجا انتخاب می‌کنید، در انتهای صفحه اختصاصی این پروژه به عنوان «سایر پروژه‌های مرتبط» نمایش داده خواهند شد.
+                      در صورتی که هیچ پروژه‌ای را انتخاب نکنید، سایت به صورت خودکار پروژه‌های هم‌دسته‌بندی را نشان می‌دهد.
+                    </p>
+                  </div>
+
+                  {/* Project selector list */}
+                  <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                    {projects
+                      .filter((p) => !editingProject || String(p.id) !== String(editingProject.id))
+                      .map((proj) => {
+                        const isSelected = formData.related_project_ids.includes(proj.id);
+                        const pCat = categories.find((c) => c.id === proj.category_id);
+                        return (
+                          <div
+                            key={proj.id}
+                            onClick={() => {
+                              const next = isSelected
+                                ? formData.related_project_ids.filter((id) => id !== proj.id)
+                                : [...formData.related_project_ids, proj.id];
+                              setFormData({ ...formData, related_project_ids: next });
+                            }}
+                            className={`p-3 rounded-2xl border flex items-center gap-3 cursor-pointer transition-all ${
+                              isSelected
+                                ? 'bg-brand-500/15 border-brand-500/50 shadow-md'
+                                : 'bg-white/[0.02] border-white/5 hover:border-white/20 hover:bg-white/[0.04]'
+                            }`}
+                          >
+                            <div
+                              className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected
+                                  ? 'bg-brand-500 border-brand-400 text-brand-950 font-bold'
+                                  : 'border-white/20 bg-white/5'
+                              }`}
+                            >
+                              {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                            </div>
+
+                            {proj.thumbnail_image ? (
+                              <div className="w-12 h-9 rounded-lg overflow-hidden bg-black/40 border border-white/10 shrink-0">
+                                <img
+                                  src={
+                                    proj.thumbnail_image.startsWith('/')
+                                      ? proj.thumbnail_image
+                                      : `/media/${proj.thumbnail_image}`
+                                  }
+                                  alt={proj.title}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as any).style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            ) : null}
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-white font-bold text-xs truncate">{proj.title}</h4>
+                                {pCat && (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 text-gray-400 border border-white/5">
+                                    {pCat.name}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-gray-400 truncate mt-0.5">
+                                {proj.subtitle || proj.description || 'بدون توضیح'}
+                              </p>
+                            </div>
+
+                            {isSelected && (
+                              <span className="text-[10px] text-brand-400 font-medium px-2 py-0.5 rounded-lg bg-brand-500/10 border border-brand-500/20 shrink-0">
+                                مرتبط
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               )}

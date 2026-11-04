@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
+import 'leaflet/dist/leaflet.css';
 import { MapPin, ArrowLeft } from 'lucide-react';
 
 interface MapTeaserProps {
@@ -40,9 +41,9 @@ export default function MapTeaser({ projectsCount, projects = [] }: MapTeaserPro
           attributionControl: false,
         }).setView(defaultCenter, 12);
 
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
           maxZoom: 16,
-          className: 'osm-dark-tiles',
+          subdomains: 'abcd',
         }).addTo(map);
 
         // Add markers for projects
@@ -80,6 +81,18 @@ export default function MapTeaser({ projectsCount, projects = [] }: MapTeaserPro
         });
 
         mapInstanceRef.current = map;
+
+        // Invalidate size after container expands
+        setTimeout(() => {
+          if (isMounted && mapInstanceRef.current) {
+            mapInstanceRef.current.invalidateSize();
+          }
+        }, 150);
+        setTimeout(() => {
+          if (isMounted && mapInstanceRef.current) {
+            mapInstanceRef.current.invalidateSize();
+          }
+        }, 600);
       } catch (err) {
         console.warn('Leaflet map teaser error:', err);
       }

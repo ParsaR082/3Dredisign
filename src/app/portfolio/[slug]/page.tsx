@@ -18,7 +18,7 @@ import {
   Globe,
   Share2,
 } from 'lucide-react';
-import { getLiveProjects, getLiveProjectBySlug } from '@/lib/db';
+import { getLiveProjects, getLiveProjectBySlug, getLiveRelatedProjects } from '@/lib/db';
 import { generatePageMetadata } from '@/lib/seo';
 import ProjectDeviceShowcase from '@/components/portfolio/ProjectDeviceShowcase';
 import {
@@ -63,10 +63,11 @@ export default async function ProjectDetailPage({ params }: Props) {
   const project = await getLiveProjectBySlug(slug);
   if (!project) notFound();
 
-  const allProjects = await getLiveProjects();
-  const relatedProjects = allProjects
-    .filter((p) => p.id !== project.id && (p.category_slug === project.category_slug || p.industry === project.industry))
-    .slice(0, 3);
+  const relatedProjects = await getLiveRelatedProjects(
+    project.id,
+    project.category_slug,
+    project.industry
+  );
 
   const hasLiveUrl = Boolean(
     project.website_url &&

@@ -7,8 +7,8 @@ import CampusInteriorDecorations from './CampusInteriorDecorations';
 // Preload entrance banner textures into Three.js cache
 if (typeof window !== 'undefined') {
   try {
-    useTexture.preload('/images/banners/entrance-banner-left.jpg');
-    useTexture.preload('/images/banners/entrance-banner-right.jpg');
+    useTexture.preload('/images/banners/entrance-banner-left.webp');
+    useTexture.preload('/images/banners/entrance-banner-right.webp');
   } catch (e) {
     // Ignore preload error during SSR
   }
@@ -440,7 +440,7 @@ function EntranceBuildingFacade({ scrollProgress }: { scrollProgress: number }) 
       {/* Left Wall Banner: Creative Agency & Web Design */}
       <EntranceWallBanner
         position={[-5.3, 3.55, 0.22]}
-        imageUrl="/images/banners/entrance-banner-left.jpg"
+        imageUrl="/images/banners/entrance-banner-left.webp"
         title="اروم‌سیما • آژانس دیجیتال مارکتینگ و توسعه وب"
         accentColor="#10B981"
       />
@@ -448,7 +448,7 @@ function EntranceBuildingFacade({ scrollProgress }: { scrollProgress: number }) 
       {/* Right Wall Banner: Cinema, Video Teaser & Media Production */}
       <EntranceWallBanner
         position={[5.3, 3.55, 0.22]}
-        imageUrl="/images/banners/entrance-banner-right.jpg"
+        imageUrl="/images/banners/entrance-banner-right.webp"
         title="اروم‌سیما • تیزر تبلیغاتی و بیلبورد محیطی"
         accentColor="#06B6D4"
       />

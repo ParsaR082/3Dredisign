@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Sparkles, CheckCircle2, ShieldCheck, ArrowLeft, Gem, Sliders, Sun } from 'lucide-react';
-import { getAbnerData } from '@/lib/data-loaders';
+import { getLiveAbnerData } from '@/lib/db';
 import { generatePageMetadata } from '@/lib/seo';
 import {
   MotionDiv,
@@ -11,14 +11,17 @@ import {
   MotionBadge,
 } from '@/components/ui/motion';
 
-export const metadata = generatePageMetadata({
-  title: 'نمایندگی رسمی تلویزیون شهری و استند لمسی ابنر در ارومیه | اروم سیما',
-  description: 'فروش، نصب و گارانتی رسمی انواع تلویزیون شهری Outdoor و Indoor، استندهای هوشمند لمسی ابنر (ABNER) در آذربایجان غربی.',
-  path: '/abner/',
-});
+export async function generateMetadata() {
+  const abner = await getLiveAbnerData();
+  return generatePageMetadata({
+    title: abner.meta_title || abner.title || 'نمایندگی رسمی تلویزیون شهری و استند لمسی ابنر در ارومیه | اروم سیما',
+    description: abner.meta_description || abner.subtitle || 'فروش، نصب و گارانتی رسمی انواع تلویزیون شهری Outdoor و Indoor، استندهای هوشمند لمسی ابنر در ارومیه.',
+    path: '/abner/',
+  });
+}
 
-export default function AbnerPage() {
-  const abner = getAbnerData();
+export default async function AbnerPage() {
+  const abner = await getLiveAbnerData();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12 sm:space-y-20">

@@ -249,7 +249,7 @@ export default function UrmiaInteractiveMap({ projects }: UrmiaInteractiveMapPro
                 src="${project.thumbnail_image}" 
                 alt="${project.title}" 
                 class="w-full h-full object-cover"
-                onerror="this.src='/images/urumsima3.jpg'" 
+                onerror="this.src='/images/urumsima3.webp'" 
               />
               <div class="absolute top-2 right-2 px-2 py-0.5 rounded-lg bg-black/80 backdrop-blur-sm border border-emerald-500/30 text-[10px] font-bold text-emerald-300">
                 ${project.location_zone || 'ارومیه'}
@@ -493,7 +493,7 @@ export default function UrmiaInteractiveMap({ projects }: UrmiaInteractiveMapPro
               alt={hoveredProject.title}
               className="w-14 h-14 rounded-xl object-cover shrink-0"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = '/images/urumsima3.jpg';
+                (e.target as HTMLImageElement).src = '/images/urumsima3.webp';
               }}
             />
             <div className="flex-1 min-w-0">

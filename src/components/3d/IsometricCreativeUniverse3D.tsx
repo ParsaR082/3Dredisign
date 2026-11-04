@@ -2,12 +2,12 @@
 
 import React, { useRef, useState, useMemo, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Center, Float, ContactShadows, Environment, useGLTF, Html } from '@react-three/drei';
+import { Center, Float, ContactShadows, Environment, Lightformer, useGLTF, Html } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Preload the 4 creative models (using compressed HQ models with Draco)
-useGLTF.preload('/3Dmodels/laptop.glb', '/draco/');
-useGLTF.preload('/3Dmodels/hq/apple_iphone_18_pro_max_burgundy_2026.glb', '/draco/');
+useGLTF.preload('/3Dmodels/hq/laptop.glb', '/draco/');
+useGLTF.preload('/3Dmodels/hq/phone.glb', '/draco/');
 useGLTF.preload('/3Dmodels/hq/canon_at-1_retro_camera.glb', '/draco/');
 useGLTF.preload('/3Dmodels/hq/clipboard_with_pen_and_paper_low-poly.glb', '/draco/');
 
@@ -52,7 +52,7 @@ function LaptopModel({
   onPointerOut: () => void;
   onClick: () => void;
 }) {
-  const scene = useClonedModel('/3Dmodels/laptop.glb');
+  const scene = useClonedModel('/3Dmodels/hq/laptop.glb');
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -104,7 +104,7 @@ function PhoneModel({
   onPointerOut: () => void;
   onClick: () => void;
 }) {
-  const scene = useClonedModel('/3Dmodels/hq/apple_iphone_18_pro_max_burgundy_2026.glb');
+  const scene = useClonedModel('/3Dmodels/hq/phone.glb');
   const groupRef = useRef<THREE.Group>(null);
 
   useFrame((state) => {
@@ -120,7 +120,7 @@ function PhoneModel({
       ref={groupRef}
       position={[0.76, 0.38, 0.08]}
       rotation={[1, -Math.PI / 3.2, 0]}
-      scale={2.25}
+      scale={0.18}
       onPointerOver={(e) => {
         e.stopPropagation();
         onPointerOver();
@@ -410,7 +410,13 @@ function IsometricScene({
       />
 
       {/* Photorealistic PBR Environment Reflections */}
-      <Environment preset="city" environmentIntensity={0.55} />
+      <Environment resolution={128}>
+        <group rotation={[-Math.PI / 3, 0, 1]}>
+          <Lightformer form="rect" intensity={1.8} position={[3, 4, -2]} scale={6} color="#38bdf8" />
+          <Lightformer form="circle" intensity={1.4} position={[-3, 3, -2]} scale={5} color="#8b5cf6" />
+          <Lightformer form="ring" intensity={1.2} position={[0, 5, 3]} scale={7} color="#ffffff" />
+        </group>
+      </Environment>
 
       {/* Floating Isometric Studio Pedestal */}
       <IsometricPedestal />
