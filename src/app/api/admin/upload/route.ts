@@ -65,19 +65,24 @@ export async function POST(request: Request) {
       'image/gif',
       'image/svg+xml',
       'image/avif',
+      'video/mp4',
+      'video/webm',
+      'video/quicktime',
     ];
     if (!validTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'فرمت فایل نامعتبر است. فقط تصاویر (JPG, PNG, WebP, SVG, GIF, AVIF) مجاز هستند.' },
+        { error: 'فرمت فایل نامعتبر است. فقط تصاویر و ویدیوهای (MP4, WebM, MOV, JPG, PNG, WebP) مجاز هستند.' },
         { status: 400 }
       );
     }
 
-    // Max file size: 15MB
-    const maxSize = 15 * 1024 * 1024;
+    const isVideo = file.type.startsWith('video/');
+
+    // Max file size: 100MB for video, 15MB for images
+    const maxSize = isVideo ? 100 * 1024 * 1024 : 15 * 1024 * 1024;
     if (file.size > maxSize) {
       return NextResponse.json(
-        { error: 'حجم فایل بیشتر از حد مجاز است (حداکثر ۱۵ مگابایت).' },
+        { error: `حجم فایل بیشتر از حد مجاز است (حداکثر ${isVideo ? '۱۰۰' : '۱۵'} مگابایت).` },
         { status: 400 }
       );
     }
@@ -94,10 +99,10 @@ export async function POST(request: Request) {
     const isGif = file.type === 'image/gif' || file.name.toLowerCase().endsWith('.gif');
 
     let finalBuffer: Buffer = buffer;
-    let finalExt = path.extname(file.name).toLowerCase() || '.jpg';
+    let finalExt = path.extname(file.name).toLowerCase() || (isVideo ? '.mp4' : '.jpg');
     let finalMime = file.type;
 
-    if (!isSvg && !isGif) {
+    if (!isSvg && !isGif && !isVideo) {
       try {
         const sharp = (await import('sharp')).default;
         finalBuffer = await sharp(buffer)

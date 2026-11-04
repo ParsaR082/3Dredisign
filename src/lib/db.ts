@@ -944,6 +944,15 @@ export async function getLiveWebsiteBySlug(slug: string): Promise<ShowcaseWebsit
 
 // ── Backstage Items (Behind the Scenes) ──────────────────────
 
+export interface BackstageCategory {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+  order: number;
+  is_active: boolean;
+}
+
 export interface BackstageItem {
   id: number;
   title: string;
@@ -959,35 +968,122 @@ export interface BackstageItem {
   status: string;
   is_featured: boolean;
   order: number;
+  category_id?: number | null;
+  category_name?: string | null;
   published_at?: string | null;
 }
 
 const fallbackBackstage: BackstageItem[] = [
   {
     id: 1,
-    title: 'پشت صحنه فیلمبرداری تیزر تبلیغاتی سپید بام گستر',
-    slug: 'پشت-صحنه-فیلمبرداری-سپید-بام-گستر',
-    subtitle: 'روایتی از تلاش تیم تصویربرداری و جلوه‌های ویژه اروم‌سیما در کارخانجات صنعتی سپید بام گستر',
-    excerpt: 'نگاهی از نزدیک به مراحل ضبط صحنه‌های صنعتی، نورپردازی کارخانه با تجهیزات سینمایی و هماهنگی خط تولید.',
-    body: 'در این پروژه تیم تولید فیلم و تیزر تبلیغاتی اروم‌سیما با بهره‌گیری از دوربین‌های سینمایی Red و تجهیزات حرفه‌ای نورپردازی، فرآیند ساخت عایق‌های رطوبتی در کارخانه سپید بام گستر را با استانداردهای بین‌المللی به تصویر کشیدند.',
-    cover_image: '/images/bts/sepid-bam.jpg',
-    cover_video: '/media/bts/sepidbam-teaser.mp4',
-    embed_url: 'https://aparat.com/v/sepidbam',
+    title: 'پشت صحنه تیزر صنعتی سپید بام گستر',
+    slug: 'bts-sepid-bam-gostar',
+    subtitle: 'تصویربرداری FPV و تجهیزات نورپردازی سینمایی در کارخانجات',
+    excerpt: 'روایتی نزدیک از هماهنگی گروه کارگردانی، نورپردازی صنعتی و پرواز پهپادهای سینمایی در خطوط تولید مدرن سپید بام گستر.',
+    body: 'در این پروژه صنعتی، تیم تولید استودیو اروم‌سیما با بهره‌گیری از دوربین‌های سینمایی و سیستم‌های تثبیت‌کننده Ronin، روند تولید و مقاومت عایق‌های رطوبتی سپید بام گستر را با بالاترین استانداردهای بصری ثبت کردند.',
+    cover_image: '/media/landing/reels/006-C-URUMSIMA-V1.webp',
+    cover_video: '',
+    embed_url: 'https://www.instagram.com/reel/DZ2rIRGoAhW/',
     location: 'ارومیه، شهرک صنعتی فاز ۲',
-    duration_label: '۴ دقیقه پشت صحنه',
+    duration_label: '۰۰:۴۵ | 4K 60fps',
     status: 'published',
     is_featured: true,
     order: 1,
+    category_id: 1,
+    category_name: 'پشت صحنه سپید بام گستر',
     published_at: '1403/06/15',
+  },
+  {
+    id: 2,
+    title: 'پشت صحنه فیلم‌برداری نمایشگاهی تیرچه ارشیا',
+    slug: 'bts-tirche-arshia',
+    subtitle: 'کارگردانی صحنه‌های جوشکاری صنعتی و رندر جلوه‌های ویژه ۳D',
+    excerpt: 'چالش‌های کنترل نور شدید جوشکاری قوسی و ترکیب آن با انیمیشن‌های سه‌بعدی محاسباتی تیرچه صنعتی.',
+    body: 'تیم کارگردانی اروم‌سیما با استفاده از فیلترهای تخصصی ND و دوربین‌های High-Speed، جزئیات خیره‌کننده مقاومت متریال و اتصالات فولادی را ثبت کردند.',
+    cover_image: '/media/landing/reels/004-C-URUMSIMA-V1.webp',
+    cover_video: '',
+    embed_url: 'https://www.instagram.com/reel/DZ7uXg4IiaB/',
+    location: 'ارومیه، نمایشگاه بین‌المللی پارک جنگلی',
+    duration_label: '۰۱:۱۵ | 4K 60fps',
+    status: 'published',
+    is_featured: true,
+    order: 2,
+    category_id: 2,
+    category_name: 'پشت صحنه مجموعه تیرچه ارشیا',
+    published_at: '1403/07/10',
+  },
+  {
+    id: 3,
+    title: 'پشت صحنه عکاسی و ویدیوی پارس سرامیک',
+    slug: 'bts-pars-ceramic',
+    subtitle: 'طراحی دکوراسیون استودیویی و نورپردازی کات‌لایت اسلب‌های پرسلانی',
+    excerpt: 'ایجاد عمق میدانی خیره‌کننده و بازتاب کنترل‌شده روی سطوح سوپرپولیش سرامیک‌های ابعاد بزرگ.',
+    body: 'اجرای ستاپ‌های استودیویی متعدد و شبیه‌سازی فضای واقعی منازل لوکس جهت نمایش شفافیت، رگه‌ها و انعکاس نور بر روی محصولات پرسلانی.',
+    cover_image: '/media/landing/reels/001-C-URUMSIMA-V3.webp',
+    cover_video: '',
+    embed_url: 'https://www.instagram.com/reel/DbAeilKoo_8/',
+    location: 'استودیو اروم‌سیما',
+    duration_label: '۰۰:۵۵ | 4K 60fps',
+    status: 'published',
+    is_featured: true,
+    order: 3,
+    category_id: 3,
+    category_name: 'پشت صحنه مجموعه پارس سرامیک',
+    published_at: '1403/08/01',
+  },
+  {
+    id: 4,
+    title: 'پشت صحنه تیزر آماده‌سازی قهوه در استودیو اروم سیما',
+    slug: 'bts-neo-cafe',
+    subtitle: 'تصویربرداری ماکرو اسلوموشن با لنز ۱۰۰mm و کنترل سایه عمیق',
+    excerpt: 'ثبت جزئیات جوشش اسپرسو، پودر قهوه معلق و هنر باریستا با فریم‌ریت ۱۲۰ فریم بر ثانیه.',
+    body: 'استفاده از نورهای نرم Aputure و کنترل سایه‌های عمیق جهت ایجاد حس گرما و عطر قهوه در فریم‌های عمودی مخصوص شبکه‌های اجتماعی.',
+    cover_image: '/media/landing/reels/016-URUMSIMA-V1.webp',
+    cover_video: '',
+    embed_url: '',
+    location: 'استودیو اروم‌سیما - ارومیه',
+    duration_label: '۰۰:۳۵ | 4K 120fps',
+    status: 'published',
+    is_featured: false,
+    order: 4,
+    category_id: 4,
+    category_name: 'پشت صحنه استودیو اروم سیما',
+    published_at: '1403/08/18',
   },
 ];
 
-export async function getLiveBackstageItems(): Promise<BackstageItem[]> {
+export async function getLiveBackstageCategories(): Promise<BackstageCategory[]> {
   try {
-    const rows = await prisma.backstageBackstageitem.findMany({
+    const cats = await prisma.backstageBackstagecategory.findMany({
+      where: { is_active: true },
       orderBy: { order: 'asc' },
     });
+    return cats.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      description: c.description || '',
+      order: c.order,
+      is_active: c.is_active,
+    }));
+  } catch (error) {
+    console.warn('DB Backstage Categories query failed:', error);
+    return [];
+  }
+}
+
+export async function getLiveBackstageItems(): Promise<BackstageItem[]> {
+  try {
+    const [rows, categories] = await Promise.all([
+      prisma.backstageBackstageitem.findMany({
+        orderBy: { order: 'asc' },
+      }),
+      prisma.backstageBackstagecategory.findMany().catch(() => []),
+    ]);
+
     if (!rows || rows.length === 0) return fallbackBackstage;
+
+    const catMap = new Map(categories.map((c) => [c.id, c.name]));
 
     return rows.map((b) => ({
       id: b.id,
@@ -1000,10 +1096,12 @@ export async function getLiveBackstageItems(): Promise<BackstageItem[]> {
       cover_video: resolveMediaUrl(b.cover_video),
       embed_url: b.embed_url,
       location: b.location || 'ارومیه',
-      duration_label: b.duration_label || 'ویدیو کوتاه',
+      duration_label: b.duration_label || '۰۰:۴۵ | 4K 60fps',
       status: b.status,
       is_featured: b.is_featured,
       order: b.order,
+      category_id: b.category_id,
+      category_name: (b.category_id && catMap.get(b.category_id)) || null,
       published_at: b.published_at ? (b.published_at instanceof Date ? b.published_at.toISOString().split('T')[0] : String(b.published_at)) : null,
     }));
   } catch (error) {

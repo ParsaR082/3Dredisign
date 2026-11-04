@@ -97,34 +97,49 @@ export default async function BackstageDetailPage({ params }: BackstagePageProps
         )}
       </MotionDiv>
 
-      {/* Video / Visual Player Container */}
-      <MotionDiv variant="scale-up" delay={0.1} className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/10 bg-black aspect-video shadow-2xl">
-        {item.cover_video ? (
-          <video
-            src={item.cover_video}
-            poster={item.cover_image}
-            controls
-            className="w-full h-full object-contain"
-          />
-        ) : (
-          <div className="relative w-full h-full group">
-            <img
-              src={item.cover_image}
-              alt={item.title}
-              className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
+      {/* Video / Visual Player Container (Director's Viewfinder) */}
+      <MotionDiv
+        variant="scale-up"
+        delay={0.1}
+        className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 bg-gradient-to-b from-[#16171e] via-[#0d0e12] to-black min-h-[420px] sm:min-h-[600px] max-h-[82vh] flex items-center justify-center shadow-2xl p-2 sm:p-4"
+      >
+        <div className="relative w-full h-full max-h-[78vh] flex items-center justify-center rounded-2xl overflow-hidden bg-black">
+          {item.cover_video ? (
+            <video
+              src={item.cover_video}
+              poster={item.cover_image}
+              controls
+              autoPlay
+              playsInline
+              className="w-full h-full max-h-[75vh] object-contain"
             />
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-              <a
-                href={item.embed_url || '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-xl shadow-brand-600/50 hover:scale-110 active:scale-95 transition-transform"
-              >
-                <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-white ml-0.5" />
-              </a>
+          ) : (
+            <div className="relative w-full h-full max-h-[75vh] flex items-center justify-center group">
+              <img
+                src={item.cover_image}
+                alt={item.title}
+                className="w-full h-full max-h-[75vh] object-contain group-hover:scale-102 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-3">
+                {item.embed_url ? (
+                  <a
+                    href={item.embed_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-6 py-3 rounded-2xl bg-brand-500 hover:bg-brand-400 text-brand-950 font-bold text-xs sm:text-sm flex items-center gap-2 shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all"
+                  >
+                    <Play className="w-4 h-4 fill-current" />
+                    <span>مشاهده کامل ویدیو در اینستاگرام / آپارات</span>
+                  </a>
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-brand-500 text-brand-950 flex items-center justify-center shadow-2xl">
+                    <Play className="w-7 h-7 fill-current ml-0.5" />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </MotionDiv>
 
       {/* Main Narrative Article */}
