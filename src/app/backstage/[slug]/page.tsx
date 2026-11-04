@@ -120,22 +120,10 @@ export default async function BackstageDetailPage({ params }: BackstagePageProps
                 alt={item.title}
                 className="w-full h-full max-h-[75vh] object-contain group-hover:scale-102 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-3">
-                {item.embed_url ? (
-                  <a
-                    href={item.embed_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-6 py-3 rounded-2xl bg-brand-500 hover:bg-brand-400 text-brand-950 font-bold text-xs sm:text-sm flex items-center gap-2 shadow-2xl shadow-brand-500/30 hover:scale-105 active:scale-95 transition-all"
-                  >
-                    <Play className="w-4 h-4 fill-current" />
-                    <span>مشاهده کامل ویدیو در اینستاگرام / آپارات</span>
-                  </a>
-                ) : (
-                  <div className="w-16 h-16 rounded-full bg-brand-500 text-brand-950 flex items-center justify-center shadow-2xl">
-                    <Play className="w-7 h-7 fill-current ml-0.5" />
-                  </div>
-                )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 flex flex-col items-center justify-end p-6 text-center text-white">
+                <div className="px-4 py-2 rounded-2xl bg-black/75 border border-white/10 text-xs text-gray-200 backdrop-blur-md">
+                  پخش مستقیم اختصاصی در وبسایت اروم‌سیما
+                </div>
               </div>
             </div>
           )}

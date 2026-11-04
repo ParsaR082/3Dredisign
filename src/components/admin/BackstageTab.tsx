@@ -308,12 +308,7 @@ export default function BackstageTab({
                   {hasVideo ? (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/90 text-brand-950 text-[10px] font-black shadow-md backdrop-blur-sm">
                       <Video className="w-3 h-3" />
-                      <span>ویدیو MP4</span>
-                    </span>
-                  ) : hasEmbed ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/90 text-black text-[10px] font-black shadow-md backdrop-blur-sm">
-                      <ExternalLink className="w-3 h-3" />
-                      <span>لینک امبد</span>
+                      <span>ویدیو اختصاصی سایت</span>
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-700/80 text-gray-200 text-[10px] font-medium backdrop-blur-sm">
@@ -614,21 +609,6 @@ export default function BackstageTab({
                 )}
               </div>
 
-              {/* Embed URL (Aparat / Instagram / YouTube) */}
-              <div className="space-y-1.5">
-                <label className="text-xs text-gray-300 font-semibold flex items-center gap-1.5">
-                  <ExternalLink className="w-3.5 h-3.5 text-gray-400" />
-                  <span>لینک بیرونی ویدیو (اینستاگرام ریلز، آپارات، یوتیوب)</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.embed_url}
-                  onChange={(e) => setFormData({ ...formData, embed_url: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-mono focus:border-brand-500 focus:outline-none"
-                  placeholder="https://www.instagram.com/reel/... یا https://aparat.com/v/..."
-                />
-              </div>
-
               {/* Cover Image Upload (Poster) */}
               <div>
                 <ImageUpload
@@ -844,19 +824,11 @@ export default function BackstageTab({
                     alt={previewVideoItem.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-4 text-center text-white space-y-2">
-                    <span className="text-xs font-semibold">فایل ویدیوی مستقیم بارگذاری نشده است.</span>
-                    {previewVideoItem.embed_url && (
-                      <a
-                        href={previewVideoItem.embed_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3 py-1.5 rounded-xl bg-brand-500 text-brand-950 text-xs font-bold inline-flex items-center gap-1.5"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        <span>مشاهده در اینستاگرام / آپارات</span>
-                      </a>
-                    )}
+                  <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center p-4 text-center text-white space-y-2">
+                    <span className="text-xs font-semibold">فایل ویدیوی مستقیم روی سرور بارگذاری نشده است.</span>
+                    <p className="text-[11px] text-gray-400">
+                      می‌توانید با دکمه ویرایش، فایل ویدیویی MP4 یا WebM این شات را مستقیماً آپلود کنید.
+                    </p>
                   </div>
                 </div>
               ) : null}

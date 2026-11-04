@@ -414,20 +414,14 @@ export default function BackstageDirectorView({
                       alt={activeModalItem.title}
                       className="w-full h-full object-contain max-h-[80vh]"
                     />
-                    {activeModalItem.embed_url && (
-                      <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center text-white space-y-3">
-                        <p className="text-xs text-gray-200">این ویدیو به صورت آنلاین در اینستاگرام و آپارات بارگذاری شده است.</p>
-                        <a
-                          href={activeModalItem.embed_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="px-5 py-2.5 rounded-2xl bg-brand-500 hover:bg-brand-400 text-brand-950 text-xs font-bold inline-flex items-center gap-2 shadow-xl shadow-brand-500/20 transition-all"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          <span>مشاهده ویدیوی باکیفیت در اینستاگرام</span>
-                        </a>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent flex flex-col items-center justify-end p-6 text-center text-white space-y-2">
+                      <div className="px-3.5 py-1 rounded-full bg-black/70 border border-white/10 text-[11px] font-mono text-brand-300">
+                        DIRECTOR&apos;S CUT • داخلی وبسایت
                       </div>
-                    )}
+                      <p className="text-xs text-gray-300 font-sans">
+                        پخش مستقیم ویدیوی شات در داخل سایت • فایل ویدیویی از پنل مدیریت قابل بارگذاری است.
+                      </p>
+                    </div>
                   </div>
                 ) : null}
               </div>
@@ -528,3 +522,4 @@ export default function BackstageDirectorView({
     </div>
   );
 }
+
