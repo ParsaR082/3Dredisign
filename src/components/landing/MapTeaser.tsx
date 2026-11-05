@@ -22,6 +22,10 @@ export default function MapTeaser({ projectsCount, projects = [] }: MapTeaserPro
 
   useEffect(() => {
     let isMounted = true;
+    const container = mapContainerRef.current;
+    if (!container) return;
+
+    let observer: IntersectionObserver | null = null;
 
     async function initLeaflet() {
       if (typeof window === 'undefined' || !mapContainerRef.current) return;
@@ -101,10 +105,24 @@ export default function MapTeaser({ projectsCount, projects = [] }: MapTeaserPro
       }
     }
 
-    initLeaflet();
+    if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && !mapInstanceRef.current) {
+            initLeaflet();
+            observer?.disconnect();
+          }
+        },
+        { rootMargin: '200px' }
+      );
+      observer.observe(container);
+    } else {
+      initLeaflet();
+    }
 
     return () => {
       isMounted = false;
+      observer?.disconnect();
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -119,7 +137,8 @@ export default function MapTeaser({ projectsCount, projects = [] }: MapTeaserPro
         <div
           ref={mapContainerRef}
           className="pmap-teaser__map w-full lg:w-1/2 h-[320px] sm:h-[380px] rounded-2xl overflow-hidden border border-emerald-500/20 shadow-inner relative z-0"
-          aria-hidden="true"
+          role="region"
+          aria-label="پیش‌نمایش نقشه پروژه‌های اروم‌سیما"
         />
 
         {/* Text Content */}

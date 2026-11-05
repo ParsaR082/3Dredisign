@@ -83,9 +83,11 @@ export default function TestimonialsSection({
         </div>
 
         {/* Tab Filter Pills */}
-        <div className="ts-tabs flex justify-center gap-3 mb-12" role="tablist">
+        <div className="ts-tabs flex justify-center gap-3 mb-12" role="tablist" aria-label="فیلتر نظرات مشتریان">
           <button
             type="button"
+            role="tab"
+            aria-selected={activeTab === 'all'}
             onClick={() => setActiveTab('all')}
             className={`px-6 py-2.5 rounded-full text-xs font-bold transition-all ${
               activeTab === 'all'
@@ -97,6 +99,8 @@ export default function TestimonialsSection({
           </button>
           <button
             type="button"
+            role="tab"
+            aria-selected={activeTab === 'text'}
             onClick={() => setActiveTab('text')}
             className={`px-6 py-2.5 rounded-full text-xs font-bold transition-all ${
               activeTab === 'text'
@@ -117,7 +121,7 @@ export default function TestimonialsSection({
             >
               <div>
                 {/* Star rating */}
-                <div className="flex gap-1 text-amber-400 mb-4" aria-label={`${item.stars} ستاره`}>
+                <div role="img" className="flex gap-1 text-amber-400 mb-4" aria-label={`${item.stars || 5} ستاره`}>
                   {Array.from({ length: item.stars || 5 }).map((_, i) => (
                     <Star key={i} className="w-4 h-4 fill-current" />
                   ))}

@@ -47,9 +47,9 @@ export default function WhyUsSection({
                   {toPersian(item.number || idx + 1)}
                 </div>
                 <div className="why-txt">
-                  <h4 className="why-item-title text-base sm:text-lg font-bold text-white mb-2">
+                  <h3 className="why-item-title text-base sm:text-lg font-bold text-white mb-2">
                     {item.title}
-                  </h4>
+                  </h3>
                   <p className="text-xs sm:text-sm text-gray-300 font-light leading-relaxed">
                     {item.description}
                   </p>

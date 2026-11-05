@@ -15,6 +15,8 @@ export default function TeamBanner({ heroImage }: TeamBannerProps) {
           src={imgSrc}
           alt="تیم اروم سیما"
           loading="eager"
+          // @ts-ignore
+          fetchPriority="high"
           decoding="async"
           className="team-banner__img"
           sizes="100vw"
@@ -30,6 +32,8 @@ export default function TeamBanner({ heroImage }: TeamBannerProps) {
             src="/images/team-hero.webp"
             alt="تیم اروم سیما"
             loading="eager"
+            // @ts-ignore
+            fetchPriority="high"
             decoding="async"
             className="team-banner__img"
             sizes="100vw"

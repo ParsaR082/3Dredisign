@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import Image from 'next/image';
 
 interface InstagramReelsGridProps {
   config: {
@@ -176,20 +177,15 @@ export default function InstagramReelsGrid({
                   rel="noopener noreferrer"
                   aria-label={reel.caption || 'مشاهده Reel در اینستاگرام'}
                 >
-                  <div className="reels-card__media">
-                    <img
-                      src={reel.thumbnail}
+                  <div className="reels-card__media relative overflow-hidden">
+                    <Image
+                      src={reel.thumbnail || '/images/urumsima3.webp'}
                       alt={reel.caption || 'Reel اروم سیما'}
                       loading="lazy"
-                      decoding="async"
                       width={270}
                       height={480}
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        if (!target.src.includes('urumsima3.webp')) {
-                          target.src = '/images/urumsima3.webp';
-                        }
-                      }}
+                      sizes="(max-width: 640px) 70vw, 270px"
+                      className="w-full h-full object-cover"
                     />
                     <span className="reels-card__play" aria-hidden="true">
                       <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
@@ -239,11 +235,13 @@ export default function InstagramReelsGrid({
             </svg>
           </button>
 
-          <div className="reels-nav__dots" role="tablist">
+          <div className="reels-nav__dots" role="tablist" aria-label="انتخاب اسلاید ریلز">
             {reels.map((_, i) => (
               <button
                 key={i}
                 type="button"
+                role="tab"
+                aria-selected={i === activeIndex}
                 className={`reels-nav__dot ${i === activeIndex ? 'act' : ''}`}
                 onClick={() => go(i)}
                 aria-label={`اسلاید ${i + 1}`}

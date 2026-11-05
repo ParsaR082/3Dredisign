@@ -111,10 +111,12 @@ export default function RoiCalculatorWidget({ config }: RoiCalculatorWidgetProps
           <div className="roi-form-panel lg:col-span-6 bg-[#0B1A15] border border-emerald-500/20 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl">
             {/* Step 1: Business Type */}
             <div className="roi-step">
-              <label className="roi-label block text-xs font-bold text-gray-300 mb-2">
+              <label htmlFor="roi-business-type-select" className="roi-label block text-xs font-bold text-gray-300 mb-2">
                 ۱. نوع کسب‌وکار و صنعت
               </label>
               <select
+                id="roi-business-type-select"
+                aria-label="نوع کسب‌وکار و صنعت"
                 value={businessType}
                 onChange={(e) => setBusinessType(e.target.value)}
                 className="w-full bg-[#08120F] border border-emerald-500/30 rounded-xl p-3 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-400"
@@ -130,12 +132,16 @@ export default function RoiCalculatorWidget({ config }: RoiCalculatorWidgetProps
             {/* Step 2: Monthly Sales Slider */}
             <div className="roi-step">
               <div className="flex items-center justify-between text-xs font-bold text-gray-300 mb-2">
-                <span>۲. فروش ماهانه تقریبی</span>
+                <label htmlFor="roi-sales-slider-input" className="cursor-pointer">
+                  ۲. فروش ماهانه تقریبی
+                </label>
                 <span className="text-emerald-400 text-sm font-black">
                   {formatToman(getSalesValue())}
                 </span>
               </div>
               <input
+                id="roi-sales-slider-input"
+                aria-label="اسلایدر فروش ماهانه تقریبی"
                 type="range"
                 min="0"
                 max="100"

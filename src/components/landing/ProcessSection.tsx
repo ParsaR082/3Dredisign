@@ -57,9 +57,9 @@ export default function ProcessSection({ title, subtitle, desc, steps }: Process
               </div>
 
               {/* Title */}
-              <h4 className="proc-title text-base font-bold text-white mb-2">
+              <h3 className="proc-title text-base font-bold text-white mb-2">
                 {step.title}
-              </h4>
+              </h3>
 
               {/* Description */}
               <p className="proc-desc text-xs text-gray-400 font-light leading-relaxed">

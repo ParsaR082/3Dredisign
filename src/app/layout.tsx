@@ -59,6 +59,33 @@ export default async function RootLayout({
           type="font/woff2"
           crossOrigin="anonymous"
         />
+        <link
+          rel="preload"
+          as="image"
+          href="/images/team-hero.webp"
+          type="image/webp"
+          // @ts-ignore
+          fetchPriority="high"
+          media="(min-width: 901px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/images/team-hero-tablet.webp"
+          type="image/webp"
+          // @ts-ignore
+          fetchPriority="high"
+          media="(min-width: 481px) and (max-width: 900px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/images/team-hero-mobile.webp"
+          type="image/webp"
+          // @ts-ignore
+          fetchPriority="high"
+          media="(max-width: 480px)"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}

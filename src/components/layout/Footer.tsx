@@ -85,7 +85,7 @@ export default function Footer({ settings, services }: FooterProps) {
 
           {/* Col 3: Services */}
           <div className="space-y-3">
-            <h4 className="text-white font-bold text-sm tracking-wide">خدمات استراتژیک</h4>
+            <h3 className="text-white font-bold text-sm tracking-wide">خدمات استراتژیک</h3>
             <ul className="space-y-2 text-xs sm:text-sm">
               {services.map((s) => (
                 <li key={s.id}>
@@ -103,7 +103,7 @@ export default function Footer({ settings, services }: FooterProps) {
 
           {/* Col 4: Quick Links */}
           <div className="space-y-3">
-            <h4 className="text-white font-bold text-sm tracking-wide">دسترسی سریع</h4>
+            <h3 className="text-white font-bold text-sm tracking-wide">دسترسی سریع</h3>
             <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 text-xs sm:text-sm">
               <li><Link href="/portfolio/" className="hover:text-brand-300 transition-colors py-0.5 block">نمونه‌کارها</Link></li>
               <li><Link href="/websites/" className="hover:text-brand-300 transition-colors py-0.5 block">وبسایت‌های نمونه</Link></li>
@@ -120,7 +120,7 @@ export default function Footer({ settings, services }: FooterProps) {
 
           {/* Col 5: NAP & Contact Details */}
           <div className="space-y-3">
-            <h4 className="text-white font-bold text-sm tracking-wide">اطلاعات تماس و دفتر</h4>
+            <h3 className="text-white font-bold text-sm tracking-wide">اطلاعات تماس و دفتر</h3>
             <div className="space-y-2.5 text-xs leading-relaxed">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-brand-400 shrink-0 mt-0.5" />

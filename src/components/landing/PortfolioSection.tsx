@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Search } from 'lucide-react';
 import type { Project } from '@/types/content';
 
@@ -83,13 +84,13 @@ export default function PortfolioSection({
         {filtered.map((project) => (
           <div key={project.id} className="pf-card rv group">
             <div className="pf-img relative overflow-hidden h-[240px]">
-              <img
-                src={project.thumbnail_image}
+              <Image
+                src={project.thumbnail_image || '/images/urumsima3.webp'}
                 alt={project.title}
                 loading="lazy"
-                decoding="async"
                 width={600}
                 height={400}
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="pf-ov">
