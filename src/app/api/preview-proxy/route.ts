@@ -38,11 +38,39 @@ export async function GET(request: NextRequest) {
     const baseUrl = `${parsed.protocol}//${parsed.host}`;
     const baseTag = `<base href="${baseUrl}/" target="_blank">`;
 
-    // Inject base tag right after <head> or at start
+    // Shim to prevent Next.js / React 19 / SPA client routers from crashing with SecurityError
+    // when calling history.replaceState/pushState with target origin inside the proxy iframe
+    const shimTag = `
+<script>
+(function() {
+  try {
+    var origReplace = history.replaceState;
+    history.replaceState = function(state, title, url) {
+      try {
+        return origReplace.apply(this, arguments);
+      } catch(e) {}
+    };
+    var origPush = history.pushState;
+    history.pushState = function(state, title, url) {
+      try {
+        return origPush.apply(this, arguments);
+      } catch(e) {}
+    };
+    window.addEventListener('error', function(e) {
+      if (e && e.message && (e.message.indexOf('SecurityError') !== -1 || e.message.indexOf('replaceState') !== -1 || e.message.indexOf('pushState') !== -1)) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+  } catch(e) {}
+})();
+</script>`;
+
+    // Inject base tag & history shim right after <head> or at start
     if (/<head[^>]*>/i.test(html)) {
-      html = html.replace(/(<head[^>]*>)/i, `$1\n${baseTag}\n`);
+      html = html.replace(/(<head[^>]*>)/i, `$1\n${baseTag}\n${shimTag}\n`);
     } else {
-      html = `${baseTag}\n${html}`;
+      html = `${baseTag}\n${shimTag}\n${html}`;
     }
 
     return new NextResponse(html, {

@@ -269,7 +269,7 @@ export default function ProjectDeviceShowcase({ project }: ProjectDeviceShowcase
                     <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
                     <span className="w-2.5 h-2.5 rounded-full bg-green-500/80" />
                   </div>
-                  <span className="text-[10px] text-gray-400 font-mono truncate max-w-[200px]">
+                  <span className="text-[10px] text-gray-400 font-mono truncate max-w-[200px]" dir="ltr">
                     {project.website_url || project.slug}
                   </span>
                   <div className="w-8" />
@@ -339,7 +339,7 @@ export default function ProjectDeviceShowcase({ project }: ProjectDeviceShowcase
                   </div>
 
                   {/* Browser Address Bar */}
-                  <div className="flex-1 max-w-md mx-2 sm:mx-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-black/40 border border-white/10 text-[10px] sm:text-xs text-gray-300 font-mono text-center truncate flex items-center justify-center gap-1.5 sm:gap-2 min-w-0">
+                  <div className="flex-1 max-w-md mx-2 sm:mx-4 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-black/40 border border-white/10 text-[10px] sm:text-xs text-gray-300 font-mono text-center truncate flex items-center justify-center gap-1.5 sm:gap-2 min-w-0" dir="ltr">
                     <Globe className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 shrink-0" />
                     <span className="truncate">{project.website_url || `https://urumsima.ir/portfolio/${project.slug}/`}</span>
                   </div>
@@ -377,7 +377,7 @@ export default function ProjectDeviceShowcase({ project }: ProjectDeviceShowcase
                         key={iframeKey}
                         src={previewProxyUrl}
                         title={project.title}
-                        className="w-full h-full border-0 bg-white"
+                        className="w-full h-full border-0 bg-[#0a0a0d]"
                         sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                         onLoad={() => setIframeLoading(false)}
                       />
@@ -422,7 +422,7 @@ export default function ProjectDeviceShowcase({ project }: ProjectDeviceShowcase
                         key={iframeKey}
                         src={previewProxyUrl}
                         title={project.title}
-                        className="w-full h-full border-0 bg-white"
+                        className="w-full h-full border-0 bg-[#0a0a0d]"
                         sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                       />
                       <div className="absolute bottom-4 left-4 z-20">
@@ -461,7 +461,7 @@ export default function ProjectDeviceShowcase({ project }: ProjectDeviceShowcase
                         key={iframeKey}
                         src={previewProxyUrl}
                         title={project.title}
-                        className="w-full h-full border-0 bg-white"
+                        className="w-full h-full border-0 bg-[#0a0a0d]"
                         sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
                       />
                       <div className="absolute bottom-4 left-4 z-20">
