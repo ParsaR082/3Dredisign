@@ -26,16 +26,30 @@ export async function GET(
     const relativePath = segments.join('/');
     // Prevent directory traversal attacks
     const safePath = path.normalize(relativePath).replace(/^(\.\.[\/\\])+/, '');
-    const filePath = path.join(process.cwd(), 'public', 'media', safePath);
+    const decodedPath = decodeURIComponent(safePath);
 
-    if (!fs.existsSync(filePath)) {
+    const candidatePaths = [
+      path.join('/var/www/urumsima/media', safePath),
+      path.join('/var/www/urumsima/media', decodedPath),
+      path.join(process.cwd(), 'public', 'media', safePath),
+      path.join(process.cwd(), 'public', 'media', decodedPath),
+      path.join(process.cwd(), '..', 'urumsima', 'media', safePath),
+      path.join(process.cwd(), '..', 'urumsima', 'media', decodedPath),
+    ];
+
+    const filePath = candidatePaths.find((p) => {
+      try {
+        return fs.existsSync(p) && fs.statSync(p).isFile();
+      } catch {
+        return false;
+      }
+    });
+
+    if (!filePath) {
       return new NextResponse('File not found', { status: 404 });
     }
 
     const stat = fs.statSync(filePath);
-    if (!stat.isFile()) {
-      return new NextResponse('Not a file', { status: 404 });
-    }
 
     const ext = path.extname(filePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
