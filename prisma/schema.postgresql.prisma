@@ -729,6 +729,16 @@ model PortfolioProjectcategory {
   @@map("portfolio_projectcategory")
 }
 
+model PortfolioProjectRelated {
+  id                 Int @id @default(autoincrement())
+  project_id         Int
+  related_project_id Int
+  order              Int @default(0)
+
+  @@unique([project_id, related_project_id])
+  @@map("portfolio_project_related")
+}
+
 model PortfolioProjectimage {
   id                             Int @id @default(autoincrement())
   image                          String
