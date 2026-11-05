@@ -370,9 +370,9 @@ export async function getLiveProjects(): Promise<Project[]> {
       const hasRoi = p.roi_cost != null || p.roi_revenue != null || p.roi_percentage != null;
       const roiData: ProjectROI | undefined = hasRoi
         ? {
-            cost: p.roi_cost ?? undefined,
-            revenue: p.roi_revenue ?? undefined,
-            percentage: p.roi_percentage ?? undefined,
+            cost: p.roi_cost != null ? Number(p.roi_cost) : undefined,
+            revenue: p.roi_revenue != null ? Number(p.roi_revenue) : undefined,
+            percentage: p.roi_percentage != null ? Number(p.roi_percentage) : undefined,
           }
         : undefined;
 
