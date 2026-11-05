@@ -430,7 +430,11 @@ export async function getLiveProjects(): Promise<Project[]> {
         featured: p.featured,
         recent: p.recent,
         popular: p.popular,
-        project_date: p.project_date?.trim() || '',
+        project_date: p.project_date
+          ? (p.project_date as any) instanceof Date
+            ? (p.project_date as any).toISOString().split('T')[0]
+            : String(p.project_date).trim()
+          : '',
         website_url: cleanWebsiteUrl,
         pdf_url: p.pdf_url?.trim() && p.pdf_url.trim() !== 'null' ? resolveMediaUrl(p.pdf_url) : undefined,
         thumbnail_image: resolveMediaUrl(p.thumbnail_image) || '/images/urumsima3.webp',
