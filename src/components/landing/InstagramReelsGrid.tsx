@@ -23,9 +23,14 @@ interface InstagramReelsGridProps {
 export default function InstagramReelsGrid({
   config,
   reels,
-  instagramUrl = 'https://instagram.com/urum_sima',
+  instagramUrl = 'https://www.instagram.com/urum.sima/',
 }: InstagramReelsGridProps) {
   if (!config.is_active || !reels || reels.length === 0) return null;
+
+  const resolvedInstagramUrl =
+    instagramUrl && !instagramUrl.includes('urum_sima')
+      ? instagramUrl
+      : 'https://www.instagram.com/urum.sima/';
 
   const getMediaUrl = (url?: string | null) => {
     if (!url) return '/images/urumsima3.webp';
@@ -277,10 +282,10 @@ export default function InstagramReelsGrid({
         </div>
 
         {/* Follow CTA Button */}
-        {instagramUrl && (
+        {resolvedInstagramUrl && (
           <div className="reels-foot">
             <a
-              href={instagramUrl}
+              href={resolvedInstagramUrl}
               className="reels-follow-btn"
               target="_blank"
               rel="noopener noreferrer"

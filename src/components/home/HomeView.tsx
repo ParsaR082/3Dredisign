@@ -1049,7 +1049,7 @@ export default function HomeView({
             <div className="pt-2 border-t border-white/5 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <a
-                  href={settings.instagram_url || 'https://instagram.com/urum_sima'}
+                  href={settings.instagram_url || 'https://www.instagram.com/urum.sima/'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 rounded-xl bg-white/5 hover:bg-brand-600/30 text-gray-300 hover:text-brand-300 transition-colors"
