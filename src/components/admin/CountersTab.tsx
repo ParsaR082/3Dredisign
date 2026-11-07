@@ -107,7 +107,7 @@ export default function CountersTab({ counters, onRefresh }: CountersTabProps) {
             <span>شمارنده‌های آماری وب‌سایت</span>
           </h2>
           <p className="text-xs text-gray-400 mt-1">
-            شمارنده‌های ثبت‌شده در جدول public_landingcounter که آمار رضایت، تعداد پروژه‌ها و سوابق را نشان می‌دهند.
+            شمارنده‌های جدول public_landingcounter که به صورت زنده در لندینگ پیج و نوار آمار صفحه «درباره ما» نمایش داده می‌شوند.
           </p>
         </div>
         <button

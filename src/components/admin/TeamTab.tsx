@@ -13,7 +13,6 @@ import {
   X,
   Sparkles,
   BarChart3,
-  TrendingUp,
   Info,
 } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
@@ -22,7 +21,6 @@ interface TeamTabProps {
   members: any[];
   coreValues: any[];
   timeline: any[];
-  stats?: any[];
   onRefresh: () => void;
 }
 
@@ -30,28 +28,12 @@ export default function TeamTab({
   members = [],
   coreValues = [],
   timeline = [],
-  stats = [],
   onRefresh,
 }: TeamTabProps) {
-  // Member modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Stat modal state
-  const [statModalOpen, setStatModalOpen] = useState(false);
-  const [editingStat, setEditingStat] = useState<any | null>(null);
-  const [statLoading, setStatLoading] = useState(false);
-  const [statError, setStatError] = useState<string | null>(null);
-
-  const [statFormData, setStatFormData] = useState({
-    value: '۱۵',
-    suffix: '+',
-    label: '',
-    order: 1,
-    is_active: true,
-  });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -67,85 +49,6 @@ export default function TeamTab({
     is_active: true,
   });
 
-  // ── Stat Handlers ──
-  const handleOpenAddStat = () => {
-    setEditingStat(null);
-    setStatFormData({
-      value: '۱۰۰',
-      suffix: '+',
-      label: '',
-      order: stats.length + 1,
-      is_active: true,
-    });
-    setStatError(null);
-    setStatModalOpen(true);
-  };
-
-  const handleOpenEditStat = (s: any) => {
-    setEditingStat(s);
-    setStatFormData({
-      value: String(s.value ?? ''),
-      suffix: s.suffix ?? '',
-      label: s.label ?? '',
-      order: s.order || 1,
-      is_active: s.is_active !== undefined ? Boolean(s.is_active) : true,
-    });
-    setStatError(null);
-    setStatModalOpen(true);
-  };
-
-  const handleSaveStat = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatLoading(true);
-    setStatError(null);
-
-    try {
-      const url = '/api/admin/team/';
-      const method = editingStat ? 'PUT' : 'POST';
-      const payload = {
-        type: 'stat',
-        ...(editingStat && { id: editingStat.id }),
-        value: statFormData.value,
-        suffix: statFormData.suffix,
-        label: statFormData.label,
-        order: Number(statFormData.order) || 1,
-        is_active: statFormData.is_active,
-      };
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'خطا در ثبت آمار درباره ما');
-
-      setStatModalOpen(false);
-      onRefresh();
-    } catch (err: any) {
-      setStatError(err.message || 'خطا در برقراری ارتباط');
-    } finally {
-      setStatLoading(false);
-    }
-  };
-
-  const handleDeleteStat = async (id: number) => {
-    if (!confirm('آیا از حذف این آمار اطمینان دارید؟')) return;
-    try {
-      const res = await fetch(`/api/admin/team/?id=${id}&type=stat`, { method: 'DELETE' });
-      if (res.ok) {
-        onRefresh();
-      } else {
-        const d = await res.json().catch(() => ({}));
-        alert(d.error || 'خطا در حذف آمار');
-      }
-    } catch (err: any) {
-      alert(err.message || 'خطا در ارتباط با سرور');
-    }
-  };
-
-  // ── Member Handlers ──
   const handleOpenAdd = () => {
     setEditingMember(null);
     setFormData({
@@ -229,77 +132,20 @@ export default function TeamTab({
 
   return (
     <div className="space-y-8">
-      {/* ── ABOUT US DATABASE STATS SECTION ── */}
-      <div className="glass-panel border border-emerald-500/20 rounded-2xl p-6 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-black text-white flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-emerald-400" />
-              <span>آمار و ارقام لایو صفحه «درباره ما» ({stats.length} مورد)</span>
-            </h2>
-            <p className="text-xs text-gray-400 mt-1">
-              این مقادیر به صورت زنده از دیتابیس خوانده شده و در نوار متریال نهایی صفحه درباره ما نمایش داده می‌شوند.
-            </p>
-          </div>
-
-          <button
-            onClick={handleOpenAddStat}
-            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-emerald-600/20 cursor-pointer self-start sm:self-auto"
-          >
-            <Plus className="w-4 h-4" />
-            <span>افزودن آمار جدید</span>
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((s) => (
-            <div
-              key={s.id}
-              className="p-4 rounded-xl bg-dark-card/60 border border-white/10 hover:border-emerald-500/30 transition-all flex flex-col justify-between space-y-3 group"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <span className="text-2xl font-black text-emerald-400 font-mono tracking-tight">
-                    {s.suffix && s.suffix.startsWith('+') ? `${s.suffix}${s.value}` : `${s.value}${s.suffix || ''}`}
-                  </span>
-                  <p className="text-sm font-bold text-white mt-1">{s.label}</p>
-                </div>
-                <span
-                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                    s.is_active
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                      : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                  }`}
-                >
-                  {s.is_active ? 'فعال' : 'غیرفعال'}
-                </span>
-              </div>
-
-              <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
-                <span className="text-[10px] text-gray-500 font-mono">ترتیب: #{s.order}</span>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => handleOpenEditStat(s)}
-                    className="p-1 text-gray-400 hover:text-emerald-300 hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
-                    title="ویرایش"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteStat(s.id)}
-                    className="p-1 text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
-                    title="حذف"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+      {/* Notice about Public Landing Counters */}
+      <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-start gap-3">
+        <BarChart3 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+        <div className="text-xs text-gray-300 space-y-1">
+          <p className="font-bold text-white">
+            مدیریت آمار و ارقام وب‌سایت:
+          </p>
+          <p className="leading-relaxed">
+            آمار و ارقام وبسایت (شامل لندینگ پیج و نوار آمار صفحه «درباره ما») مستقیماً از تب اختصاصی <strong>«شمارنده‌ها»</strong> (جدول <code className="text-emerald-400 font-mono">public_landingcounter</code>) خوانده و به‌روزرسانی می‌شوند.
+          </p>
         </div>
       </div>
 
-      {/* ── NOTICE REGARDING TEAM MEMBERS ON ABOUT US ── */}
+      {/* Notice regarding Team Members on About Us */}
       <div className="p-4 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-start gap-3">
         <Info className="w-5 h-5 text-brand-400 shrink-0 mt-0.5" />
         <div className="text-xs text-gray-300 space-y-1">
@@ -307,12 +153,12 @@ export default function TeamTab({
             نکته ساختاری صفحه «درباره ما»:
           </p>
           <p className="leading-relaxed">
-            مطابق سیاست‌های رسمی برند اروم‌سیما، به جای نمایش اسامی پرسنل و افراد، ساختار ۴ دپارتمان تخصصی سازمانی (مهندسی وب ۳D، سئو داده‌محور، استودیو تیزر و ریلز، و تبلیغات محیطی آبنر) و متدولوژی ۴ مرحله‌ای اجرای پروژه به نمایش درآمده است. اعضای ثبت‌شده در این پنل برای مدیریت سازمانی یا کاربردهای اختصاصی دیگر نگهداری می‌شوند.
+            مطابق هویت سازمانی، در صفحه درباره ما ساختار ۴ دپارتمان تخصصی (مهندسی وب ۳D، سئو داده‌محور، استودیو تیزر و ریلز، و تبلیغات محیطی آبنر) و متدولوژی ۴ مرحله‌ای نمایش داده می‌شود. اطلاعات پرسنل زیر صرفاً جهت آرشیو و نگهداری سیستمی است.
           </p>
         </div>
       </div>
 
-      {/* ── MEMBERS LIST ── */}
+      {/* Members List */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -464,111 +310,7 @@ export default function TeamTab({
         </div>
       </div>
 
-      {/* ── STAT EDIT / CREATE MODAL ── */}
-      {statModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-dark-card border border-white/10 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <BarChart3 className="w-5 h-5 text-emerald-400" />
-                <span>{editingStat ? 'ویرایش آمار درباره ما' : 'افزودن آمار جدید'}</span>
-              </h3>
-              <button
-                onClick={() => setStatModalOpen(false)}
-                className="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-white/5"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {statError && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs">
-                {statError}
-              </div>
-            )}
-
-            <form onSubmit={handleSaveStat} className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-gray-300 block mb-1.5">مقدار عددی *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="مثال: ۱۵ یا ۳۰۰"
-                    value={statFormData.value}
-                    onChange={(e) => setStatFormData({ ...statFormData, value: e.target.value })}
-                    className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <div>
-                  <label className="text-gray-300 block mb-1.5">پسوند یا علامت</label>
-                  <input
-                    type="text"
-                    placeholder="مثال: + یا ٪"
-                    value={statFormData.suffix}
-                    onChange={(e) => setStatFormData({ ...statFormData, suffix: e.target.value })}
-                    className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 font-mono"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="text-gray-300 block mb-1.5">عنوان و برچسب آمار *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="مثال: سال تجربه مستمر، پروژه موفق"
-                  value={statFormData.label}
-                  onChange={(e) => setStatFormData({ ...statFormData, label: e.target.value })}
-                  className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-gray-300 block mb-1.5">ترتیب نمایش</label>
-                  <input
-                    type="number"
-                    value={statFormData.order}
-                    onChange={(e) => setStatFormData({ ...statFormData, order: Number(e.target.value) })}
-                    className="w-full bg-dark-base border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500 font-mono"
-                  />
-                </div>
-                <div className="flex items-center pt-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={statFormData.is_active}
-                      onChange={(e) => setStatFormData({ ...statFormData, is_active: e.target.checked })}
-                      className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
-                    />
-                    <span className="text-gray-300">نمایش در سایت</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => setStatModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
-                >
-                  انصراف
-                </button>
-                <button
-                  type="submit"
-                  disabled={statLoading}
-                  className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50 cursor-pointer"
-                >
-                  {statLoading ? 'در حال ثبت...' : editingStat ? 'ذخیره تغییرات' : 'افزودن آمار'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ── MEMBER EDIT / CREATE MODAL ── */}
+      {/* Member Edit / Create Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-dark-card border border-white/10 rounded-3xl p-6 sm:p-8 max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-6">

@@ -555,7 +555,7 @@ export function AboutUsEnhancedView({
           </StaggerContainer>
         </div>
 
-        {/* ── ENTERPRISE IMPACT & TRUST METRICS BAR (DYNAMICALLY DRIVEN FROM DATABASE) ── */}
+        {/* ── ENTERPRISE IMPACT & TRUST METRICS BAR (DYNAMICALLY DRIVEN FROM DATABASE: public_landingcounter) ── */}
         <MotionDiv
           variant="scale-up"
           className="glass-panel-elevated rounded-3xl p-6 sm:p-10 border border-emerald-500/20 shadow-2xl relative overflow-hidden backdrop-blur-2xl"
@@ -569,21 +569,33 @@ export function AboutUsEnhancedView({
                 'text-amber-400',
               ];
               const colorClass = colorClasses[idx % colorClasses.length];
-              const suffixStr = stat.suffix || '';
-              const valueStr = String(stat.value ?? '');
-              const displayVal = suffixStr.startsWith('+')
-                ? `${suffixStr}${valueStr}`
-                : `${valueStr}${suffixStr}`;
+              const suffixStr = (stat.suffix || '').trim();
+              const valueStr = String(stat.value ?? '').trim();
+              let displayVal = valueStr;
+              if (suffixStr) {
+                if (suffixStr.startsWith('+') && !valueStr.startsWith('+')) {
+                  displayVal = `+${valueStr}`;
+                } else if (!valueStr.includes(suffixStr)) {
+                  displayVal = `${valueStr}${suffixStr}`;
+                }
+              }
 
               return (
-                <div key={idx} className="pt-4 lg:pt-0 space-y-1">
+                <div key={idx} className="pt-4 lg:pt-0 space-y-1.5 flex flex-col items-center justify-center">
+                  {stat.icon && (
+                    <span className="text-xl sm:text-2xl mb-1 select-none">
+                      {stat.icon}
+                    </span>
+                  )}
                   <span className={`text-3xl sm:text-4xl font-black ${colorClass} font-mono tracking-tight`}>
                     {displayVal}
                   </span>
                   <p className="text-xs sm:text-sm font-bold text-white">{stat.label}</p>
-                  <p className="text-[11px] text-gray-400">
-                    {stat.detail || 'استاندارد کلاس جهانی اروم‌سیما'}
-                  </p>
+                  {stat.detail ? (
+                    <p className="text-[11px] text-gray-400 leading-relaxed max-w-[200px] mx-auto">
+                      {stat.detail}
+                    </p>
+                  ) : null}
                 </div>
               );
             })}

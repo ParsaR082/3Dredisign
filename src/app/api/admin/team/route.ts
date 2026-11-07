@@ -9,7 +9,7 @@ export async function GET() {
   }
 
   try {
-    const [members, coreValues, timeline, settings, stats] = await Promise.all([
+    const [members, coreValues, timeline, settings] = await Promise.all([
       prisma.aboutTechlead.findMany({
         orderBy: { order: 'asc' },
       }),
@@ -20,9 +20,6 @@ export async function GET() {
         orderBy: { order: 'asc' },
       }),
       prisma.aboutAboutpagesettings.findFirst(),
-      prisma.aboutAboutstat.findMany({
-        orderBy: { order: 'asc' },
-      }),
     ]);
 
     return NextResponse.json({
@@ -31,7 +28,6 @@ export async function GET() {
       coreValues,
       timeline,
       settings,
-      stats,
     });
   } catch (error: any) {
     console.error('Error fetching team data:', error);
@@ -67,23 +63,6 @@ export async function POST(request: Request) {
       order = 1,
       is_active = true,
     } = body;
-
-    if (type === 'stat') {
-      const statLabel = body.label || body.title;
-      if (!statLabel) {
-        return NextResponse.json({ error: 'عنوان و برچسب آمار الزامی است.' }, { status: 400 });
-      }
-      const newStat = await prisma.aboutAboutstat.create({
-        data: {
-          value: String(body.value ?? '0'),
-          suffix: String(body.suffix ?? ''),
-          label: statLabel,
-          order: Number(order) || 1,
-          is_active: is_active !== undefined ? Boolean(is_active) : true,
-        },
-      });
-      return NextResponse.json({ success: true, stat: newStat });
-    }
 
     if (type === 'corevalue') {
       const valTitle = title || name;
@@ -181,20 +160,6 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'شناسه الزامی است.' }, { status: 400 });
     }
 
-    if (type === 'stat') {
-      const updated = await prisma.aboutAboutstat.update({
-        where: { id: Number(id) },
-        data: {
-          ...(body.value !== undefined && { value: String(body.value) }),
-          ...(body.suffix !== undefined && { suffix: String(body.suffix) }),
-          ...(body.label !== undefined && { label: String(body.label) }),
-          ...(order !== undefined && { order: Number(order) }),
-          ...(is_active !== undefined && { is_active: Boolean(is_active) }),
-        },
-      });
-      return NextResponse.json({ success: true, stat: updated });
-    }
-
     if (type === 'corevalue') {
       const updated = await prisma.aboutCorevalue.update({
         where: { id: Number(id) },
@@ -261,13 +226,6 @@ export async function DELETE(request: Request) {
 
     if (!id) {
       return NextResponse.json({ error: 'شناسه الزامی است.' }, { status: 400 });
-    }
-
-    if (type === 'stat') {
-      await prisma.aboutAboutstat.delete({
-        where: { id: Number(id) },
-      });
-      return NextResponse.json({ success: true, message: 'آمار با موفقیت حذف شد.' });
     }
 
     if (type === 'corevalue') {

@@ -1403,45 +1403,62 @@ export async function getLiveLandingData(): Promise<LandingData> {
 
 /**
  * Fetch live Team/About data from database, with fallback to team.json
+ * Statistics counters are loaded directly from `public_landingcounter` as requested.
  */
 export async function getLiveTeamData(): Promise<{
   settings: AboutSettings;
   leads: TechLead[];
   stats: any[];
+  counters: any[];
   coreValues: any[];
 }> {
   const fallback = teamDataRaw as { settings: AboutSettings; leads: TechLead[] };
   try {
-    const [settingsRow, members, coreValues, dbStats, liveProjectsCount] = await Promise.all([
+    const [settingsRow, members, coreValues, landingCounters] = await Promise.all([
       prisma.aboutAboutpagesettings.findFirst().catch(() => null),
       prisma.aboutTechlead.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
       prisma.aboutCorevalue.findMany({ orderBy: { order: 'asc' } }).catch(() => []),
-      prisma.aboutAboutstat.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
-      prisma.portfolioProject.count({ where: { is_active: true } }).catch(() => 0),
+      prisma.publicLandingcounter.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
     ]);
 
-    const detailMap: Record<string, string> = {
-      'سال تجربه': 'بیش از ۱۵ سال سابقه پیشتاز در شمال‌غرب',
-      'پروژه موفق': 'صنعتی، پزشکی، تجاری و خدماتی',
-      'برند همکار': 'شراکت استراتژیک و پایدار تجاری',
-      'تخصص در تیم': 'در قالب ۴ دپارتمان متمرکز سازمانی',
+    const toPersianNum = (n: number | string) => {
+      const p = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+      return String(n).replace(/\d/g, (d) => p[parseInt(d, 10)]);
     };
 
     const formattedStats =
-      dbStats && dbStats.length > 0
-        ? dbStats.map((s) => ({
-            id: s.id,
-            value: s.value,
-            suffix: s.suffix || '',
-            label: s.label,
-            detail: detailMap[s.label.trim()] || 'استاندارد کلاس جهانی اروم‌سیما',
-            order: s.order,
-          }))
+      landingCounters && landingCounters.length > 0
+        ? landingCounters.map((c) => {
+            const rawSuffix = (c.suffix || '').trim();
+            const isWordSuffix = rawSuffix.length > 2 && !/^[+٪%xX0-9]+$/.test(rawSuffix);
+
+            if (isWordSuffix) {
+              return {
+                id: c.id,
+                icon: c.icon || '📊',
+                value: `+${toPersianNum(c.value)}`,
+                suffix: '',
+                label: rawSuffix,
+                detail: c.label || '',
+                order: c.order,
+              };
+            }
+
+            return {
+              id: c.id,
+              icon: c.icon || '📊',
+              value: toPersianNum(c.value),
+              suffix: rawSuffix || '+',
+              label: c.label,
+              detail: '',
+              order: c.order,
+            };
+          })
         : [
-            { value: '۱۵', suffix: '+', label: 'سال تجربه مستمر', detail: 'پیشگام در شمال‌غرب کشور', order: 1 },
-            { value: String(liveProjectsCount > 0 ? liveProjectsCount : '۳۰۰'), suffix: '+', label: 'پروژه موفق سازمانی', detail: 'صنعتی، پزشکی، تجاری', order: 2 },
-            { value: '۵۰', suffix: '+', label: 'برند همکار معتبر', detail: 'شراکت پایدار تجاری', order: 3 },
-            { value: '۳۰', suffix: '+', label: 'متخصص متمرکز', detail: 'در ۴ دپارتمان سازمانی', order: 4 },
+            { id: 1, icon: '🏆', value: '+۱۵', suffix: '', label: 'سال تجربه مستمر', detail: 'پیشگام در شمال‌غرب کشور', order: 1 },
+            { id: 2, icon: '📊', value: '+۳۰۰', suffix: '', label: 'پروژه موفق سازمانی', detail: 'صنعتی، پزشکی و تجاری', order: 2 },
+            { id: 3, icon: '👥', value: '+۵۰', suffix: '', label: 'برند همکار معتبر', detail: 'شراکت پایدار تجاری', order: 3 },
+            { id: 4, icon: '⏰', value: '۲۴/۷', suffix: '', label: 'پشتیبانی تخصصی', detail: 'همراهی دائمی تیم', order: 4 },
           ];
 
     const settings: AboutSettings = {
@@ -1468,10 +1485,10 @@ export async function getLiveTeamData(): Promise<{
           }))
         : fallback.leads;
 
-    return { settings, leads, stats: formattedStats, coreValues };
+    return { settings, leads, stats: formattedStats, counters: landingCounters, coreValues };
   } catch (error) {
     console.warn('DB Team query failed, using static fallback:', error);
-    return { ...fallback, stats: fallback.settings.stats || [], coreValues: [] };
+    return { ...fallback, stats: fallback.settings.stats || [], counters: [], coreValues: [] };
   }
 }
 

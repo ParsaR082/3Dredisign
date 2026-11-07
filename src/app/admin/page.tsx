@@ -51,7 +51,7 @@ const ALL_TABS = [
   { id: 'blog', label: 'وبلاگ و مقالات', icon: BookOpen },
   { id: 'services', label: 'خدمات تخصصی', icon: Cpu },
   { id: 'websites', label: 'پرتال وبسایت‌ها', icon: Globe },
-  { id: 'team', label: 'درباره ما و آمار', icon: Users },
+  { id: 'team', label: 'تیم و ارزش‌ها', icon: Users },
   { id: 'pricing', label: 'تعرفه‌ها و پلن‌ها', icon: DollarSign },
   { id: 'abner', label: 'نمایشگرهای آبنر', icon: Tv },
   { id: 'backstage', label: 'پشت‌صحنه', icon: Film },
@@ -96,11 +96,10 @@ function AdminDashboardContent() {
     websites: [],
     categories: [],
   });
-  const [teamData, setTeamData] = useState<{ members: any[]; coreValues: any[]; timeline: any[]; stats?: any[] }>({
+  const [teamData, setTeamData] = useState<{ members: any[]; coreValues: any[]; timeline: any[] }>({
     members: [],
     coreValues: [],
     timeline: [],
-    stats: [],
   });
   const [pricingData, setPricingData] = useState<{ plans: any[] }>({ plans: [] });
   const [abnerData, setAbnerData] = useState<{ products: any[]; cityTvModels: any[]; standModels: any[]; page: any }>({
@@ -238,7 +237,6 @@ function AdminDashboardContent() {
               members: data.members || [],
               coreValues: data.coreValues || [],
               timeline: data.timeline || [],
-              stats: data.stats || [],
             });
           }
           break;
@@ -558,7 +556,6 @@ function AdminDashboardContent() {
               members={teamData.members}
               coreValues={teamData.coreValues}
               timeline={teamData.timeline}
-              stats={teamData.stats || []}
               onRefresh={() => fetchTabData('team')}
             />
           )}
