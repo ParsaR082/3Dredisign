@@ -4,72 +4,40 @@
 # Urum Sima - Automated Safe Deployment Script
 # =========================================================
 
-# Wrap in a subshell so if pasted directly into Termius, 'exit' won't close SSH session
-(
-  set -o pipefail
+# Navigate to project directory
+cd /var/www/urumsima_next || exit 1
+echo "📁 Working directory: $(pwd)"
 
-  # ANSI Colors
-  RED='\033[0;31m'
-  GREEN='\033[0;32m'
-  YELLOW='\033[1;33m'
-  CYAN='\033[0;36m'
-  BOLD='\033[1m'
-  NC='\033[0m' # No Color
+# Resource protection to prevent high CPU/RAM load and keep SSH alive
+export NEXT_TELEMETRY_DISABLED=1
+export NODE_OPTIONS="--max-old-space-size=1536"
 
-  APP_DIR="/var/www/urumsima_next"
-  APP_NAME="urumsima-next"
+# 1. Stash local changes to avoid merge conflicts
+echo "📦 [1/4] Stashing local changes..."
+git stash
 
-  echo -e "${CYAN}${BOLD}====================================================${NC}"
-  echo -e "${CYAN}${BOLD}       🚀 شروع عملیات استقرار و آپدیت اروم‌سیما      ${NC}"
-  echo -e "${CYAN}${BOLD}====================================================${NC}"
+# 2. Pull latest code from origin/main
+echo "⬇️  [2/4] Pulling latest code from origin/main..."
+git checkout main
+if ! git pull origin main; then
+  echo "❌ Git pull failed! Deployment aborted."
+  exit 1
+fi
 
-  # 1. رفتن به دایرکتوری پروژه
-  if [ -d "$APP_DIR" ]; then
-    cd "$APP_DIR" || exit 1
-  fi
-  echo -e "${YELLOW}📁 دایرکتوری کاری: $(pwd)${NC}"
+echo "✓ Latest commit: $(git log -n 1 --oneline)"
 
-  # 2. جلوگیری از مصرف بی‌رویه رم و محافظت از اتصال SSH در برابر قفل شدن
-  export NEXT_TELEMETRY_DISABLED=1
-  export NODE_OPTIONS="--max-old-space-size=1536"
+# 3. Safe production build with nice priority
+echo "🔨 [3/4] Running Next.js build (npm run build)..."
+if nice -n 15 npm run build; then
+  echo "✓ Build completed successfully!"
+else
+  echo "❌ Build failed! Skipping pm2 restart to prevent downtime."
+  exit 1
+fi
 
-  # 3. کنار گذاشتن تغییرات محلی برای جلوگیری از خطای تداخل
-  echo -e "\n${CYAN}📦 [مرحله ۱/۴] کنار گذاشتن تغییرات فایل‌های محلی...${NC}"
-  git stash
+# 4. Restart PM2 process only on build success
+echo "🔄 [4/4] Restarting PM2 process (urumsima-next)..."
+pm2 restart urumsima-next
 
-  # 4. دریافت آخرین کدهای برنچ اصلی
-  echo -e "\n${CYAN}⬇️  [مرحله ۲/۴] دریافت آخرین تغییرات از origin/main...${NC}"
-  git checkout main
-  if ! git pull origin main; then
-    echo -e "\n${RED}❌ خطای گیت پول! عملیات استقرار متوقف شد.${NC}"
-    exit 1
-  fi
-
-  LATEST_COMMIT=$(git log -n 1 --oneline)
-  echo -e "${GREEN}✓ آخرین کامیت دریافت شد: ${BOLD}$LATEST_COMMIT${NC}"
-
-  # 5. اجرای بیلد پروژه با اولویت مناسب پردازنده برای حفظ اتصال SSH
-  echo -e "\n${CYAN}🔨 [مرحله ۳/۴] اجرای بیلد Next.js با حفاظت از منابع سرور...${NC}"
-  echo -e "${YELLOW}⏳ در حال بیلد... لطفاً صبر کنید (اتصال ترمیوس باز خواهد ماند)...${NC}"
-
-  if nice -n 15 npm run build; then
-    echo -e "\n${GREEN}✓ بیلد با موفقیت ۱۰۰٪ کامل شد!${NC}"
-  else
-    echo -e "\n${RED}====================================================${NC}"
-    echo -e "${RED}❌ بیلد با خطا مواجه شد!${NC}"
-    echo -e "${YELLOW}⚠️  دستور pm2 restart برای جلوگیری از قطعی سایت لغو گردید.${NC}"
-    echo -e "${RED}====================================================${NC}"
-    exit 1
-  fi
-
-  # 6. ری‌استارت PM2 تنها پس از موفقیت بیلد
-  echo -e "\n${CYAN}🔄 [مرحله ۴/۴] ری‌استارت پروسه سرور ($APP_NAME)...${NC}"
-  pm2 restart "$APP_NAME"
-
-  echo -e "\n${GREEN}${BOLD}====================================================${NC}"
-  echo -e "${GREEN}${BOLD}       🎉 آپدیت با موفقیت کامل انجام و سایت نوسازی شد! ${NC}"
-  echo -e "${GREEN}${BOLD}       کامیت فعال: $LATEST_COMMIT${NC}"
-  echo -e "${GREEN}${BOLD}====================================================${NC}\n"
-
-  pm2 status "$APP_NAME"
-)
+echo "🎉 Deployment finished successfully!"
+pm2 status urumsima-next
