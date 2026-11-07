@@ -42,6 +42,7 @@ export default function BackstageTab({
   const [previewVideoItem, setPreviewVideoItem] = useState<any | null>(null);
 
   const [editingItem, setEditingItem] = useState<any | null>(null);
+  const [editingCategory, setEditingCategory] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [videoUploading, setVideoUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -125,8 +126,8 @@ export default function BackstageTab({
       return;
     }
 
-    if (file.size > 100 * 1024 * 1024) {
-      alert('حجم ویدیو بیشتر از حد مجاز است (حداکثر ۱۰۰ مگابایت).');
+    if (file.size > 150 * 1024 * 1024) {
+      alert('حجم ویدیو بیشتر از حد مجاز است (حداکثر ۱۵۰ مگابایت).');
       return;
     }
 
@@ -135,7 +136,16 @@ export default function BackstageTab({
 
     try {
       const data = new FormData();
-      data.append('file', file);
+      // Ensure ASCII-only safe filename to avoid Undici / Node.js "Failed to parse body as FormData" error on non-ASCII filenames
+      const ext = file.name.substring(file.name.lastIndexOf('.')) || '.mp4';
+      const cleanBase = file.name
+        .replace(/\.[^/.]+$/, '')
+        .replace(/[^\w-]/g, '_')
+        .slice(0, 25) || 'bts_video';
+      const safeFilename = `${cleanBase}_${Date.now()}${ext.toLowerCase()}`;
+      const safeFile = new File([file], safeFilename, { type: file.type || 'video/mp4' });
+
+      data.append('file', safeFile);
       data.append('folder', 'backstage');
 
       const res = await fetch('/api/admin/upload/', {
@@ -148,7 +158,7 @@ export default function BackstageTab({
         json = await res.json();
       } catch {
         if (res.status === 413) {
-          throw new Error('حجم فایل بیشتر از سقف مجاز وب‌سرور (Nginx) است (خطای 413). لطفاً حجم ویدیو را به زیر ۵۰ مگابایت کاهش دهید.');
+          throw new Error('حجم فایل بیشتر از سقف مجاز وب‌سرور (Nginx client_max_body_size) است (خطای 413).');
         }
         throw new Error(`خطای سرور (${res.status}). امکان ذخیره ویدیو وجود ندارد.`);
       }
@@ -208,29 +218,66 @@ export default function BackstageTab({
     } catch (_) {}
   };
 
-  const handleCreateCategory = async (e: React.FormEvent) => {
+  const handleOpenCategories = () => {
+    setEditingCategory(null);
+    setNewCategoryData({
+      name: '',
+      slug: '',
+      description: '',
+      order: (categories.length || 0) + 1,
+    });
+    setCategoryModalOpen(true);
+  };
+
+  const handleEditCategory = (cat: any) => {
+    setEditingCategory(cat);
+    setNewCategoryData({
+      name: cat.name || '',
+      slug: cat.slug || '',
+      description: cat.description || '',
+      order: cat.order ?? 1,
+    });
+  };
+
+  const handleCancelCategoryEdit = () => {
+    setEditingCategory(null);
+    setNewCategoryData({
+      name: '',
+      slug: '',
+      description: '',
+      order: (categories.length || 0) + 1,
+    });
+  };
+
+  const handleSaveCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCategoryData.name.trim()) return;
 
     try {
-      const res = await fetch('/api/admin/backstage/', {
-        method: 'POST',
+      const isEditing = Boolean(editingCategory);
+      const url = '/api/admin/backstage/';
+      const method = isEditing ? 'PUT' : 'POST';
+      const payload = {
+        type: 'category',
+        ...(isEditing && { id: editingCategory.id }),
+        name: newCategoryData.name.trim(),
+        slug: newCategoryData.slug.trim() || newCategoryData.name.trim().toLowerCase().replace(/\s+/g, '-'),
+        description: newCategoryData.description.trim(),
+        order: Number(newCategoryData.order) || 1,
+      };
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'category',
-          name: newCategoryData.name.trim(),
-          slug: newCategoryData.slug.trim() || newCategoryData.name.trim().toLowerCase().replace(/\s+/g, '-'),
-          excerpt: newCategoryData.description.trim(),
-          order: Number(newCategoryData.order) || 1,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
         const d = await res.json();
-        throw new Error(d.error || 'خطا در ایجاد دسته‌بندی');
+        throw new Error(d.error || (isEditing ? 'خطا در ویرایش دسته‌بندی' : 'خطا در ایجاد دسته‌بندی'));
       }
 
-      setCategoryModalOpen(false);
+      setEditingCategory(null);
       setNewCategoryData({ name: '', slug: '', description: '', order: (categories.length || 0) + 2 });
       onRefresh();
     } catch (err: any) {
@@ -238,11 +285,19 @@ export default function BackstageTab({
     }
   };
 
-  const handleDeleteCategory = async (catId: number, catName: string) => {
-    if (!confirm(`آیا از حذف دسته‌بندی «${catName}» اطمینان دارید؟`)) return;
+  const handleDeleteCategory = async (catId: number, catName: string, videoCount = 0) => {
+    const warning = videoCount > 0
+      ? `توجه: تعداد ${videoCount} ویدیوی پشت‌صحنه در این دسته قرار دارند که پس از حذف، بدون دسته‌بندی خواهند شد.\n\nآیا از حذف دسته‌بندی «${catName}» اطمینان دارید؟`
+      : `آیا از حذف دسته‌بندی «${catName}» اطمینان دارید؟`;
+
+    if (!confirm(warning)) return;
+
     try {
       const res = await fetch(`/api/admin/backstage/?id=${catId}&type=category`, { method: 'DELETE' });
       if (res.ok) {
+        if (editingCategory?.id === catId) {
+          handleCancelCategoryEdit();
+        }
         onRefresh();
       } else {
         const d = await res.json();
@@ -267,7 +322,7 @@ export default function BackstageTab({
 
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           <button
-            onClick={() => setCategoryModalOpen(true)}
+            onClick={handleOpenCategories}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-medium border border-white/10 transition-all"
           >
             <FolderPlus className="w-4 h-4 text-brand-400" />
@@ -730,13 +785,13 @@ export default function BackstageTab({
           onClick={() => setCategoryModalOpen(false)}
         >
           <div
-            className="w-full max-w-lg bg-dark-base border border-white/10 rounded-3xl p-6 space-y-5 my-8 shadow-2xl"
+            className="w-full max-w-xl bg-dark-base border border-white/10 rounded-3xl p-6 space-y-5 my-8 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <h3 className="font-bold text-sm text-white flex items-center gap-2">
                 <FolderPlus className="w-4 h-4 text-brand-400" />
-                <span>دسته‌بندی‌های پشت‌صحنه</span>
+                <span>مدیریت دسته‌بندی‌های پشت‌صحنه</span>
               </h3>
               <button
                 onClick={() => setCategoryModalOpen(false)}
@@ -747,54 +802,169 @@ export default function BackstageTab({
             </div>
 
             {/* List of existing categories */}
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {categories.map((c) => (
-                <div
-                  key={c.id}
-                  className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs"
-                >
-                  <div>
-                    <span className="font-bold text-white">{c.name}</span>
-                    <span className="text-[10px] text-gray-400 mr-2 font-mono">({c.slug})</span>
-                  </div>
-                  <button
-                    onClick={() => handleDeleteCategory(c.id, c.name)}
-                    className="p-1 rounded-lg text-rose-400 hover:bg-rose-500/10 transition-colors"
-                    title="حذف دسته‌بندی"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+            <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+              {categories.length === 0 ? (
+                <div className="text-center py-6 text-gray-500 text-xs">
+                  هنوز هیچ دسته‌بندی تعریف نشده است.
                 </div>
-              ))}
+              ) : (
+                categories.map((c) => {
+                  const videoCount = items.filter((it) => it.category_id === c.id).length;
+                  const isCurrentEditing = editingCategory?.id === c.id;
+
+                  return (
+                    <div
+                      key={c.id}
+                      className={`p-3 rounded-xl border flex items-center justify-between text-xs transition-colors ${
+                        isCurrentEditing
+                          ? 'bg-brand-500/10 border-brand-500/40 text-brand-200'
+                          : 'bg-white/5 border-white/10 text-gray-200 hover:bg-white/8'
+                      }`}
+                    >
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-white">{c.name}</span>
+                          <span className="text-[10px] text-gray-400 font-mono">({c.slug})</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-gray-400">
+                          <span className="px-1.5 py-0.5 rounded bg-black/40 text-brand-300">
+                            {videoCount} ویدیو
+                          </span>
+                          <span className="px-1.5 py-0.5 rounded bg-white/5">
+                            ترتیب: {c.order ?? 1}
+                          </span>
+                          {c.description && (
+                            <span className="truncate max-w-[200px] text-gray-500">
+                              {c.description}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => handleEditCategory(c)}
+                          className="p-1.5 rounded-lg text-brand-400 hover:bg-brand-500/20 transition-colors"
+                          title="ویرایش دسته‌بندی"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteCategory(c.id, c.name, videoCount)}
+                          className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/20 transition-colors"
+                          title="حذف دسته‌بندی"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
 
-            {/* Form to add new category */}
-            <form onSubmit={handleCreateCategory} className="pt-3 border-t border-white/10 space-y-3">
-              <h4 className="text-xs font-bold text-brand-400">افزودن دسته‌بندی جدید</h4>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="text"
-                  required
-                  placeholder="نام دسته (مثال: پارس سرامیک)"
-                  value={newCategoryData.name}
-                  onChange={(e) => setNewCategoryData({ ...newCategoryData, name: e.target.value })}
-                  className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-brand-500 focus:outline-none"
-                />
-                <input
-                  type="text"
-                  placeholder="اسلاگ URL"
-                  value={newCategoryData.slug}
-                  onChange={(e) => setNewCategoryData({ ...newCategoryData, slug: e.target.value })}
-                  className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-mono focus:border-brand-500 focus:outline-none"
-                />
+            {/* Form to add or edit category */}
+            <form onSubmit={handleSaveCategory} className="pt-3 border-t border-white/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold text-brand-400 flex items-center gap-1.5">
+                  <Tag className="w-3.5 h-3.5" />
+                  <span>
+                    {editingCategory
+                      ? `ویرایش دسته‌بندی: «${editingCategory.name}»`
+                      : 'افزودن دسته‌بندی جدید'}
+                  </span>
+                </h4>
+                {editingCategory && (
+                  <button
+                    type="button"
+                    onClick={handleCancelCategoryEdit}
+                    className="text-[11px] text-gray-400 hover:text-white"
+                  >
+                    انصراف از ویرایش
+                  </button>
+                )}
               </div>
 
-              <div className="flex justify-end">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <label className="text-[11px] text-gray-400">نام دسته *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="مثال: تیزر و تصویربرداری صنعتی"
+                    value={newCategoryData.name}
+                    onChange={(e) =>
+                      setNewCategoryData({
+                        ...newCategoryData,
+                        name: e.target.value,
+                        slug:
+                          editingCategory
+                            ? newCategoryData.slug
+                            : e.target.value.toLowerCase().replace(/\s+/g, '-'),
+                      })
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-brand-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] text-gray-400">اسلاگ URL *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="industrial-teaser"
+                    value={newCategoryData.slug}
+                    onChange={(e) => setNewCategoryData({ ...newCategoryData, slug: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-mono focus:border-brand-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="sm:col-span-2 space-y-1">
+                  <label className="text-[11px] text-gray-400">توضیحات کوتاه (اختیاری)</label>
+                  <input
+                    type="text"
+                    placeholder="شرح کوتاه درباره ویدیوهای این بخش..."
+                    value={newCategoryData.description}
+                    onChange={(e) =>
+                      setNewCategoryData({ ...newCategoryData, description: e.target.value })
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs focus:border-brand-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] text-gray-400">ترتیب نمایش</label>
+                  <input
+                    type="number"
+                    min={1}
+                    value={newCategoryData.order}
+                    onChange={(e) =>
+                      setNewCategoryData({ ...newCategoryData, order: Number(e.target.value) || 1 })
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-mono focus:border-brand-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                {editingCategory && (
+                  <button
+                    type="button"
+                    onClick={handleCancelCategoryEdit}
+                    className="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs font-medium transition-colors"
+                  >
+                    انصراف
+                  </button>
+                )}
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition-all shadow-md"
+                  className="px-5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold transition-all shadow-md shadow-brand-600/30"
                 >
-                  ثبت دسته
+                  {editingCategory ? 'بروزرسانی دسته‌بندی' : 'افزودن دسته‌بندی'}
                 </button>
               </div>
             </form>

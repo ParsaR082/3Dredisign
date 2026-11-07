@@ -43,3 +43,4 @@ export default function BackstageVideoPlayer({ src, poster, title }: BackstageVi
     </div>
   );
 }
+

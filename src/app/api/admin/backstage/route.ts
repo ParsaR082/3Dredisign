@@ -67,6 +67,7 @@ export async function POST(request: Request) {
       slug,
       subtitle = '',
       excerpt = '',
+      description = '',
       body: itemBody = '',
       cover_image = '/images/urumsima3.webp',
       cover_video = '',
@@ -89,7 +90,7 @@ export async function POST(request: Request) {
         data: {
           name: catName,
           slug: catSlug,
-          description: excerpt || subtitle || catName,
+          description: description || excerpt || subtitle || catName || '',
           order: Number(order) || 1,
           is_active: true,
         },
@@ -160,9 +161,12 @@ export async function PUT(request: Request) {
   try {
     const body = await request.json();
     const {
+      type = 'item',
       id,
+      name,
       title,
       slug,
+      description,
       subtitle,
       excerpt,
       body: itemBody,
@@ -175,10 +179,35 @@ export async function PUT(request: Request) {
       is_featured,
       order,
       category_id,
+      is_active,
     } = body;
 
     if (!id) {
       return NextResponse.json({ error: 'شناسه الزامی است.' }, { status: 400 });
+    }
+
+    if (type === 'category') {
+      const catName = name || title;
+      if (!catName) {
+        return NextResponse.json({ error: 'نام دسته‌بندی الزامی است.' }, { status: 400 });
+      }
+      const cleanSlug = (slug || catName).trim().toLowerCase().replace(/\s+/g, '-');
+      const updatedCategory = await prisma.backstageBackstagecategory.update({
+        where: { id: Number(id) },
+        data: {
+          name: catName,
+          slug: cleanSlug,
+          description: description !== undefined ? description : (excerpt || subtitle || catName || ''),
+          order: order !== undefined ? Number(order) : undefined,
+          is_active: is_active !== undefined ? Boolean(is_active) : true,
+        },
+      });
+
+      try {
+        revalidatePath('/backstage');
+      } catch (_) {}
+
+      return NextResponse.json({ success: true, category: updatedCategory });
     }
 
     const now = new Date();
@@ -233,6 +262,12 @@ export async function DELETE(request: Request) {
     }
 
     if (type === 'category') {
+      // Unlink any backstage items from this category so delete succeeds safely
+      await prisma.backstageBackstageitem.updateMany({
+        where: { category_id: Number(id) },
+        data: { category_id: null },
+      });
+
       await prisma.backstageBackstagecategory.delete({
         where: { id: Number(id) },
       });

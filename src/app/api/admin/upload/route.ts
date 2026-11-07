@@ -46,14 +46,31 @@ async function safelyDeleteUploadedFile(fileUrl: string): Promise<boolean> {
   return anyDeleted;
 }
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+export const maxDuration = 120;
+
 export async function POST(request: Request) {
   const admin = await getCurrentAdmin();
   if (!admin) {
     return NextResponse.json({ error: 'عدم دسترسی.' }, { status: 401 });
   }
 
+  let formData: FormData;
   try {
-    const formData = await request.formData();
+    formData = await request.formData();
+  } catch (parseErr: any) {
+    console.error('Upload formData parsing failed:', parseErr);
+    return NextResponse.json(
+      {
+        error:
+          'خطا در دریافت و تجزیه فایل (Failed to parse body as FormData). این خطا معمولاً به دلیل قطع ارتباط آپلود توسط وب‌سرور (Nginx client_max_body_size) یا نام فایل نامتعارف رخ می‌دهد. لطفاً حجم ویدیو را بررسی کنید یا سقف حجم آپلود Nginx را افزایش دهید.',
+      },
+      { status: 400 }
+    );
+  }
+
+  try {
     const file = formData.get('file') as File | null;
     const folder = (formData.get('folder') as string) || 'general';
     const previousUrl = formData.get('previousUrl') as string | null;

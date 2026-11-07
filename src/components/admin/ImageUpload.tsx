@@ -53,7 +53,16 @@ export default function ImageUpload({
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      // Ensure ASCII-safe filename to prevent Undici FormData parser failure
+      const ext = file.name.substring(file.name.lastIndexOf('.')) || '.webp';
+      const cleanBase = file.name
+        .replace(/\.[^/.]+$/, '')
+        .replace(/[^\w-]/g, '_')
+        .slice(0, 25) || 'image';
+      const safeFilename = `${cleanBase}_${Date.now()}${ext.toLowerCase()}`;
+      const safeFile = new File([file], safeFilename, { type: file.type || 'image/webp' });
+
+      formData.append('file', safeFile);
       formData.append('folder', folder);
       if (value && (value.startsWith('/media/uploads/') || value.startsWith('media/uploads/'))) {
         formData.append('previousUrl', value);
