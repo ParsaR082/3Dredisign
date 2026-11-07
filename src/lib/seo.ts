@@ -11,10 +11,10 @@ export function generatePageMetadata({
   ogImage,
   noIndex = false,
 }: {
-  title?: string;
-  description?: string;
+  title?: string | null;
+  description?: string | null;
   path?: string;
-  ogImage?: string;
+  ogImage?: string | null;
   noIndex?: boolean;
 }): Metadata {
   const settings = getSiteSettings();

@@ -9,9 +9,10 @@ interface SmoothScrollProps {
 
 export function SmoothScroll({ children }: SmoothScrollProps) {
   useEffect(() => {
-    // Check user preference for reduced motion
+    // Check user preference for reduced motion or touch screens (mobile/tablet)
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
+    const isTouch = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    if (prefersReducedMotion || isTouch) {
       return;
     }
 

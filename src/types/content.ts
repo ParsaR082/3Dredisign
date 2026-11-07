@@ -9,9 +9,9 @@ export interface SiteSettings {
   office_address: string;
   office_city: string;
   office_region: string;
-  office_latitude: number;
-  office_longitude: number;
-  map_zoom: number;
+  office_latitude: number | string;
+  office_longitude: number | string;
+  map_zoom: number | string;
   show_contact_map: boolean;
   instagram_url: string;
   telegram_url: string;
@@ -23,7 +23,7 @@ export interface SiteSettings {
   meta_title_default: string;
   meta_description_default: string;
   default_robots: string;
-  default_og_image?: string;
+  default_og_image?: string | null;
 }
 
 export interface LandingHero {

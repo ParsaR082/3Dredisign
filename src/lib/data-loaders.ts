@@ -35,15 +35,15 @@ export {
 } from './db';
 
 export function getSiteSettings(): SiteSettings {
-  return siteSettingsData as SiteSettings;
+  return siteSettingsData as unknown as SiteSettings;
 }
 
 export function getLandingData(): LandingData {
-  return landingDataRaw as LandingData;
+  return landingDataRaw as unknown as LandingData;
 }
 
 export function getServices(): Service[] {
-  return servicesDataRaw as Service[];
+  return servicesDataRaw as unknown as Service[];
 }
 
 export function getServiceBySlug(slug: string): Service | undefined {
@@ -54,7 +54,7 @@ export function getServiceBySlug(slug: string): Service | undefined {
 }
 
 export function getProjects(): Project[] {
-  return projectsDataRaw as Project[];
+  return projectsDataRaw as unknown as Project[];
 }
 
 export function getFeaturedProjects(): Project[] {
@@ -66,11 +66,11 @@ export function getProjectBySlug(slug: string): Project | undefined {
 }
 
 export function getPricingData(): { settings: PricingSettings; plans: PricingPlan[] } {
-  return pricingDataRaw as { settings: PricingSettings; plans: PricingPlan[] };
+  return pricingDataRaw as unknown as { settings: PricingSettings; plans: PricingPlan[] };
 }
 
 export function getTeamData(): { settings: AboutSettings; leads: TechLead[] } {
-  return teamDataRaw as { settings: AboutSettings; leads: TechLead[] };
+  return teamDataRaw as unknown as { settings: AboutSettings; leads: TechLead[] };
 }
 
 export function getAbnerData() {

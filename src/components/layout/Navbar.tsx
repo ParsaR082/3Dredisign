@@ -64,12 +64,6 @@ export default function Navbar({ settings, services }: NavbarProps) {
             ? 'bg-[#030712]/96 lg:bg-[#030712]/85 lg:backdrop-blur-2xl shadow-[0_12px_35px_rgba(0,0,0,0.6)] lg:shadow-[0_20px_50px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.2),inset_0_-1px_1px_rgba(0,0,0,0.5)] py-1.5 px-3 sm:px-4'
             : 'bg-[#030712]/90 lg:bg-[#030712]/65 lg:backdrop-blur-xl shadow-[0_8px_25px_rgba(0,0,0,0.4)] lg:shadow-[0_15px_35px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.15)] hover:bg-[#030712]/95 lg:hover:bg-[#030712]/80 py-1.5 px-3 sm:px-4'
         }`}
-        style={{
-          WebkitBackfaceVisibility: 'hidden',
-          backfaceVisibility: 'hidden',
-          WebkitTransform: 'translateZ(0)',
-          transform: 'translateZ(0)',
-        }}
       >
         {/* Apple-style Top Edge Sheen Reflection */}
         <div className="absolute inset-x-8 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
@@ -277,12 +271,6 @@ export default function Navbar({ settings, services }: NavbarProps) {
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
             transition={transitionSpring}
             className="pointer-events-auto lg:hidden mt-2 rounded-2xl bg-[#030712]/98 border border-white/10 p-4 shadow-2xl space-y-3 max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain"
-            style={{
-              WebkitBackfaceVisibility: 'hidden',
-              backfaceVisibility: 'hidden',
-              WebkitTransform: 'translateZ(0)',
-              transform: 'translateZ(0)',
-            }}
           >
             <div className="space-y-1">
               {navLinks.map((link) => {

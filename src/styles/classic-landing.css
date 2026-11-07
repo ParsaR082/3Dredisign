@@ -1750,4 +1750,18 @@
   animation: none !important;
 }
 
+/* Mobile & Touch: Disable translateZ promotion to prevent WebKit tile drops */
+@media (max-width: 1024px), (pointer: coarse) {
+  .hero-visual-card,
+  .orb,
+  .orb1,
+  .orb2,
+  .orb3,
+  .hero::after,
+  .hero::before {
+    transform: none !important;
+    will-change: auto !important;
+  }
+}
+
 

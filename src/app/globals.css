@@ -137,6 +137,14 @@ body {
   .glass-panel-dock {
     background: rgba(11, 17, 30, 0.96) !important;
   }
+
+  /* Prevent WebKit/Safari tile corruption and black box compositor glitches */
+  *,
+  *::before,
+  *::after {
+    -webkit-backface-visibility: visible !important;
+    backface-visibility: visible !important;
+  }
 }
 
 /* Subtle grid background */

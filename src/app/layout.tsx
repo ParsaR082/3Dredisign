@@ -96,13 +96,13 @@ export default async function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-dark-base text-gray-100 flex flex-col font-sans selection:bg-brand-600 selection:text-white antialiased">
+        <Navbar settings={settings} services={services} />
         <SmoothScroll>
           <CustomCursor />
-          <Navbar settings={settings} services={services} />
           <MainContentWrapper>{children}</MainContentWrapper>
           <Footer settings={settings} services={services} />
-          <WhatsAppButton number={settings.whatsapp_number} />
         </SmoothScroll>
+        <WhatsAppButton number={settings.whatsapp_number} />
       </body>
     </html>
   );

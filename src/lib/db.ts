@@ -67,7 +67,7 @@ function formatSocialUrl(url: string | null | undefined, type: 'telegram' | 'ins
 export async function getLiveSiteSettings(): Promise<SiteSettings> {
   try {
     const row = await prisma.publicSitesettings.findFirst();
-    if (!row) return siteSettingsFallback as SiteSettings;
+    if (!row) return siteSettingsFallback as unknown as SiteSettings;
 
     return {
       site_name: row.site_name,
@@ -96,7 +96,7 @@ export async function getLiveSiteSettings(): Promise<SiteSettings> {
     };
   } catch (error) {
     console.warn('DB SiteSettings query failed, using static fallback:', error);
-    return siteSettingsFallback as SiteSettings;
+    return siteSettingsFallback as unknown as SiteSettings;
   }
 }
 
