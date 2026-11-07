@@ -31,6 +31,7 @@ export {
   getLiveLandingData,
   getLiveLandingFull,
   getLiveTeamData,
+  getLiveAboutData,
   getLiveAbnerData,
 } from './db';
 

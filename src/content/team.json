@@ -1,80 +1,35 @@
 {
   "settings": {
-    "title": "رهبران فنی و خالقان نوآوری در اروم‌سیما",
-    "subtitle": "تیمی متخصص از برنامه‌نویسان، طراحان ۳ بعدی، استراتژیست‌های سئو و کارگردانان هنری",
+    "title": "هویت، استانداردهای مهندسی و دپارتمان‌های تخصصی اروم‌سیما",
+    "subtitle": "پیشرو در طراحی وب ۳بعدی، سئو تکنیکال، تولید مدیا و تبلیغات محیطی با بیش از ۱۵ سال سابقه",
     "vision": "تبدیل ارومیه به یکی از قطب‌های فناوری و بازاریابی دیجیتال خاورمیانه با محصولات کلاس جهانی.",
-    "mission": "توانمندسازی کسب‌وکارهای اصیل ایرانی برای رقابت مقتدرانه در سطح ملی و بین‌المللی با تلفیق هنر و مهندسی."
+    "mission": "توانمندسازی کسب‌وکارهای اصیل ایرانی برای رقابت مقتدرانه در سطح ملی و بین‌المللی با تلفیق هنر و مهندسی.",
+    "stats": [
+      {
+        "value": "۱۵",
+        "suffix": "+",
+        "label": "سال تجربه مستمر",
+        "detail": "پیشگام در شمال‌غرب کشور"
+      },
+      {
+        "value": "۳۰۰",
+        "suffix": "+",
+        "label": "پروژه موفق سازمانی",
+        "detail": "صنعتی، پزشکی و تجاری"
+      },
+      {
+        "value": "۵۰",
+        "suffix": "+",
+        "label": "برند همکار معتبر",
+        "detail": "شراکت پایدار تجاری"
+      },
+      {
+        "value": "۳۰",
+        "suffix": "",
+        "label": "متخصص متمرکز",
+        "detail": "در ۴ دپارتمان سازمانی"
+      }
+    ]
   },
-  "leads": [
-    {
-      "name": "مهندس رضا کریمی",
-      "role": "مدیر ارشد فناوری و مهندسی ۳D (Tech Lead)",
-      "skills": [
-        "Three.js",
-        "WebGL",
-        "Next.js",
-        "Shaders",
-        "TypeScript"
-      ],
-      "years_experience": 11,
-      "total_projects": 120,
-      "accent_color": "#0E946E",
-      "planet_type": "crystal",
-      "tagline": "کد تمیز، سرعت بی‌نقص و گرافیک سه‌بعدی که مخاطب را مجذوب می‌کند.",
-      "poster_image": "/images/team-hero.webp",
-      "order": 1
-    },
-    {
-      "name": "مهندس پارسا اسدی",
-      "role": "معمار نرم‌افزار و سیستم‌های توزیع‌شده",
-      "skills": [
-        "Architecture",
-        "Django",
-        "PostgreSQL",
-        "DevOps",
-        "Cloud"
-      ],
-      "years_experience": 9,
-      "total_projects": 95,
-      "accent_color": "#14B8A6",
-      "planet_type": "gas_giant",
-      "tagline": "امنیت و پایداری سنگ‌بنای هر امپراتوری دیجیتال است.",
-      "poster_image": "/images/team-photo.webp",
-      "order": 2
-    },
-    {
-      "name": "سارا محمدی",
-      "role": "مدیر هنری و طراح ارشد تجربه کاربری (Lead UI/UX)",
-      "skills": [
-        "UI/UX Design",
-        "Figma",
-        "Design Systems",
-        "Prototyping"
-      ],
-      "years_experience": 8,
-      "total_projects": 85,
-      "accent_color": "#F59E0B",
-      "planet_type": "ringed",
-      "tagline": "سادگی نهایت پختگی در طراحی محصول است.",
-      "poster_image": "/images/urumsima3.webp",
-      "order": 3
-    },
-    {
-      "name": "علی رضایی",
-      "role": "کارگردان تیزرهای صنعتی و تصویربرداری هوایی",
-      "skills": [
-        "Drone Cinematography",
-        "DaVinci Resolve",
-        "Commercials",
-        "Directing"
-      ],
-      "years_experience": 10,
-      "total_projects": 110,
-      "accent_color": "#06B6D4",
-      "planet_type": "lava",
-      "tagline": "روایت داستانی با قاب‌های سینمایی که تا سال‌ها در ذهن می‌ماند.",
-      "poster_image": "/images/urumsima5.webp",
-      "order": 4
-    }
-  ]
+  "leads": []
 }

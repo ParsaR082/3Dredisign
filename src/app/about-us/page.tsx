@@ -4,14 +4,14 @@ import { generatePageMetadata } from '@/lib/seo';
 import AboutUsEnhancedView from '@/components/about/AboutUsEnhancedView';
 
 export const metadata = generatePageMetadata({
-  title: 'درباره ما | هویت، استانداردها و فناوری‌های اروم سیما',
+  title: 'درباره ما | هویت، دپارتمان‌های تخصصی و فناوری‌های اروم سیما',
   description:
-    'آشنایی با آژانس دیجیتال مارکتینگ اروم سیما؛ پیشرو در طراحی سایت‌های ۳ بعدی مدرن، سئو تکنیکال، تولید محتوای تخصصی و بیلبورد با بیش از ۱۵ سال سابقه درخشان در ارومیه.',
+    'آشنایی با آژانس دیجیتال مارکتینگ اروم سیما؛ پیشرو در مهندسی وب ۳ بعدی مدرن، سئو تکنیکال، استودیو تولید محتوا و بیلبورد با بیش از ۱۵ سال سابقه درخشان در ارومیه.',
   path: '/about-us/',
 });
 
 export default async function AboutUsPage() {
-  const [{ settings, leads }, siteSettings] = await Promise.all([
+  const [{ settings, stats }, siteSettings] = await Promise.all([
     getLiveTeamData(),
     getLiveSiteSettings(),
   ]);
@@ -19,7 +19,7 @@ export default async function AboutUsPage() {
   return (
     <AboutUsEnhancedView
       settings={settings}
-      leads={leads}
+      stats={stats}
       siteSettings={siteSettings}
     />
   );

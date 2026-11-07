@@ -1404,21 +1404,52 @@ export async function getLiveLandingData(): Promise<LandingData> {
 /**
  * Fetch live Team/About data from database, with fallback to team.json
  */
-export async function getLiveTeamData(): Promise<{ settings: AboutSettings; leads: TechLead[]; coreValues: any[] }> {
+export async function getLiveTeamData(): Promise<{
+  settings: AboutSettings;
+  leads: TechLead[];
+  stats: any[];
+  coreValues: any[];
+}> {
   const fallback = teamDataRaw as { settings: AboutSettings; leads: TechLead[] };
   try {
-    const [settingsRow, members, coreValues] = await Promise.all([
+    const [settingsRow, members, coreValues, dbStats, liveProjectsCount] = await Promise.all([
       prisma.aboutAboutpagesettings.findFirst().catch(() => null),
       prisma.aboutTechlead.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
       prisma.aboutCorevalue.findMany({ orderBy: { order: 'asc' } }).catch(() => []),
+      prisma.aboutAboutstat.findMany({ where: { is_active: true }, orderBy: { order: 'asc' } }).catch(() => []),
+      prisma.portfolioProject.count({ where: { is_active: true } }).catch(() => 0),
     ]);
+
+    const detailMap: Record<string, string> = {
+      'سال تجربه': 'بیش از ۱۵ سال سابقه پیشتاز در شمال‌غرب',
+      'پروژه موفق': 'صنعتی، پزشکی، تجاری و خدماتی',
+      'برند همکار': 'شراکت استراتژیک و پایدار تجاری',
+      'تخصص در تیم': 'در قالب ۴ دپارتمان متمرکز سازمانی',
+    };
+
+    const formattedStats =
+      dbStats && dbStats.length > 0
+        ? dbStats.map((s) => ({
+            id: s.id,
+            value: s.value,
+            suffix: s.suffix || '',
+            label: s.label,
+            detail: detailMap[s.label.trim()] || 'استاندارد کلاس جهانی اروم‌سیما',
+            order: s.order,
+          }))
+        : [
+            { value: '۱۵', suffix: '+', label: 'سال تجربه مستمر', detail: 'پیشگام در شمال‌غرب کشور', order: 1 },
+            { value: String(liveProjectsCount > 0 ? liveProjectsCount : '۳۰۰'), suffix: '+', label: 'پروژه موفق سازمانی', detail: 'صنعتی، پزشکی، تجاری', order: 2 },
+            { value: '۵۰', suffix: '+', label: 'برند همکار معتبر', detail: 'شراکت پایدار تجاری', order: 3 },
+            { value: '۳۰', suffix: '+', label: 'متخصص متمرکز', detail: 'در ۴ دپارتمان سازمانی', order: 4 },
+          ];
 
     const settings: AboutSettings = {
       title: settingsRow?.hero_title?.trim() || fallback.settings.title,
       subtitle: settingsRow?.hero_subtitle?.trim() || fallback.settings.subtitle,
       vision: settingsRow?.vision_text?.trim() || fallback.settings.vision,
       mission: settingsRow?.mission_text?.trim() || fallback.settings.mission,
-      stats: fallback.settings.stats || [],
+      stats: formattedStats as any,
     };
 
     const leads: TechLead[] =
@@ -1437,12 +1468,14 @@ export async function getLiveTeamData(): Promise<{ settings: AboutSettings; lead
           }))
         : fallback.leads;
 
-    return { settings, leads, coreValues };
+    return { settings, leads, stats: formattedStats, coreValues };
   } catch (error) {
     console.warn('DB Team query failed, using static fallback:', error);
-    return { ...fallback, coreValues: [] };
+    return { ...fallback, stats: fallback.settings.stats || [], coreValues: [] };
   }
 }
+
+export const getLiveAboutData = getLiveTeamData;
 
 /**
  * Fetch full live landing data for the classic landing page template
