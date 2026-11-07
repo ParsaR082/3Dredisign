@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getCurrentAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -264,22 +265,68 @@ export async function DELETE(request: Request) {
     }
 
     if (type === 'category') {
+      const fallbackCat = await prisma.blogBlogcategory.findFirst({
+        where: { id: { not: Number(id) } },
+      });
+      if (fallbackCat) {
+        await prisma.blogPost.updateMany({
+          where: { category_id: Number(id) },
+          data: { category_id: fallbackCat.id },
+        });
+      }
       await prisma.blogBlogcategory.delete({
         where: { id: Number(id) },
       });
+      try {
+        revalidatePath('/blog');
+        revalidatePath('/');
+      } catch (_) {}
       return NextResponse.json({ success: true, message: 'دسته‌بندی با موفقیت حذف شد.' });
     }
 
     if (type === 'author') {
+      const fallbackAuthor = await prisma.blogBlogauthor.findFirst({
+        where: { id: { not: Number(id) } },
+      });
+      if (fallbackAuthor) {
+        await prisma.blogPost.updateMany({
+          where: { author_id: Number(id) },
+          data: { author_id: fallbackAuthor.id },
+        });
+      }
       await prisma.blogBlogauthor.delete({
         where: { id: Number(id) },
       });
+      try {
+        revalidatePath('/blog');
+        revalidatePath('/');
+      } catch (_) {}
       return NextResponse.json({ success: true, message: 'نویسنده با موفقیت حذف شد.' });
     }
 
-    await prisma.blogPost.delete({
-      where: { id: Number(id) },
+    const postId = Number(id);
+    const post = await prisma.blogPost.findUnique({
+      where: { id: postId },
+      select: { slug: true },
     });
+
+    await prisma.$transaction([
+      prisma.blogPostRelatedServices.deleteMany({
+        where: { post_id: postId },
+      }),
+      prisma.blogPostTags.deleteMany({
+        where: { post_id: postId },
+      }),
+      prisma.blogPost.delete({
+        where: { id: postId },
+      }),
+    ]);
+
+    try {
+      revalidatePath('/blog');
+      if (post?.slug) revalidatePath(`/blog/${post.slug}`);
+      revalidatePath('/');
+    } catch (_) {}
 
     return NextResponse.json({ success: true, message: 'مقاله با موفقیت حذف شد.' });
   } catch (error: any) {

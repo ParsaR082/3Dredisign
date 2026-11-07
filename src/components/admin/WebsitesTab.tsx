@@ -120,8 +120,15 @@ export default function WebsitesTab({ websites = [], categories = [], onRefresh 
     if (!confirm('آیا از حذف این وبسایت از آرشیو اطمینان دارید؟')) return;
     try {
       const res = await fetch(`/api/admin/websites/?id=${id}`, { method: 'DELETE' });
-      if (res.ok) onRefresh();
-    } catch (_) {}
+      if (res.ok) {
+        onRefresh();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        alert(d.error || 'خطا در حذف وبسایت');
+      }
+    } catch (err: any) {
+      alert(err.message || 'خطا در ارتباط با سرور');
+    }
   };
 
   const filtered = websites.filter((w) => {

@@ -112,8 +112,15 @@ export default function TeamTab({ members = [], coreValues = [], timeline = [], 
     if (!confirm('آیا از حذف این عضو تیم اطمینان دارید؟')) return;
     try {
       const res = await fetch(`/api/admin/team/?id=${id}`, { method: 'DELETE' });
-      if (res.ok) onRefresh();
-    } catch (_) {}
+      if (res.ok) {
+        onRefresh();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        alert(d.error || 'خطا در حذف عضو تیم');
+      }
+    } catch (err: any) {
+      alert(err.message || 'خطا در ارتباط با سرور');
+    }
   };
 
   return (

@@ -80,8 +80,15 @@ export default function TestimonialsTab({ testimonials, onRefresh }: Testimonial
     if (!confirm('آیا از حذف این نظر اطمینان دارید؟')) return;
     try {
       const res = await fetch(`/api/admin/testimonials/?id=${id}`, { method: 'DELETE' });
-      if (res.ok) onRefresh();
-    } catch (_) {}
+      if (res.ok) {
+        onRefresh();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        alert(d.error || 'خطا در حذف نظر');
+      }
+    } catch (err: any) {
+      alert(err.message || 'خطا در ارتباط با سرور');
+    }
   };
 
   return (

@@ -421,8 +421,15 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
     if (!confirm('آیا از حذف این پروژه از دیتابیس اطمینان دارید؟')) return;
     try {
       const res = await fetch(`/api/admin/projects/?id=${id}`, { method: 'DELETE' });
-      if (res.ok) onRefresh();
-    } catch (_) {}
+      if (res.ok) {
+        onRefresh();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        alert(d.error || 'خطا در حذف پروژه');
+      }
+    } catch (err: any) {
+      alert(err.message || 'خطا در ارتباط با سرور');
+    }
   };
 
   const filtered = projects.filter((p) => {

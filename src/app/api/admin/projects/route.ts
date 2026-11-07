@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getCurrentAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -516,6 +517,12 @@ export async function DELETE(request: Request) {
       await prisma.portfolioProjectcategory.delete({
         where: { id: catId },
       });
+
+      try {
+        revalidatePath('/portfolio');
+        revalidatePath('/');
+      } catch (_) {}
+
       return NextResponse.json({ success: true, message: 'دسته‌بندی با موفقیت حذف شد.' });
     }
 
@@ -542,26 +549,54 @@ export async function DELETE(request: Request) {
       await prisma.portfolioIndustry.delete({
         where: { id: indId },
       });
+
+      try {
+        revalidatePath('/portfolio');
+        revalidatePath('/');
+      } catch (_) {}
+
       return NextResponse.json({ success: true, message: 'صنعت با موفقیت حذف شد.' });
     }
 
-    // Clean up junction rows before project deletion
-    await prisma.portfolioProjectAdditionalCategories.deleteMany({
-      where: { project_id: Number(id) },
+    const projectId = Number(id);
+
+    const project = await prisma.portfolioProject.findUnique({
+      where: { id: projectId },
+      select: { slug: true },
     });
 
-    await prisma.portfolioProjectRelated.deleteMany({
-      where: {
-        OR: [
-          { project_id: Number(id) },
-          { related_project_id: Number(id) },
-        ],
-      },
-    });
+    // Clean up all related tables in an atomic transaction before deleting project
+    await prisma.$transaction([
+      prisma.portfolioProjectAdditionalCategories.deleteMany({
+        where: { project_id: projectId },
+      }),
+      prisma.portfolioProjectTechnologies.deleteMany({
+        where: { project_id: projectId },
+      }),
+      prisma.portfolioProjectimage.deleteMany({
+        where: { project_id: projectId },
+      }),
+      prisma.portfolioProjectvideo.deleteMany({
+        where: { project_id: projectId },
+      }),
+      prisma.portfolioProjectRelated.deleteMany({
+        where: {
+          OR: [
+            { project_id: projectId },
+            { related_project_id: projectId },
+          ],
+        },
+      }),
+      prisma.portfolioProject.delete({
+        where: { id: projectId },
+      }),
+    ]);
 
-    await prisma.portfolioProject.delete({
-      where: { id: Number(id) },
-    });
+    try {
+      revalidatePath('/portfolio');
+      if (project?.slug) revalidatePath(`/portfolio/${project.slug}`);
+      revalidatePath('/');
+    } catch (_) {}
 
     return NextResponse.json({ success: true, message: 'پروژه با موفقیت حذف شد.' });
   } catch (error: any) {

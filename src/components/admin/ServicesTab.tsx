@@ -113,8 +113,15 @@ export default function ServicesTab({ services, onRefresh }: ServicesTabProps) {
     if (!confirm('آیا از حذف این خدمت از دیتابیس اطمینان دارید؟')) return;
     try {
       const res = await fetch(`/api/admin/services/?id=${id}`, { method: 'DELETE' });
-      if (res.ok) onRefresh();
-    } catch (_) {}
+      if (res.ok) {
+        onRefresh();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        alert(d.error || 'خطا در حذف خدمت');
+      }
+    } catch (err: any) {
+      alert(err.message || 'خطا در ارتباط با سرور');
+    }
   };
 
   const filtered = services.filter((s) => {

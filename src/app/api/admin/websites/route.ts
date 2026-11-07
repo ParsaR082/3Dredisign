@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getCurrentAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -225,15 +226,43 @@ export async function DELETE(request: Request) {
     }
 
     if (type === 'category') {
+      await prisma.websitesWebsite.updateMany({
+        where: { category_id: Number(id) },
+        data: { category_id: null },
+      });
       await prisma.websitesWebsitecategory.delete({
         where: { id: Number(id) },
       });
+      try {
+        revalidatePath('/websites');
+        revalidatePath('/');
+      } catch (_) {}
       return NextResponse.json({ success: true, message: 'دسته‌بندی با موفقیت حذف شد.' });
     }
 
-    await prisma.websitesWebsite.delete({
-      where: { id: Number(id) },
+    const websiteId = Number(id);
+    const site = await prisma.websitesWebsite.findUnique({
+      where: { id: websiteId },
+      select: { slug: true },
     });
+
+    await prisma.$transaction([
+      prisma.websitesWebsitefeature.deleteMany({
+        where: { website_id: websiteId },
+      }),
+      prisma.websitesWebsitescreenshot.deleteMany({
+        where: { website_id: websiteId },
+      }),
+      prisma.websitesWebsite.delete({
+        where: { id: websiteId },
+      }),
+    ]);
+
+    try {
+      revalidatePath('/websites');
+      if (site?.slug) revalidatePath(`/websites/${site.slug}`);
+      revalidatePath('/');
+    } catch (_) {}
 
     return NextResponse.json({ success: true, message: 'وبسایت با موفقیت حذف شد.' });
   } catch (error: any) {

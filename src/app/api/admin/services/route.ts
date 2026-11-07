@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getCurrentAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -319,16 +320,24 @@ export async function DELETE(request: Request) {
     }
 
     const serviceId = Number(id);
+    const srv = await prisma.serviceService.findUnique({
+      where: { id: serviceId },
+      select: { slug: true },
+    });
 
-    // Clean up relations first
-    await Promise.all([
+    // Clean up relations first in an atomic transaction
+    await prisma.$transaction([
       prisma.serviceServicefeature.deleteMany({ where: { service_id: serviceId } }),
       prisma.serviceServicefaq.deleteMany({ where: { service_id: serviceId } }),
+      prisma.serviceServiceroi.deleteMany({ where: { service_id: serviceId } }),
+      prisma.serviceService.delete({ where: { id: serviceId } }),
     ]);
 
-    await prisma.serviceService.delete({
-      where: { id: serviceId },
-    });
+    try {
+      revalidatePath('/services');
+      if (srv?.slug) revalidatePath(`/services/${srv.slug}`);
+      revalidatePath('/');
+    } catch (_) {}
 
     return NextResponse.json({ success: true, message: 'خدمت با موفقیت حذف شد.' });
   } catch (error: any) {
