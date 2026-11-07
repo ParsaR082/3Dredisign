@@ -4,63 +4,72 @@
 # Urum Sima - Automated Safe Deployment Script
 # =========================================================
 
-set -eo pipefail
+# Wrap in a subshell so if pasted directly into Termius, 'exit' won't close SSH session
+(
+  set -o pipefail
 
-# ANSI Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-BOLD='\033[1m'
-NC='\033[0m' # No Color
+  # ANSI Colors
+  RED='\033[0;31m'
+  GREEN='\033[0;32m'
+  YELLOW='\033[1;33m'
+  CYAN='\033[0;36m'
+  BOLD='\033[1m'
+  NC='\033[0m' # No Color
 
-APP_DIR="/var/www/urumsima_next"
-APP_NAME="urumsima-next"
+  APP_DIR="/var/www/urumsima_next"
+  APP_NAME="urumsima-next"
 
-echo -e "${CYAN}${BOLD}====================================================${NC}"
-echo -e "${CYAN}${BOLD}       🚀 Starting Urum Sima Deployment Process      ${NC}"
-echo -e "${CYAN}${BOLD}====================================================${NC}"
+  echo -e "${CYAN}${BOLD}====================================================${NC}"
+  echo -e "${CYAN}${BOLD}       🚀 شروع عملیات استقرار و آپدیت اروم‌سیما      ${NC}"
+  echo -e "${CYAN}${BOLD}====================================================${NC}"
 
-# 1. Navigate to project directory
-if [ -d "$APP_DIR" ]; then
-  cd "$APP_DIR"
-fi
-echo -e "${YELLOW}📁 Working directory: $(pwd)${NC}"
+  # 1. رفتن به دایرکتوری پروژه
+  if [ -d "$APP_DIR" ]; then
+    cd "$APP_DIR" || exit 1
+  fi
+  echo -e "${YELLOW}📁 دایرکتوری کاری: $(pwd)${NC}"
 
-# 2. Stash local changes to avoid merge conflicts with auto-saved settings
-echo -e "\n${CYAN}📦 [Step 1/4] Stashing local changes...${NC}"
-git stash
+  # 2. جلوگیری از مصرف بی‌رویه رم و محافظت از اتصال SSH در برابر قفل شدن
+  export NEXT_TELEMETRY_DISABLED=1
+  export NODE_OPTIONS="--max-old-space-size=1536"
 
-# 3. Pull latest code from main
-echo -e "\n${CYAN}⬇️  [Step 2/4] Pulling latest code from origin/main...${NC}"
-git checkout main
-if ! git pull origin main; then
-  echo -e "\n${RED}❌ Git pull failed! Aborting deployment.${NC}"
-  exit 1
-fi
+  # 3. کنار گذاشتن تغییرات محلی برای جلوگیری از خطای تداخل
+  echo -e "\n${CYAN}📦 [مرحله ۱/۴] کنار گذاشتن تغییرات فایل‌های محلی...${NC}"
+  git stash
 
-LATEST_COMMIT=$(git log -n 1 --oneline)
-echo -e "${GREEN}✓ Successfully updated to commit: ${BOLD}$LATEST_COMMIT${NC}"
+  # 4. دریافت آخرین کدهای برنچ اصلی
+  echo -e "\n${CYAN}⬇️  [مرحله ۲/۴] دریافت آخرین تغییرات از origin/main...${NC}"
+  git checkout main
+  if ! git pull origin main; then
+    echo -e "\n${RED}❌ خطای گیت پول! عملیات استقرار متوقف شد.${NC}"
+    exit 1
+  fi
 
-# 4. Run Next.js production build
-echo -e "\n${CYAN}🔨 [Step 3/4] Running Next.js build (npm run build)...${NC}"
-if npm run build; then
-  echo -e "\n${GREEN}✓ Build completed successfully!${NC}"
-else
-  echo -e "\n${RED}====================================================${NC}"
-  echo -e "${RED}❌ BUILD FAILED!${NC}"
-  echo -e "${YELLOW}⚠️  pm2 restart was SKIPPED to prevent site downtime.${NC}"
-  echo -e "${RED}====================================================${NC}"
-  exit 1
-fi
+  LATEST_COMMIT=$(git log -n 1 --oneline)
+  echo -e "${GREEN}✓ آخرین کامیت دریافت شد: ${BOLD}$LATEST_COMMIT${NC}"
 
-# 5. Restart PM2 only after successful build
-echo -e "\n${CYAN}🔄 [Step 4/4] Restarting PM2 process ($APP_NAME)...${NC}"
-pm2 restart "$APP_NAME"
+  # 5. اجرای بیلد پروژه با اولویت مناسب پردازنده برای حفظ اتصال SSH
+  echo -e "\n${CYAN}🔨 [مرحله ۳/۴] اجرای بیلد Next.js با حفاظت از منابع سرور...${NC}"
+  echo -e "${YELLOW}⏳ در حال بیلد... لطفاً صبر کنید (اتصال ترمیوس باز خواهد ماند)...${NC}"
 
-echo -e "\n${GREEN}${BOLD}====================================================${NC}"
-echo -e "${GREEN}${BOLD}       🎉 Deployment Successful! Live site updated! ${NC}"
-echo -e "${GREEN}${BOLD}       Commit: $LATEST_COMMIT${NC}"
-echo -e "${GREEN}${BOLD}====================================================${NC}\n"
+  if nice -n 15 npm run build; then
+    echo -e "\n${GREEN}✓ بیلد با موفقیت ۱۰۰٪ کامل شد!${NC}"
+  else
+    echo -e "\n${RED}====================================================${NC}"
+    echo -e "${RED}❌ بیلد با خطا مواجه شد!${NC}"
+    echo -e "${YELLOW}⚠️  دستور pm2 restart برای جلوگیری از قطعی سایت لغو گردید.${NC}"
+    echo -e "${RED}====================================================${NC}"
+    exit 1
+  fi
 
-pm2 status "$APP_NAME"
+  # 6. ری‌استارت PM2 تنها پس از موفقیت بیلد
+  echo -e "\n${CYAN}🔄 [مرحله ۴/۴] ری‌استارت پروسه سرور ($APP_NAME)...${NC}"
+  pm2 restart "$APP_NAME"
+
+  echo -e "\n${GREEN}${BOLD}====================================================${NC}"
+  echo -e "${GREEN}${BOLD}       🎉 آپدیت با موفقیت کامل انجام و سایت نوسازی شد! ${NC}"
+  echo -e "${GREEN}${BOLD}       کامیت فعال: $LATEST_COMMIT${NC}"
+  echo -e "${GREEN}${BOLD}====================================================${NC}\n"
+
+  pm2 status "$APP_NAME"
+)
