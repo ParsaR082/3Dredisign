@@ -26,15 +26,15 @@ export default function ProcessSection({ title, subtitle, desc, steps }: Process
 
   return (
     <section className="process py-20 px-4 sm:px-6 bg-[#08120F]" id="process">
-      <div className="max-w-7xl mx-auto">
-        <div className="sec-hd rv text-center max-w-2xl mx-auto mb-16">
-          <span className="sec-lbl inline-block text-emerald-400 text-xs font-bold tracking-wider uppercase mb-2">
+      <div className="max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1720px] mx-auto">
+        <div className="sec-hd rv text-center max-w-2xl 2xl:max-w-4xl mx-auto mb-16">
+          <span className="sec-lbl inline-block text-emerald-400 text-xs 2xl:text-sm font-bold tracking-wider uppercase mb-2">
             {title || 'روند همکاری با اروم سیما'}
           </span>
-          <h2 className="sec-title text-3xl md:text-4xl font-black text-white mb-4">
+          <h2 className="sec-title text-3xl md:text-4xl 2xl:text-5xl font-black text-white mb-4">
             {subtitle || 'مسیر شفاف ۵ مرحله‌ای'}
           </h2>
-          <p className="sec-desc text-sm md:text-base text-gray-400 font-light">
+          <p className="sec-desc text-sm md:text-base 2xl:text-lg text-gray-400 font-light">
             {desc || 'از مشاوره اولیه تا اجرا و پشتیبانی، در کنار شما هستیم'}
           </p>
         </div>

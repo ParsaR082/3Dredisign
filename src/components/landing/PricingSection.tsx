@@ -26,20 +26,20 @@ export default function PricingSection({ title, subtitle, desc, plans }: Pricing
   return (
     <section className="pricing py-20 px-4 sm:px-6 bg-[#050C0A]" id="pricing">
       <div className="max-w-7xl mx-auto">
-        <div className="sec-hd rv text-center max-w-2xl mx-auto mb-16">
-          <span className="sec-lbl inline-block text-emerald-400 text-xs font-bold tracking-wider uppercase mb-2">
+        <div className="sec-hd rv text-center max-w-2xl 2xl:max-w-4xl mx-auto mb-16">
+          <span className="sec-lbl inline-block text-emerald-400 text-xs 2xl:text-sm font-bold tracking-wider uppercase mb-2">
             {title || 'آماده رشد هستید؟'}
           </span>
-          <h2 className="sec-title text-3xl md:text-4xl font-black text-white mb-4">
+          <h2 className="sec-title text-3xl md:text-4xl 2xl:text-5xl font-black text-white mb-4">
             {subtitle || 'تعرفه‌های شفاف و منصفانه'}
           </h2>
-          <p className="sec-desc text-sm md:text-base text-gray-400 font-light">
+          <p className="sec-desc text-sm md:text-base 2xl:text-lg text-gray-400 font-light">
             {desc || 'پکیج‌های متنوع برای هر نوع کسب‌وکاری، از استارتاپ تا شرکت‌های بزرگ'}
           </p>
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="pr-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch max-w-6xl mx-auto">
+        <div className="pr-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 2xl:gap-10 items-stretch max-w-6xl 2xl:max-w-[1400px] 3xl:max-w-[1550px] mx-auto">
           {plans.map((plan) => (
             <div
               key={plan.id}

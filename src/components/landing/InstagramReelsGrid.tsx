@@ -27,6 +27,14 @@ export default function InstagramReelsGrid({
 }: InstagramReelsGridProps) {
   if (!config.is_active || !reels || reels.length === 0) return null;
 
+  const getMediaUrl = (url?: string | null) => {
+    if (!url) return '/images/urumsima3.webp';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
+      return url;
+    }
+    return `/media/${url}`;
+  };
+
   // Active index defaults to middle card, matching the original Math.floor(cards.length / 2)
   const [activeIndex, setActiveIndex] = useState<number>(() => Math.floor(reels.length / 2));
   const [windowWidth, setWindowWidth] = useState<number>(1200);
@@ -179,7 +187,7 @@ export default function InstagramReelsGrid({
                 >
                   <div className="reels-card__media relative overflow-hidden">
                     <Image
-                      src={reel.thumbnail || '/images/urumsima3.webp'}
+                      src={getMediaUrl(reel.thumbnail)}
                       alt={reel.caption || 'Reel اروم سیما'}
                       loading="lazy"
                       width={270}

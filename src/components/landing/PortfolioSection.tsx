@@ -35,16 +35,24 @@ export default function PortfolioSection({
     ? projects
     : projects.filter((p) => p.category_slug === activeFilter || p.additional_category_slugs?.includes(activeFilter));
 
+  const getMediaUrl = (url?: string | null) => {
+    if (!url) return '/images/urumsima3.webp';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/')) {
+      return url;
+    }
+    return `/media/${url}`;
+  };
+
   return (
     <section className="portfolio" id="portfolio">
-      <div className="sec-hd rv text-center max-w-2xl mx-auto mb-12">
-        <h2 className="sec-lbl text-brand-400 text-xs font-bold tracking-wider uppercase mb-2">
+      <div className="sec-hd rv text-center max-w-2xl 2xl:max-w-4xl mx-auto mb-12">
+        <h2 className="sec-lbl text-brand-400 text-xs 2xl:text-sm font-bold tracking-wider uppercase mb-2">
           {sectionTitle || 'نمونه کارهای ما'}
         </h2>
-        <h3 className="sec-title text-3xl md:text-4xl font-black text-white mb-4">
+        <h3 className="sec-title text-3xl md:text-4xl 2xl:text-5xl font-black text-white mb-4">
           {sectionSubtitle || 'پروژه‌های موفق ما'}
         </h3>
-        <p className="sec-desc text-sm md:text-base text-gray-400 font-light">
+        <p className="sec-desc text-sm md:text-base 2xl:text-lg text-gray-400 font-light">
           {sectionDesc || 'نگاهی به برخی از پروژه‌های برجسته‌ای که با موفقیت اجرا کرده‌ایم'}
         </p>
       </div>
@@ -80,12 +88,12 @@ export default function PortfolioSection({
       </div>
 
       {/* Projects Grid */}
-      <div className="pf-grid max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="pf-grid max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1720px] mx-auto px-4 sm:px-6">
         {filtered.map((project) => (
           <div key={project.id} className="pf-card rv group">
             <div className="pf-img relative overflow-hidden h-[240px]">
               <Image
-                src={project.thumbnail_image || '/images/urumsima3.webp'}
+                src={getMediaUrl(project.thumbnail_image)}
                 alt={project.title}
                 loading="lazy"
                 width={600}

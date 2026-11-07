@@ -132,7 +132,7 @@ export default function MapTeaser({ projectsCount, projects = [] }: MapTeaserPro
 
   return (
     <section className="pmap-teaser rv py-16 px-4 sm:px-6 bg-[#050C0A]" id="projects-map-teaser">
-      <div className="pmap-teaser__inner max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-10 bg-[#091512] border border-emerald-500/20 rounded-3xl p-6 sm:p-10 overflow-hidden shadow-2xl">
+      <div className="pmap-teaser__inner max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1720px] mx-auto flex flex-col lg:flex-row items-center gap-10 bg-[#091512] border border-emerald-500/20 rounded-3xl p-6 sm:p-10 overflow-hidden shadow-2xl">
         {/* Map Container */}
         <div
           ref={mapContainerRef}

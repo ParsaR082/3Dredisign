@@ -50,7 +50,7 @@ export default async function RootLayout({
   const webSiteJsonLd = generateWebSiteJsonLd();
 
   return (
-    <html lang="fa" dir="rtl" className="scroll-smooth">
+    <html lang="fa" dir="rtl">
       <head>
         <link
           rel="preload"

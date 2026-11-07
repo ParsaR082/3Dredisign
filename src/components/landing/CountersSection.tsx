@@ -71,7 +71,7 @@ export default function CountersSection({ counters }: CountersSectionProps) {
 
   return (
     <section ref={sectionRef} className="counters bg-[#08120F] border-y border-emerald-500/20 py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1720px] mx-auto px-4 sm:px-6">
         <div className="cnt-grid grid grid-cols-2 lg:grid-cols-4 gap-8">
           {counters.map((counter, idx) => (
             <div

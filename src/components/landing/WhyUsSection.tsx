@@ -25,12 +25,12 @@ export default function WhyUsSection({
 
   return (
     <section className="why py-20 px-4 sm:px-6 bg-[#050C0A]">
-      <div className="max-w-7xl mx-auto">
-        <div className="sec-hd rv text-center max-w-2xl mx-auto mb-14">
-          <span className="sec-lbl inline-block text-emerald-400 text-xs font-bold tracking-wider uppercase mb-2">
+      <div className="max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1720px] mx-auto">
+        <div className="sec-hd rv text-center max-w-2xl 2xl:max-w-4xl mx-auto mb-14">
+          <span className="sec-lbl inline-block text-emerald-400 text-xs 2xl:text-sm font-bold tracking-wider uppercase mb-2">
             {title || 'چرا اروم سیما؟'}
           </span>
-          <h2 className="sec-title text-3xl md:text-4xl font-black text-white">
+          <h2 className="sec-title text-3xl md:text-4xl 2xl:text-5xl font-black text-white">
             {subtitle || 'مزیت‌های رقابتی ما'}
           </h2>
         </div>

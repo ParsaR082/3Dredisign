@@ -55,7 +55,7 @@ export default function BeforeAfterSlider({ project }: BeforeAfterSliderProps) {
 
   return (
     <section className="ba-showcase rv py-16 px-4 sm:px-6 bg-[#060D0B] border-b border-emerald-500/15" id="results-before-after">
-      <div className="ba-showcase__inner max-w-5xl mx-auto">
+      <div className="ba-showcase__inner max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto">
         <div className="ba-showcase__head text-center mb-10">
           <span className="ba-showcase__lbl inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold mb-3">
             <ArrowLeftRight className="w-3.5 h-3.5" />

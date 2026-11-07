@@ -37,7 +37,7 @@ export async function GET(
       path.join(process.cwd(), '..', 'urumsima', 'media', decodedPath),
     ];
 
-    const filePath = candidatePaths.find((p) => {
+    let filePath = candidatePaths.find((p) => {
       try {
         return fs.existsSync(p) && fs.statSync(p).isFile();
       } catch {
@@ -45,8 +45,41 @@ export async function GET(
       }
     });
 
+    // If not found, check alternative extensions (.webp, .jpg, .jpeg, .png)
     if (!filePath) {
-      return new NextResponse('File not found', { status: 404 });
+      const origExt = path.extname(safePath).toLowerCase();
+      const baseSafe = safePath.slice(0, safePath.length - origExt.length);
+      const baseDecoded = decodedPath.slice(0, decodedPath.length - origExt.length);
+      const altExts = ['.webp', '.jpg', '.jpeg', '.png'].filter((e) => e !== origExt);
+
+      for (const alt of altExts) {
+        const altCandidates = [
+          path.join('/var/www/urumsima/media', baseSafe + alt),
+          path.join('/var/www/urumsima/media', baseDecoded + alt),
+          path.join(process.cwd(), 'public', 'media', baseSafe + alt),
+          path.join(process.cwd(), 'public', 'media', baseDecoded + alt),
+          path.join(process.cwd(), '..', 'urumsima', 'media', baseSafe + alt),
+          path.join(process.cwd(), '..', 'urumsima', 'media', baseDecoded + alt),
+        ];
+        filePath = altCandidates.find((p) => {
+          try {
+            return fs.existsSync(p) && fs.statSync(p).isFile();
+          } catch {
+            return false;
+          }
+        });
+        if (filePath) break;
+      }
+    }
+
+    // Fallback to default placeholder if file still missing on disk
+    if (!filePath) {
+      const fallbackPlaceholder = path.join(process.cwd(), 'public', 'images', 'urumsima3.webp');
+      if (fs.existsSync(fallbackPlaceholder)) {
+        filePath = fallbackPlaceholder;
+      } else {
+        return new NextResponse('File not found', { status: 404 });
+      }
     }
 
     const stat = fs.statSync(filePath);

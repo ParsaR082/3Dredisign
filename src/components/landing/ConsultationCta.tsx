@@ -23,7 +23,7 @@ export default function ConsultationCta({
 }: ConsultationCtaProps) {
   return (
     <section className="contact-cta py-24 px-4 sm:px-6 bg-[#08120F] border-t border-emerald-500/20" id="consultation">
-      <div className="contact-cta__inner rv max-w-4xl mx-auto text-center p-8 sm:p-14 rounded-3xl bg-gradient-to-b from-[#0B1A15] to-[#07130F] border border-emerald-500/30 shadow-2xl relative overflow-hidden">
+      <div className="contact-cta__inner rv max-w-4xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto text-center p-8 sm:p-14 2xl:p-20 rounded-3xl bg-gradient-to-b from-[#0B1A15] to-[#07130F] border border-emerald-500/30 shadow-2xl relative overflow-hidden">
         {/* Glow orb in background */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 

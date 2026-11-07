@@ -19,15 +19,15 @@ export default function GrowthSection({ badge, title, desc, stats }: GrowthSecti
 
   return (
     <section className="growth py-20 px-4 sm:px-6 bg-[#050C0A]" id="growth">
-      <div className="max-w-7xl mx-auto">
-        <div className="sec-hd rv text-center max-w-2xl mx-auto mb-14">
-          <span className="sec-lbl inline-block text-emerald-400 text-xs font-bold tracking-wider uppercase mb-2">
+      <div className="max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1720px] mx-auto">
+        <div className="sec-hd rv text-center max-w-2xl 2xl:max-w-4xl mx-auto mb-14">
+          <span className="sec-lbl inline-block text-emerald-400 text-xs 2xl:text-sm font-bold tracking-wider uppercase mb-2">
             {badge || 'رشد و موفقیت'}
           </span>
-          <h2 className="sec-title text-3xl md:text-4xl font-black text-white mb-4">
+          <h2 className="sec-title text-3xl md:text-4xl 2xl:text-5xl font-black text-white mb-4">
             {title || 'مسیر رشد مشتریان اروم سیما'}
           </h2>
-          <p className="sec-desc text-sm md:text-base text-gray-400 font-light">
+          <p className="sec-desc text-sm md:text-base 2xl:text-lg text-gray-400 font-light">
             {desc || 'نمودار واقعی رشد کسب و کار مشتریان پس از دریافت خدمات سئو، طراحی سایت و تبلیغات'}
           </p>
         </div>

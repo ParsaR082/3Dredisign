@@ -31,19 +31,19 @@ export default function ServicesSection({
 
   return (
     <section className="services py-20 px-4 sm:px-6 bg-[#08110F]" id="services">
-      <div className="sec-hd rv text-center max-w-2xl mx-auto mb-14">
-        <span className="sec-lbl inline-block text-emerald-400 text-xs font-bold tracking-wider uppercase mb-2">
+      <div className="sec-hd rv text-center max-w-2xl 2xl:max-w-4xl mx-auto mb-14">
+        <span className="sec-lbl inline-block text-emerald-400 text-xs 2xl:text-sm font-bold tracking-wider uppercase mb-2">
           {sectionTitle || 'خدمات دیجیتال مارکتینگ اروم سیما'}
         </span>
-        <h2 className="sec-title text-3xl md:text-4xl font-black text-white mb-4">
+        <h2 className="sec-title text-3xl md:text-4xl 2xl:text-5xl font-black text-white mb-4">
           {sectionSubtitle || 'راهکارهای جامع دیجیتال'}
         </h2>
-        <p className="sec-desc text-sm md:text-base text-gray-400 font-light">
+        <p className="sec-desc text-sm md:text-base 2xl:text-lg text-gray-400 font-light">
           {sectionDesc || 'از طراحی تا اجرا، تمام نیازهای دیجیتال کسب‌وکار شما را پوشش می‌دهیم'}
         </p>
       </div>
 
-      <div className="srv-grid max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      <div className="srv-grid max-w-7xl 2xl:max-w-[1536px] 3xl:max-w-[1720px] mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 2xl:gap-10">
         {services.map((service, idx) => (
           <article
             key={service.id || service.slug}
