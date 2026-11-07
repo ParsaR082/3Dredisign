@@ -27,6 +27,12 @@ export function PageTransition({ children }: PageTransitionProps) {
         ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
       }}
       className="w-full flex-grow flex flex-col"
+      style={{
+        WebkitBackfaceVisibility: 'hidden',
+        backfaceVisibility: 'hidden',
+        WebkitTransform: 'translateZ(0)',
+        transform: 'translateZ(0)',
+      }}
     >
       {children}
     </motion.div>

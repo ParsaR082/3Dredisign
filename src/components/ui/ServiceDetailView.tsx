@@ -35,7 +35,7 @@ export default function ServiceDetailView({ service }: ServiceDetailViewProps) {
     <div className="space-y-12 sm:space-y-20 md:space-y-32 pb-16">
       {/* HERO SECTION */}
       <section className="relative overflow-hidden pt-4 sm:pt-8 pb-10 sm:pb-16">
-        <div className="absolute top-1/4 -right-40 w-96 h-96 bg-brand-600/15 rounded-full blur-[140px] pointer-events-none" />
+        <div className="hidden sm:block absolute top-1/4 -right-40 w-96 h-96 bg-brand-600/15 rounded-full blur-[140px] pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <MotionDiv variant="fade-up" className="max-w-3xl space-y-4 sm:space-y-6">
             <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">

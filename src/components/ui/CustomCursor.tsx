@@ -18,7 +18,7 @@ export function CustomCursor() {
 
   useEffect(() => {
     // Detect touch device or reduced motion
-    const touchCheck = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const touchCheck = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || !window.matchMedia('(pointer: fine)').matches;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (touchCheck || prefersReducedMotion) {
       setIsTouch(true);
@@ -78,7 +78,7 @@ export function CustomCursor() {
   const isExpanded = cursorType !== 'default';
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+    <div className="hidden lg:block fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
       {/* Central dot */}
       <motion.div
         className="fixed top-0 left-0 w-2 h-2 rounded-full bg-emerald-400 pointer-events-none -translate-x-1/2 -translate-y-1/2 shadow-[0_0_8px_rgba(52,211,153,0.8)]"
