@@ -281,9 +281,18 @@ export async function DELETE(request: Request) {
       where: { id: Number(id) },
     });
 
-    await prisma.backstageBackstageitem.delete({
-      where: { id: Number(id) },
-    });
+    // Delete related child videos and images first in a transaction to satisfy foreign key constraints
+    await prisma.$transaction([
+      prisma.backstageBackstagevideo.deleteMany({
+        where: { item_id: Number(id) },
+      }),
+      prisma.backstageBackstageimage.deleteMany({
+        where: { item_id: Number(id) },
+      }),
+      prisma.backstageBackstageitem.delete({
+        where: { id: Number(id) },
+      }),
+    ]);
 
     try {
       revalidatePath('/backstage');
