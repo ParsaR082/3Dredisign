@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { Readable } from 'stream';
 
 const MIME_TYPES: Record<string, string> = {
   '.jpg': 'image/jpeg',
@@ -9,12 +10,19 @@ const MIME_TYPES: Record<string, string> = {
   '.webp': 'image/webp',
   '.gif': 'image/gif',
   '.svg': 'image/svg+xml',
+  '.avif': 'image/avif',
   '.mp4': 'video/mp4',
   '.webm': 'video/webm',
+  '.mov': 'video/quicktime',
+  '.m4v': 'video/mp4',
+  '.ogg': 'video/ogg',
+  '.ogv': 'video/ogg',
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
 };
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
@@ -26,7 +34,12 @@ export async function GET(
     const relativePath = segments.join('/');
     // Prevent directory traversal attacks
     const safePath = path.normalize(relativePath).replace(/^(\.\.[\/\\])+/, '');
-    const decodedPath = decodeURIComponent(safePath);
+    let decodedPath = safePath;
+    try {
+      decodedPath = decodeURIComponent(safePath);
+    } catch {
+      // Keep safePath if decoding fails
+    }
 
     const candidatePaths = [
       path.join('/var/www/urumsima/media', safePath),
@@ -45,9 +58,11 @@ export async function GET(
       }
     });
 
-    // If not found, check alternative extensions (.webp, .jpg, .jpeg, .png)
-    if (!filePath) {
-      const origExt = path.extname(safePath).toLowerCase();
+    const origExt = path.extname(safePath).toLowerCase();
+    const isVideoRequest = ['.mp4', '.webm', '.mov', '.m4v', '.ogg', '.ogv'].includes(origExt);
+
+    // If not found, check alternative extensions (.webp, .jpg, .jpeg, .png) for images ONLY
+    if (!filePath && !isVideoRequest) {
       const baseSafe = safePath.slice(0, safePath.length - origExt.length);
       const baseDecoded = decodedPath.slice(0, decodedPath.length - origExt.length);
       const altExts = ['.webp', '.jpg', '.jpeg', '.png'].filter((e) => e !== origExt);
@@ -72,8 +87,12 @@ export async function GET(
       }
     }
 
-    // Fallback to default placeholder if file still missing on disk
+    // Fallback handling
     if (!filePath) {
+      if (isVideoRequest) {
+        // Never return an image placeholder for a video request
+        return new NextResponse('Video not found', { status: 404 });
+      }
       const fallbackPlaceholder = path.join(process.cwd(), 'public', 'images', 'urumsima3.webp');
       if (fs.existsSync(fallbackPlaceholder)) {
         filePath = fallbackPlaceholder;
@@ -83,15 +102,70 @@ export async function GET(
     }
 
     const stat = fs.statSync(filePath);
-
+    const fileSize = stat.size;
     const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    const contentType = MIME_TYPES[ext] || (isVideoRequest ? 'video/mp4' : 'application/octet-stream');
+    const range = request.headers.get('range');
+
+    // Handle HTTP 206 Partial Content for streaming (HTML5 video / audio / range requests)
+    if (range && (isVideoRequest || contentType.startsWith('video/') || contentType.startsWith('audio/'))) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      // Chunk limit of 3MB per chunk to ensure fast buffering without memory spikes
+      const maxChunk = 3 * 1024 * 1024;
+      const end = parts[1]
+        ? parseInt(parts[1], 10)
+        : Math.min(start + maxChunk - 1, fileSize - 1);
+
+      if (isNaN(start) || start >= fileSize || end >= fileSize || start > end) {
+        return new NextResponse('Requested range not satisfiable', {
+          status: 416,
+          headers: {
+            'Content-Range': `bytes */${fileSize}`,
+          },
+        });
+      }
+
+      const chunkLength = end - start + 1;
+      const nodeStream = fs.createReadStream(filePath, { start, end });
+      const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
+
+      return new NextResponse(webStream, {
+        status: 206,
+        headers: {
+          'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunkLength.toString(),
+          'Content-Type': contentType,
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+    }
+
+    // For videos requested without range: stream with Accept-Ranges
+    if (isVideoRequest || contentType.startsWith('video/')) {
+      const nodeStream = fs.createReadStream(filePath);
+      const webStream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
+      return new NextResponse(webStream, {
+        headers: {
+          'Content-Type': contentType,
+          'Content-Length': fileSize.toString(),
+          'Accept-Ranges': 'bytes',
+          'Cache-Control': 'public, max-age=31536000, immutable',
+          'Access-Control-Allow-Origin': '*',
+        },
+      });
+    }
+
+    // For static images and other assets: read and return
     const fileBuffer = fs.readFileSync(filePath);
 
     return new NextResponse(fileBuffer, {
       headers: {
         'Content-Type': contentType,
-        'Content-Length': stat.size.toString(),
+        'Content-Length': fileSize.toString(),
+        'Accept-Ranges': 'bytes',
         'Cache-Control': 'public, max-age=31536000, immutable',
         'Access-Control-Allow-Origin': '*',
       },

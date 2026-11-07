@@ -195,8 +195,19 @@ export default function BackstageDirectorView({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: idx * 0.05 }}
-              onMouseEnter={() => setHoveredItemId(item.id)}
-              onMouseLeave={() => setHoveredItemId(null)}
+              onMouseEnter={(e) => {
+                setHoveredItemId(item.id);
+                const v = e.currentTarget.querySelector('video');
+                if (v) v.play().catch(() => {});
+              }}
+              onMouseLeave={(e) => {
+                setHoveredItemId(null);
+                const v = e.currentTarget.querySelector('video');
+                if (v) {
+                  v.pause();
+                  v.currentTime = 0;
+                }
+              }}
               className="group relative flex flex-col"
             >
               {/* Director's Field Monitor Bezel & Chassis */}
@@ -223,24 +234,29 @@ export default function BackstageDirectorView({
 
                 {/* 9:16 Portrait Screen Viewfinder */}
                 <div className="relative aspect-[9/16] w-full rounded-2xl overflow-hidden bg-black border border-white/10 shadow-inner">
-                  {/* Video or Poster */}
+                  {/* Poster Image (always mounted as layer) */}
+                  <img
+                    src={item.cover_image || '/images/urumsima3.webp'}
+                    alt={item.title}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="lazy"
+                  />
+
+                  {/* Video (if available) placed on top of poster */}
                   {item.cover_video ? (
                     <video
                       src={item.cover_video}
-                      poster={item.cover_image}
+                      poster={item.cover_image || '/images/urumsima3.webp'}
                       muted
                       loop
                       playsInline
-                      autoPlay={isHovered}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      preload="metadata"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
                     />
-                  ) : (
-                    <img
-                      src={item.cover_image}
-                      alt={item.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  )}
+                  ) : null}
 
                   {/* Dark Vignette Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/60 pointer-events-none" />
@@ -399,18 +415,37 @@ export default function BackstageDirectorView({
               {/* Video Player Column (9:16 Portrait Monitor) */}
               <div className="relative w-full lg:w-1/2 bg-black flex items-center justify-center overflow-hidden min-h-[380px] sm:min-h-[500px]">
                 {activeModalItem.cover_video ? (
-                  <video
-                    src={activeModalItem.cover_video}
-                    poster={activeModalItem.cover_image}
-                    controls
-                    autoPlay
-                    playsInline
-                    className="w-full h-full max-h-[80vh] object-contain"
-                  />
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    <video
+                      key={activeModalItem.cover_video}
+                      src={activeModalItem.cover_video}
+                      poster={activeModalItem.cover_image || '/images/urumsima3.webp'}
+                      controls
+                      autoPlay
+                      playsInline
+                      preload="metadata"
+                      className="w-full h-full max-h-[80vh] object-contain relative z-10"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        const fallbackBox = e.currentTarget.parentElement?.querySelector('.modal-fallback-box') as HTMLElement | null;
+                        if (fallbackBox) fallbackBox.style.display = 'flex';
+                      }}
+                    />
+                    <div className="modal-fallback-box absolute inset-0 hidden flex-col items-center justify-center p-6 text-center z-0 bg-dark-card/90">
+                      <img
+                        src={activeModalItem.cover_image || '/images/urumsima3.webp'}
+                        alt={activeModalItem.title}
+                        className="max-h-[60vh] object-contain rounded-xl mb-3 opacity-80"
+                      />
+                      <div className="px-3.5 py-1 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs">
+                        ویدیو در حال پردازش یا بارگذاری است
+                      </div>
+                    </div>
+                  </div>
                 ) : activeModalItem.cover_image ? (
                   <div className="relative w-full h-full flex items-center justify-center">
                     <img
-                      src={activeModalItem.cover_image}
+                      src={activeModalItem.cover_image || '/images/urumsima3.webp'}
                       alt={activeModalItem.title}
                       className="w-full h-full object-contain max-h-[80vh]"
                     />

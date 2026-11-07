@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { getCurrentAdmin } from '@/lib/auth';
 import path from 'path';
 import fs from 'fs/promises';
+import fsSync from 'fs';
 
 /**
- * Safely removes a file from public/media/uploads if the path is valid and within bounds.
+ * Safely removes a file from public/media/uploads and /var/www/urumsima/media/uploads if present.
  */
 async function safelyDeleteUploadedFile(fileUrl: string): Promise<boolean> {
   if (!fileUrl || typeof fileUrl !== 'string') return false;
@@ -20,25 +21,29 @@ async function safelyDeleteUploadedFile(fileUrl: string): Promise<boolean> {
     return false;
   }
 
-  // Prevent directory traversal
-  const targetPath = path.resolve(process.cwd(), 'public', normalized);
-  const baseUploadsDir = path.resolve(process.cwd(), 'public', 'media', 'uploads');
+  const relativeSubpath = normalized.replace(/^media\/uploads\//, '');
+  let anyDeleted = false;
 
-  if (!targetPath.startsWith(baseUploadsDir)) {
-    console.warn('Rejected attempt to delete outside uploads dir:', targetPath);
-    return false;
-  }
-
+  // 1. Delete from Next.js public directory
   try {
-    await fs.unlink(targetPath);
-    console.log(`Cleaned up previous uploaded file: ${targetPath}`);
-    return true;
-  } catch (err: any) {
-    if (err.code !== 'ENOENT') {
-      console.warn(`Failed to delete previous file ${targetPath}:`, err.message);
+    const targetPath = path.resolve(process.cwd(), 'public', normalized);
+    const baseUploadsDir = path.resolve(process.cwd(), 'public', 'media', 'uploads');
+    if (targetPath.startsWith(baseUploadsDir)) {
+      await fs.unlink(targetPath);
+      anyDeleted = true;
     }
-    return false;
-  }
+  } catch (_) {}
+
+  // 2. Delete from production server Django media dir if exists
+  try {
+    const prodTarget = path.resolve('/var/www/urumsima/media/uploads', relativeSubpath);
+    if (prodTarget.startsWith('/var/www/urumsima/media/uploads')) {
+      await fs.unlink(prodTarget);
+      anyDeleted = true;
+    }
+  } catch (_) {}
+
+  return anyDeleted;
 }
 
 export async function POST(request: Request) {
@@ -68,6 +73,7 @@ export async function POST(request: Request) {
       'video/mp4',
       'video/webm',
       'video/quicktime',
+      'video/x-matroska',
     ];
     if (!validTypes.includes(file.type)) {
       return NextResponse.json(
@@ -129,10 +135,22 @@ export async function POST(request: Request) {
       .replace(/[^a-zA-Z0-9_-]/g, '_')
       .slice(0, 30);
     const uniqueSuffix = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const filename = `${originalBase || 'img'}_${uniqueSuffix}${finalExt}`;
+    const filename = `${originalBase || (isVideo ? 'video' : 'img')}_${uniqueSuffix}${finalExt}`;
     const filePath = path.join(uploadDir, filename);
 
+    // Write to Next.js local uploads
     await fs.writeFile(filePath, finalBuffer);
+
+    // Mirror to production server Django media dir if running on host where /var/www/urumsima exists
+    try {
+      if (fsSync.existsSync('/var/www/urumsima/media')) {
+        const prodDir = path.join('/var/www/urumsima/media/uploads', safeFolder);
+        await fs.mkdir(prodDir, { recursive: true });
+        await fs.writeFile(path.join(prodDir, filename), finalBuffer);
+      }
+    } catch (mirrorErr) {
+      console.warn('Mirroring to /var/www/urumsima/media/uploads failed (normal in dev):', mirrorErr);
+    }
 
     const publicUrl = `/media/uploads/${safeFolder}/${filename}`;
 
@@ -153,7 +171,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Upload API error:', error);
     return NextResponse.json(
-      { error: error.message || 'خطایی در پردازش و ذخیره تصویر رخ داد.' },
+      { error: error.message || 'خطایی در پردازش و ذخیره فایل رخ داد.' },
       { status: 500 }
     );
   }

@@ -1115,14 +1115,30 @@ export async function getLiveBackstageItems(): Promise<BackstageItem[]> {
 }
 
 export async function getLiveBackstageBySlug(slug: string): Promise<BackstageItem | null> {
+  if (!slug) return null;
   const all = await getLiveBackstageItems();
-  const decoded = decodeURIComponent(slug).toLowerCase().trim();
+  let decoded = slug.toLowerCase().trim();
+  try {
+    decoded = decodeURIComponent(slug).toLowerCase().trim();
+  } catch (_) {}
+  const raw = slug.toLowerCase().trim();
+
   return (
-    all.find(
-      (b) =>
-        b.slug.toLowerCase().trim() === decoded ||
-        encodeURIComponent(b.slug).toLowerCase() === decoded
-    ) || null
+    all.find((b) => {
+      const itemSlug = (b.slug || '').toLowerCase().trim();
+      let itemSlugDecoded = itemSlug;
+      try {
+        itemSlugDecoded = decodeURIComponent(itemSlug).toLowerCase().trim();
+      } catch (_) {}
+
+      return (
+        itemSlug === decoded ||
+        itemSlug === raw ||
+        itemSlugDecoded === decoded ||
+        encodeURIComponent(itemSlug).toLowerCase() === raw ||
+        encodeURIComponent(itemSlug).toLowerCase() === decoded
+      );
+    }) || null
   );
 }
 

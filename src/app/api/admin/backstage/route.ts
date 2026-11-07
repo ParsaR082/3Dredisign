@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getCurrentAdmin } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
@@ -67,7 +68,7 @@ export async function POST(request: Request) {
       subtitle = '',
       excerpt = '',
       body: itemBody = '',
-      cover_image = '/images/placeholder.jpg',
+      cover_image = '/images/urumsima3.webp',
       cover_video = '',
       embed_url = '',
       location = 'استودیو اروم سیما',
@@ -93,6 +94,9 @@ export async function POST(request: Request) {
           is_active: true,
         },
       });
+      try {
+        revalidatePath('/backstage');
+      } catch (_) {}
       return NextResponse.json({ success: true, category: newCategory });
     }
 
@@ -101,6 +105,7 @@ export async function POST(request: Request) {
     }
 
     const now = new Date();
+    const cleanSlug = slug.trim().toLowerCase().replace(/\s+/g, '-');
 
     let finalCatId: number | null = category_id ? Number(category_id) : null;
     if (finalCatId) {
@@ -111,28 +116,33 @@ export async function POST(request: Request) {
     const newItem = await prisma.backstageBackstageitem.create({
       data: {
         title,
-        slug: slug.trim().toLowerCase().replace(/\s+/g, '-'),
-        subtitle,
-        excerpt,
-        body: itemBody || excerpt || subtitle,
-        cover_image: cover_image || '/images/placeholder.jpg',
+        slug: cleanSlug,
+        subtitle: subtitle || '',
+        excerpt: excerpt || '',
+        body: itemBody || excerpt || subtitle || '',
+        cover_image: cover_image || '/images/urumsima3.webp',
         cover_video: cover_video || null,
         embed_url: embed_url || '',
-        location,
-        duration_label,
-        status,
+        location: location || 'ارومیه',
+        duration_label: duration_label || '۰۰:۴۵ | 4K 60fps',
+        status: status || 'published',
         is_featured: Boolean(is_featured),
         order: Number(order) || 1,
         created_at: now,
         updated_at: now,
         published_at: now,
         meta_title: title,
-        meta_description: excerpt.slice(0, 300),
-        canonical_url: `https://urumsima.ir/backstage/${slug}/`,
+        meta_description: (excerpt || title).slice(0, 300),
+        canonical_url: `https://urumsima.ir/backstage/${cleanSlug}/`,
         meta_robots: 'index, follow',
         category_id: finalCatId,
       },
     });
+
+    try {
+      revalidatePath('/backstage');
+      revalidatePath(`/backstage/${cleanSlug}`);
+    } catch (_) {}
 
     return NextResponse.json({ success: true, item: newItem });
   } catch (error: any) {
@@ -172,18 +182,19 @@ export async function PUT(request: Request) {
     }
 
     const now = new Date();
+    const cleanSlug = slug ? slug.trim().toLowerCase().replace(/\s+/g, '-') : undefined;
 
     const updated = await prisma.backstageBackstageitem.update({
       where: { id: Number(id) },
       data: {
         ...(title !== undefined && { title }),
-        ...(slug !== undefined && { slug }),
+        ...(cleanSlug !== undefined && { slug: cleanSlug, canonical_url: `https://urumsima.ir/backstage/${cleanSlug}/` }),
         ...(subtitle !== undefined && { subtitle }),
         ...(excerpt !== undefined && { excerpt }),
         ...(itemBody !== undefined && { body: itemBody }),
-        ...(cover_image !== undefined && { cover_image }),
+        ...(cover_image !== undefined && { cover_image: cover_image || '/images/urumsima3.webp' }),
         ...(cover_video !== undefined && { cover_video: cover_video || null }),
-        ...(embed_url !== undefined && { embed_url }),
+        ...(embed_url !== undefined && { embed_url: embed_url || '' }),
         ...(location !== undefined && { location }),
         ...(duration_label !== undefined && { duration_label }),
         ...(status !== undefined && { status }),
@@ -193,6 +204,11 @@ export async function PUT(request: Request) {
         updated_at: now,
       },
     });
+
+    try {
+      revalidatePath('/backstage');
+      if (cleanSlug) revalidatePath(`/backstage/${cleanSlug}`);
+    } catch (_) {}
 
     return NextResponse.json({ success: true, item: updated });
   } catch (error: any) {
@@ -220,12 +236,24 @@ export async function DELETE(request: Request) {
       await prisma.backstageBackstagecategory.delete({
         where: { id: Number(id) },
       });
+      try {
+        revalidatePath('/backstage');
+      } catch (_) {}
       return NextResponse.json({ success: true, message: 'دسته‌بندی پشت صحنه با موفقیت حذف شد.' });
     }
+
+    const item = await prisma.backstageBackstageitem.findUnique({
+      where: { id: Number(id) },
+    });
 
     await prisma.backstageBackstageitem.delete({
       where: { id: Number(id) },
     });
+
+    try {
+      revalidatePath('/backstage');
+      if (item?.slug) revalidatePath(`/backstage/${item.slug}`);
+    } catch (_) {}
 
     return NextResponse.json({ success: true, message: 'آیتم پشت صحنه با موفقیت حذف شد.' });
   } catch (error: any) {

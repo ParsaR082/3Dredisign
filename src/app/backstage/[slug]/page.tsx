@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { Film, Play, MapPin, Clock, Calendar, ChevronRight, Share2, Sparkles, ArrowLeft } from 'lucide-react';
 import { generatePageMetadata, generateVideoJsonLd } from '@/lib/seo';
 import { getLiveBackstageItems, getLiveBackstageBySlug } from '@/lib/db';
+import BackstageVideoPlayer from '@/components/backstage/BackstageVideoPlayer';
 import {
   MotionDiv,
   StaggerContainer,
@@ -16,6 +17,8 @@ interface BackstagePageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
@@ -27,7 +30,11 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: BackstagePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const item = await getLiveBackstageBySlug(slug);
+  let decodedSlug = slug;
+  try {
+    decodedSlug = decodeURIComponent(slug);
+  } catch (_) {}
+  const item = (await getLiveBackstageBySlug(decodedSlug)) || (await getLiveBackstageBySlug(slug));
   if (!item) {
     return generatePageMetadata({
       title: 'پشت‌صحنه | اروم سیما',
@@ -38,13 +45,17 @@ export async function generateMetadata({ params }: BackstagePageProps): Promise<
   return generatePageMetadata({
     title: `${item.title} | پشت‌صحنه اروم سیما`,
     description: item.excerpt || item.subtitle || item.title,
-    path: `/backstage/${item.slug}/`,
+    path: `/backstage/${encodeURIComponent(item.slug)}/`,
   });
 }
 
 export default async function BackstageDetailPage({ params }: BackstagePageProps) {
   const { slug } = await params;
-  const item = await getLiveBackstageBySlug(slug);
+  let decodedSlug = slug;
+  try {
+    decodedSlug = decodeURIComponent(slug);
+  } catch (_) {}
+  const item = (await getLiveBackstageBySlug(decodedSlug)) || (await getLiveBackstageBySlug(slug));
 
   if (!item) {
     notFound();
@@ -117,31 +128,11 @@ export default async function BackstageDetailPage({ params }: BackstagePageProps
         delay={0.1}
         className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 bg-gradient-to-b from-[#16171e] via-[#0d0e12] to-black min-h-[420px] sm:min-h-[600px] max-h-[82vh] flex items-center justify-center shadow-2xl p-2 sm:p-4"
       >
-        <div className="relative w-full h-full max-h-[78vh] flex items-center justify-center rounded-2xl overflow-hidden bg-black">
-          {item.cover_video ? (
-            <video
-              src={item.cover_video}
-              poster={item.cover_image}
-              controls
-              autoPlay
-              playsInline
-              className="w-full h-full max-h-[75vh] object-contain"
-            />
-          ) : (
-            <div className="relative w-full h-full max-h-[75vh] flex items-center justify-center group">
-              <img
-                src={item.cover_image}
-                alt={item.title}
-                className="w-full h-full max-h-[75vh] object-contain group-hover:scale-102 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 flex flex-col items-center justify-end p-6 text-center text-white">
-                <div className="px-4 py-2 rounded-2xl bg-black/75 border border-white/10 text-xs text-gray-200 backdrop-blur-md">
-                  پخش مستقیم اختصاصی در وبسایت اروم‌سیما
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        <BackstageVideoPlayer
+          src={item.cover_video}
+          poster={item.cover_image}
+          title={item.title}
+        />
       </MotionDiv>
 
       {/* Main Narrative Article */}

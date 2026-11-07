@@ -143,7 +143,15 @@ export default function BackstageTab({
         body: data,
       });
 
-      const json = await res.json();
+      let json: any = {};
+      try {
+        json = await res.json();
+      } catch {
+        if (res.status === 413) {
+          throw new Error('حجم فایل بیشتر از سقف مجاز وب‌سرور (Nginx) است (خطای 413). لطفاً حجم ویدیو را به زیر ۵۰ مگابایت کاهش دهید.');
+        }
+        throw new Error(`خطای سرور (${res.status}). امکان ذخیره ویدیو وجود ندارد.`);
+      }
       if (!res.ok) throw new Error(json.error || 'خطا در آپلود ویدیو');
 
       setFormData((prev) => ({
@@ -594,17 +602,28 @@ export default function BackstageTab({
                 </div>
 
                 {formData.cover_video && (
-                  <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs text-emerald-300">
-                    <span className="font-mono text-[11px] truncate max-w-[350px]">
-                      {formData.cover_video}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setFormData({ ...formData, cover_video: '' })}
-                      className="text-rose-400 hover:text-rose-300 text-[11px] font-bold"
-                    >
-                      حذف ویدیو
-                    </button>
+                  <div className="space-y-2">
+                    <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs text-emerald-300">
+                      <span className="font-mono text-[11px] truncate max-w-[350px]">
+                        {formData.cover_video}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, cover_video: '' })}
+                        className="text-rose-400 hover:text-rose-300 text-[11px] font-bold"
+                      >
+                        حذف ویدیو
+                      </button>
+                    </div>
+                    <div className="relative aspect-[9/16] max-h-48 rounded-xl overflow-hidden bg-black border border-white/10 mx-auto flex items-center justify-center">
+                      <video
+                        src={formData.cover_video}
+                        controls
+                        muted
+                        playsInline
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
                   </div>
                 )}
               </div>
