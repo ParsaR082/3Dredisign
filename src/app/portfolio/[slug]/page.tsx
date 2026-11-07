@@ -397,10 +397,7 @@ export default async function ProjectDetailPage({ params }: Props) {
               <StaggerContainer className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
                 {project.gallery.map((img) => (
                   <StaggerItem key={img.id}>
-                    <div
-                      data-cursor="view"
-                      className="group relative rounded-xl sm:rounded-2xl overflow-hidden glass-panel border border-white/10 aspect-[4/3] bg-dark-card shadow-lg"
-                    >
+                    <div className="group relative rounded-xl sm:rounded-2xl overflow-hidden glass-panel border border-white/10 aspect-[4/3] bg-dark-card shadow-lg">
                       <ImageReveal
                         src={img.image}
                         alt={img.caption || project.title}

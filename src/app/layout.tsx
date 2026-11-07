@@ -34,7 +34,6 @@ export const metadata: Metadata = {
 };
 
 import { SmoothScroll } from '@/components/ui/SmoothScroll';
-import { CustomCursor } from '@/components/ui/CustomCursor';
 import MainContentWrapper from '@/components/layout/MainContentWrapper';
 
 export default async function RootLayout({
@@ -98,7 +97,6 @@ export default async function RootLayout({
       <body className="min-h-screen bg-dark-base text-gray-100 flex flex-col font-sans selection:bg-brand-600 selection:text-white antialiased">
         <Navbar settings={settings} services={services} />
         <SmoothScroll>
-          <CustomCursor />
           <MainContentWrapper>{children}</MainContentWrapper>
           <Footer settings={settings} services={services} />
         </SmoothScroll>

@@ -244,10 +244,7 @@ export default function PortfolioView({
           {featuredProjects.map((project) => (
             <StaggerItem key={project.id} className="h-full">
               <TiltCard maxTilt={6} glare className="h-full">
-                <div
-                  data-cursor="view"
-                  className="rounded-3xl glass-panel-dock overflow-hidden flex flex-col h-full border border-white/10 hover:border-brand-500/40 transition-all duration-300 group shadow-2xl"
-                >
+                <div className="rounded-3xl glass-panel-dock overflow-hidden flex flex-col h-full border border-white/10 hover:border-brand-500/40 transition-all duration-300 group shadow-2xl">
                   {/* Spotlight Image Wrapper */}
                   <div className="relative aspect-[16/9] w-full overflow-hidden bg-dark-base shrink-0">
                     <img
@@ -420,10 +417,7 @@ export default function PortfolioView({
                   className="h-full"
                 >
                   <TiltCard maxTilt={5} glare className="h-full">
-                    <div
-                      data-cursor="view"
-                      className="rounded-2xl sm:rounded-3xl glass-panel-dock overflow-hidden flex flex-col h-full border border-white/5 hover:border-brand-500/30 transition-all duration-300 group shadow-lg"
-                    >
+                    <div className="rounded-2xl sm:rounded-3xl glass-panel-dock overflow-hidden flex flex-col h-full border border-white/5 hover:border-brand-500/30 transition-all duration-300 group shadow-lg">
                       {/* Image Thumbnail */}
                       <div className="relative aspect-[16/10] w-full overflow-hidden bg-dark-base shrink-0">
                         <img

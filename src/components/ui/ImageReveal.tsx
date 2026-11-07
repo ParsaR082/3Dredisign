@@ -47,7 +47,6 @@ export function ImageReveal({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={`relative overflow-hidden rounded-2xl ${aspectRatio} group select-none cursor-pointer ${className}`}
-      data-cursor="view"
     >
       {/* Primary Image */}
       <motion.img
