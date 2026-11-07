@@ -40,9 +40,11 @@ export default function PricingView({ initialSettings, initialPlans }: PricingVi
         <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white leading-tight">
           {settings.hero_title}
         </h1>
-        <p className="text-gray-400 text-xs sm:text-base leading-relaxed">
-          {settings.hero_description}
-        </p>
+        {settings.hero_description && !settings.hero_description.includes('جنگو') && (
+          <p className="text-gray-400 text-xs sm:text-base leading-relaxed">
+            {settings.hero_description}
+          </p>
+        )}
 
         {/* Billing Toggle with layoutId animated pill */}
         <div className="pt-4 sm:pt-6 flex items-center justify-center">

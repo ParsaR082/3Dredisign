@@ -1255,13 +1255,23 @@ export async function getLivePricing(): Promise<{ settings: PricingSettings; pla
 
     const fallback = pricingFallback as { settings: PricingSettings; plans: PricingPlan[] };
 
+    const rawHeroDesc = dbSettings?.hero_description || fallback.settings.hero_description;
+    const cleanHeroDesc = (!rawHeroDesc || rawHeroDesc.includes('جنگو') || rawHeroDesc.includes('دیتابیس'))
+      ? 'سرمایه‌گذاری شفاف و هدفمند متناسب با اهداف رشد کسب‌وکار شما؛ همراه با برنامه‌ریزی اختصاصی و پشتیبانی همه‌جانبه.'
+      : rawHeroDesc;
+
+    const rawSubtitle = dbSettings?.plans_section_subtitle || fallback.settings.plans_section_subtitle;
+    const cleanSubtitle = (!rawSubtitle || rawSubtitle.includes('سرور-ساید'))
+      ? 'انتخاب دوره پرداخت ماهانه یا سالانه همراه با تخفیف‌های ویژه سازمانی.'
+      : rawSubtitle;
+
     const settings: PricingSettings = {
       meta_title: dbSettings?.meta_title || fallback.settings.meta_title,
       meta_description: dbSettings?.meta_description || fallback.settings.meta_description,
       canonical_url: '/pricing/',
       hero_badge: dbSettings?.hero_badge || fallback.settings.hero_badge,
       hero_title: dbSettings?.hero_title || fallback.settings.hero_title,
-      hero_description: dbSettings?.hero_description || fallback.settings.hero_description,
+      hero_description: cleanHeroDesc,
       stat_1_value: dbSettings?.stat_1_value || fallback.settings.stat_1_value,
       stat_1_label: dbSettings?.stat_1_label || fallback.settings.stat_1_label,
       stat_2_value: dbSettings?.stat_2_value || fallback.settings.stat_2_value,
@@ -1269,7 +1279,7 @@ export async function getLivePricing(): Promise<{ settings: PricingSettings; pla
       stat_3_value: dbSettings?.stat_3_value || fallback.settings.stat_3_value,
       stat_3_label: dbSettings?.stat_3_label || fallback.settings.stat_3_label,
       plans_section_title: dbSettings?.plans_section_title || fallback.settings.plans_section_title,
-      plans_section_subtitle: dbSettings?.plans_section_subtitle || fallback.settings.plans_section_subtitle,
+      plans_section_subtitle: cleanSubtitle,
     };
 
     if (!dbPlans || dbPlans.length === 0) {

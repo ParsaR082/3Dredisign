@@ -210,7 +210,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           {/* Sidebar Footer info */}
           <div className="p-3 rounded-xl bg-white/5 border border-white/5 text-[11px] text-gray-400 space-y-1 mt-2">
             <div className="text-white font-bold">اروم سیما - سوپر پنل</div>
-            <div className="text-gray-500 text-[10px]">همگام با دیتابیس جنگو (۱۱ ماژول)</div>
+            <div className="text-gray-500 text-[10px]">همگام با دیتابیس اروم‌سیما (۱۱ ماژول)</div>
           </div>
         </aside>
 
