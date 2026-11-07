@@ -1310,41 +1310,46 @@ export default function ProjectsTab({ projects, onRefresh }: ProjectsTabProps) {
                     folder="portfolio"
                   />
 
-                  {/* 3 Mockup Inputs */}
-                  <div className="pt-2 border-t border-white/5 space-y-3">
-                    <h4 className="font-bold text-white text-xs">موکاپ‌های سه‌گانه اختصاصی (دسکتاپ، تبلت، موبایل)</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="space-y-1.5">
-                        <label className="text-gray-400 text-[11px] block">موکاپ دسکتاپ</label>
-                        <input
-                          type="text"
-                          dir="ltr"
-                          placeholder="portfolio/mockups/desktop/..."
+                  {/* 3 Mockup Direct Upload Components */}
+                  <div className="pt-3 border-t border-white/5 space-y-4">
+                    <div>
+                      <h4 className="font-bold text-white text-xs flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+                        <span>موکاپ‌های سه‌گانه اختصاصی (دسکتاپ، تبلت، موبایل)</span>
+                      </h4>
+                      <p className="text-[11px] text-gray-400 mt-0.5">
+                        فایل‌های موکاپ را مستقیماً از سیستم آپلود کنید تا به طور خودکار بهینه‌سازی و ذخیره شوند (امکان درج دستی لینک نیز فراهم است).
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
+                        <ImageUpload
+                          label="موکاپ دسکتاپ (Desktop Mockup)"
                           value={formData.desktop_mockup}
-                          onChange={(e) => setFormData({ ...formData, desktop_mockup: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-dark-surface border border-white/10 text-white text-[11px] font-mono text-left"
+                          onChange={(url) => setFormData({ ...formData, desktop_mockup: url })}
+                          folder="portfolio"
+                          hint="پیش‌نمایش افقی پروژه در دسکتاپ و لپ‌تاپ (۱۶:۹)"
                         />
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-gray-400 text-[11px] block">موکاپ تبلت</label>
-                        <input
-                          type="text"
-                          dir="ltr"
-                          placeholder="portfolio/mockups/tablet/..."
+
+                      <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
+                        <ImageUpload
+                          label="موکاپ تبلت (Tablet Mockup)"
                           value={formData.tablet_mockup}
-                          onChange={(e) => setFormData({ ...formData, tablet_mockup: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-dark-surface border border-white/10 text-white text-[11px] font-mono text-left"
+                          onChange={(url) => setFormData({ ...formData, tablet_mockup: url })}
+                          folder="portfolio"
+                          hint="پیش‌نمایش تبلت و آیپد (۴:۳ یا عمودی)"
                         />
                       </div>
-                      <div className="space-y-1.5">
-                        <label className="text-gray-400 text-[11px] block">موکاپ موبایل</label>
-                        <input
-                          type="text"
-                          dir="ltr"
-                          placeholder="portfolio/mockups/mobile/..."
+
+                      <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 space-y-2">
+                        <ImageUpload
+                          label="موکاپ موبایل (Mobile Mockup)"
                           value={formData.mobile_mockup}
-                          onChange={(e) => setFormData({ ...formData, mobile_mockup: e.target.value })}
-                          className="w-full px-3 py-2 rounded-xl bg-dark-surface border border-white/10 text-white text-[11px] font-mono text-left"
+                          onChange={(url) => setFormData({ ...formData, mobile_mockup: url })}
+                          folder="portfolio"
+                          hint="پیش‌نمایش عمودی در گوشی موبایل (۹:۱۶)"
                         />
                       </div>
                     </div>
