@@ -111,7 +111,7 @@ export default function PricingSection({ title, subtitle, desc, plans }: Pricing
 
               {/* Package Select CTA */}
               <Link
-                href="/contact/"
+                href="/contact-us/"
                 className={`pr-cta w-full py-3.5 rounded-full text-xs font-bold text-center transition-all duration-300 ${
                   plan.is_popular
                     ? 'solid bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-lg shadow-emerald-600/30 hover:scale-105'

@@ -60,6 +60,11 @@ const nextConfig: NextConfig = {
         destination: '/billboard-urmia/',
         permanent: true,
       },
+      {
+        source: '/portfolio/map/',
+        destination: '/portfolio/projects-map/',
+        permanent: true,
+      },
     ];
   },
 };

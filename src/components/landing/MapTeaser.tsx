@@ -158,7 +158,7 @@ export default function MapTeaser({ projectsCount, projects = [] }: MapTeaserPro
           </p>
 
           <Link
-            href="/portfolio/map/"
+            href="/portfolio/projects-map/"
             className="pmap-teaser__btn inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-l from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-bold shadow-lg shadow-emerald-600/30 transition-all duration-300 hover:scale-105"
           >
             <span>مشاهده نقشه کامل پروژه‌ها</span>

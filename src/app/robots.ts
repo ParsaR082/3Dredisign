@@ -30,10 +30,17 @@ export default function robots(): MetadataRoute.Robots {
           'WhatsApp',
           'TelegramBot',
         ],
-        allow: '/',
+        allow: [
+          '/',
+          '/images/',
+          '/media/',
+          '/fonts/',
+        ],
         disallow: [
           '/api/',
           '/admin/',
+          '/_next/',
+          '/tools/health-check/',
         ],
       },
       {

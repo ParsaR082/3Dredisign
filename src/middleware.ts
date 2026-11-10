@@ -11,16 +11,23 @@ import type { NextRequest } from 'next/server';
  */
 export function middleware(request: NextRequest) {
   const host = request.headers.get('host') || '';
-  const proto = request.headers.get('x-forwarded-proto') || request.nextUrl.protocol.replace(':', '');
+  const forwardedProto = request.headers.get('x-forwarded-proto');
+  const forwardedSsl = request.headers.get('x-forwarded-ssl');
+  const forwardedScheme = request.headers.get('x-forwarded-scheme');
+  const arvanScheme = request.headers.get('arvan-scheme') || request.headers.get('x-arvan-proto');
+  
+  const proto = forwardedProto || forwardedScheme || arvanScheme || request.nextUrl.protocol.replace(':', '');
   const pathname = request.nextUrl.pathname;
   const search = request.nextUrl.search;
 
-  const isWww = host.startsWith('www.urumsima.ir');
-  const isHttp = proto === 'http' && !host.includes('localhost') && !host.includes('127.0.0.1');
+  const isWww = host.toLowerCase().startsWith('www.');
+  const isLocal = host.includes('localhost') || host.includes('127.0.0.1') || host.includes('192.168.');
+  const isHttp = (proto === 'http' || forwardedSsl === 'off') && !isLocal;
 
   // If accessed via www or insecure http on the live domain, 301 Permanent Redirect to canonical https://urumsima.ir
   if (isWww || (isHttp && host.includes('urumsima.ir'))) {
-    const canonicalUrl = new URL(`https://urumsima.ir${pathname}${search}`);
+    const canonicalHost = 'urumsima.ir';
+    const canonicalUrl = new URL(`https://${canonicalHost}${pathname}${search}`);
     return NextResponse.redirect(canonicalUrl, 301);
   }
 
